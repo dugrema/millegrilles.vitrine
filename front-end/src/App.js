@@ -52,11 +52,11 @@ class App extends React.Component {
     )
 
     return (
-      <div className="App">
-        <h1>Vitrine sur la MilleGrille XXXX</h1>
-        {nav}
-        {content}
-      </div>
+        <div className="App">
+          <h1>Vitrine sur la MilleGrille XXXX</h1>
+          {nav}
+          {content}
+        </div>
     );
   }
 

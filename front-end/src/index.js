@@ -3,6 +3,13 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router'
+
+let container = (
+  <Router basename={'/vitrine'}>
+    <App />
+  </Router>
+)
 
 ReactDOM.render(<App />, document.getElementById('root'));
 

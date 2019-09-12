@@ -37,7 +37,7 @@ const config = {
 
 // WebSocket application
 
-const wss_server = io({path: '/vitrine'});
+const wss_server = io({path: '/vitrine_wss'});
 const vitrineWss = new WebSocketVitrineApp(wss_server);
 
 const server = Spdy.createServer(config, app).listen(port, () => {
