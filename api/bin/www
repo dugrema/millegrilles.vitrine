@@ -24,7 +24,6 @@ const nomMilleGrille = process.env.MG_NOM_MILLEGRILLE;
 
 app.set('port', port);
 
-
 /**
  * Create SPDY/http2 server.
  */
