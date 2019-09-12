@@ -18,7 +18,7 @@ traiter_fichier_react() {
   # celui qui est genere sur une workstation de developpement.
 
   ARCH=`uname -m`
-  rm -f coupdoeil_react.*.tar.gz
+  rm -f vitrine_react.*.tar.gz
 
   if [ $ARCH == 'x86_64' ] || [ -z $URL_SERVEUR_DEV ]; then
     echo "Architecture $ARCH (ou URL serveur DEV non inclus), on fait un nouveau build React"
