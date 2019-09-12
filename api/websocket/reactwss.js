@@ -58,6 +58,11 @@ class EtatDocumentsDomaines {
 
 class SenseursPassifsDocuments {
 
+  constructor() {
+    this.senseurs = {};
+    this.noeuds = {};
+  }
+
   initialiser() {
     // Effectuer les requetes et conserver localement les resultats
     var routingRequeteSenseursPassifs = 'requete.millegrilles.domaines.SenseursPassifs';
@@ -85,7 +90,23 @@ class SenseursPassifsDocuments {
     console.debug("Reponse requete initiale");
     let messageContent = reponse.content.toString('utf-8');
     let json_message = JSON.parse(messageContent);
-    console.debug(json_message);
+    // console.debug(json_message);
+
+    let requeteNoeuds = json_message.resultats[0];
+    let requeteSenseurs = json_message.resultats[1];
+
+    for(let idx in requeteNoeuds) {
+      let noeud = requeteNoeuds[idx];
+      this.noeuds[noeud.noeud] = noeud;
+      // console.debug(noeud);
+    }
+
+    for(let idx in requeteSenseurs) {
+      let senseur = requeteSenseurs[idx];
+      this.senseurs[senseur.noeud + '@' + senseur.senseur] = senseur;
+      // console.debug(senseur);
+    }
+
   }
 
 }
