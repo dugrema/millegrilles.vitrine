@@ -12,6 +12,7 @@ const Path = require('path');
 const Spdy = require('spdy');
 const io = require('socket.io');
 const rabbitMQ = require('../util/rabbitMQ')
+const {WebSocketVitrineApp} = require('../websocket/reactwss')
 
 /**
  * Get port from environment and store in Express.
@@ -34,12 +35,15 @@ const config = {
     key: FS.readFileSync(key_path)
 };
 
+// WebSocket application
+const vitrineWss = new WebSocketVitrineApp();
+
 const wss_server = io();
 const server = Spdy.createServer(config, app).listen(port, () => {
   wss_server.listen(server);
   wss_server.on('connection', (socket) => {
     console.info("Connexion WSS id: " + socket.id + ", remoteAddress: " + socket.conn.remoteAddress);
-    websocketsapp.addSocket(socket);
+    vitrineWss.addSocket(socket);
   });
 
   console.log('Server is listening at https://localhost:' + port + '. Ctrl^C to stop it.');
