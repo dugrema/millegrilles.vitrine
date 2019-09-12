@@ -38,7 +38,10 @@ export class VitrineWebSocketHandler {
     // Enregistre les evenements sur le socket
     this.socket.on('disconnect', this.deconnexion);
     this.socket.on('reconnect', this.reconnecter);
-    // this.socket.on('mq_message', this.callback);
+  }
+
+  enregistrerCallback(key, callback) {
+    this.socket.on(key, callback);
   }
 
 }

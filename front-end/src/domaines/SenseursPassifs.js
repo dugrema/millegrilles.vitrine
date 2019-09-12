@@ -15,6 +15,9 @@ export class SenseursPassifsVitrine extends React.Component {
     this.webSocketHandler.connecter();
 
     // this.props.webSocketHandler.chargerDomaine(nomDomaine, reponse=>this.setDocuments(reponse));
+
+    this.webSocketHandler.enregistrerCallback('messageMq', this.messageMq);
+    this.webSocketHandler.enregistrerCallback('documents', this.documentsMq);
   }
 
   componentWillUnmount() {
@@ -29,6 +32,11 @@ export class SenseursPassifsVitrine extends React.Component {
 
   messageMq(message) {
     console.debug("Message MQ recu dans SenseursPassifs:");
+    console.debug(message);
+  }
+
+  documentsMq(message) {
+    console.debug("Documents MQ");
     console.debug(message);
   }
 

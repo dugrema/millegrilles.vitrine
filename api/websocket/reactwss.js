@@ -115,8 +115,8 @@ class SenseursPassifsDomaine {
     })
   }
 
-  _serialiser(event, cb) {
-    cb({noeuds: this.noeuds, senseurs: this.senseurs});
+  _serialiser() {
+    return {noeuds: this.noeuds, senseurs: this.senseurs};
   }
 
   _enregistrerEvenements(server) {
