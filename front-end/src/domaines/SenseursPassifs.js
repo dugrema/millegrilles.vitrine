@@ -1,22 +1,25 @@
 import React from 'react';
 
-const routingKeys = [
-  'noeuds.source.millegrilles_domaines_SenseursPassifs.documents.noeud.individuel',
-  'noeuds.source.millegrilles_domaines_SenseursPassifs.documents.senseur.individuel',
-];
+const nomDomaine = 'senseursPassifs';
 
 export class SenseursPassifsVitrine extends React.Component {
 
   state = {
-
+    senseurs: null,
+    noeuds: null,
   }
 
   componentDidMount() {
-    this.props.webSocketHandler.subscribe(routingKeys);
+    this.props.webSocketHandler.chargerDomaine(nomDomaine, reponse=>this.setDocuments(reponse));
   }
 
   componentWillUnmount() {
-    this.props.webSocketHandler.unsubscribe(routingKeys);
+  }
+
+  setDocuments(event) {
+    console.debug("Documents recus");
+    console.debug(event);
+    this.setState(event);
   }
 
   messageMq(event) {

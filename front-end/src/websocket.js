@@ -36,35 +36,40 @@ export class VitrineWebSocketHandler {
     this.socket.emit('subscribe', {routingKeys});
   }
 
-  subscribe(routingKeys, callback) {
-    // Transmet une liste de routingKeys a enregistrer sur notre Q.
-    console.debug("Ajout routingKeys:");
-    console.debug(routingKeys);
-    this.socket.emit('subscribe', {routingKeys});
-
-    for(var key_id in routingKeys) {
-      let routingKey = routingKeys[key_id];
-
-      var dictCallback = this.routingKeyCallbacks[routingKey];
-      if(!dictCallback) {
-        this.routingKeyCallbacks[routingKey] = callback;
-      } else {
-        console.warn("Changement de callback pour " + routingKey);
-        this.routingKeyCallbacks[routingKey] = callback;
-      }
-    }
+  chargerDomaine(domaine, cb) {
+    console.debug("Changement domaine vers " + domaine);
+    this.socket.emit('chargerDomaine', {domaine}, cb);
   }
 
-  unsubscribe(routingKeys, callback) {
-    // Transmet une liste de routingKeys a retirer de la Q cote serveur.
-    this.socket.emit('unsubscribe', {routingKeys});
-
-    for(var key_id in routingKeys) {
-      let routingKey = routingKeys[key_id];
-      delete this.routingKeyCallbacks[routingKey];
-    }
-
-  }
+  // subscribe(routingKeys, callback) {
+  //   // Transmet une liste de routingKeys a enregistrer sur notre Q.
+  //   console.debug("Ajout routingKeys:");
+  //   console.debug(routingKeys);
+  //   this.socket.emit('subscribe', {routingKeys});
+  //
+  //   for(var key_id in routingKeys) {
+  //     let routingKey = routingKeys[key_id];
+  //
+  //     var dictCallback = this.routingKeyCallbacks[routingKey];
+  //     if(!dictCallback) {
+  //       this.routingKeyCallbacks[routingKey] = callback;
+  //     } else {
+  //       console.warn("Changement de callback pour " + routingKey);
+  //       this.routingKeyCallbacks[routingKey] = callback;
+  //     }
+  //   }
+  // }
+  //
+  // unsubscribe(routingKeys, callback) {
+  //   // Transmet une liste de routingKeys a retirer de la Q cote serveur.
+  //   this.socket.emit('unsubscribe', {routingKeys});
+  //
+  //   for(var key_id in routingKeys) {
+  //     let routingKey = routingKeys[key_id];
+  //     delete this.routingKeyCallbacks[routingKey];
+  //   }
+  //
+  // }
 
 }
 

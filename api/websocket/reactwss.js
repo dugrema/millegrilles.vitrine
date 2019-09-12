@@ -12,11 +12,15 @@ class WebSocketVitrineApp {
     this.etatDocumentsDomaines.initialiser();  // Lancer requete pour chargement initial
   }
 
+  getDocumentsDomaine(domaine) {
+    return this.etatDocumentsDomaines.getDocumentsDomaine(domaine);
+  }
+
   addSocket(socket) {
     // Ajoute un socket d'une nouvelle connexion
     // console.debug("Nouveau socket!");
     if(!socket.disconnected) {
-      let socketResources = new WebSocketResources(socket);
+      let socketResources = new WebSocketResources(socket, this.etatDocumentsDomaines);
 
       // S'assure que le socket n'a pas ete deconnecte avant d'ajouter
       // l'evenement de gestion du disconnect
@@ -47,20 +51,36 @@ class WebSocketVitrineApp {
 class EtatDocumentsDomaines {
 
   constructor() {
-    this.senseursPassifsDocuments = new SenseursPassifsDocuments();
+    this.documents = {
+      senseursPassifs: new SenseursPassifsDocuments(),
+    }
+
+    this.getDocumentsDomaine = this.getDocumentsDomaine.bind(this);
   }
 
   initialiser() {
-    this.senseursPassifsDocuments.initialiser();
+    for(let domaine in this.documents) {
+      this.documents[domaine].initialiser();
+    }
+  }
+
+  getDocumentsDomaine(domaine) {
+    return this.documents[domaine];
   }
 
 }
 
 class SenseursPassifsDocuments {
+  // Structure pour les senseurs passifs (copie du domaine, public)
 
   constructor() {
     this.senseurs = {};
     this.noeuds = {};
+
+    this.routingKeys = {
+      'noeuds.source.millegrilles_domaines_SenseursPassifs.documents.noeud.individuel': true,
+      'noeuds.source.millegrilles_domaines_SenseursPassifs.documents.senseur.individuel': true,
+    };
   }
 
   initialiser() {
@@ -71,11 +91,13 @@ class SenseursPassifsDocuments {
         {
           'filtre': {
             '_mg-libelle': 'noeud.individuel',
+            // 'securite': '1.public',
           }
         },
         {
           'filtre': {
             '_mg-libelle': 'senseur.individuel',
+            // 'securite': '1.public',
           }
         },
        ]};
@@ -84,6 +106,10 @@ class SenseursPassifsDocuments {
     .then(reponse=>{
       this._chargementInitial(reponse);
     })
+  }
+
+  serialiser() {
+    return {noeuds: this.noeuds, senseurs: this.senseurs};
   }
 
   _chargementInitial(reponse) {
@@ -113,46 +139,32 @@ class SenseursPassifsDocuments {
 
 class WebSocketResources {
 
-  constructor(socket) {
+  constructor(socket, etatDocumentsDomaines) {
     this.socket = socket;
-    this.subscriptions = {};  // Cle de message ecoute par ce socket
+    this.etatDocumentsDomaines = etatDocumentsDomaines;
+
+    this.domaineCourant = null;
+    this.etatDocumentCourant = null;
 
     this._enregistrerEvenements();
 
     // Bind this
-    this.subscribe = this.subscribe.bind(this);
-    this.unsubscribe = this.unsubscribe.bind(this);
-    this.resetSubscriptions = this.resetSubscriptions.bind(this);
-  }
-
-  subscribe(event) {
-    console.debug("Subscribe");
-    console.debug(event);
-    for(let idx in event.routingKeys) {
-      let routingKey = event.routingKeys[idx];
-      this.subscriptions[routingKey] = true;
-    }
-  }
-
-  unsubscribe(event) {
-    console.debug("Unsubscribe");
-    console.debug(event);
-    for(let idx in event.routingKeys) {
-      let routingKey = event.routingKeys[idx];
-      if(this.subscriptions[routingKey]) {
-        delete this.subscriptions[routingKey];
-      }
-    }
-  }
-
-  resetSubscriptions(event) {
-    this.subscriptions = {};
+    this._chargerDomaine = this._chargerDomaine.bind(this);
   }
 
   _enregistrerEvenements() {
-    this.socket.on('subscribe', event=>this.subscribe(event));
-    this.socket.on('unsubscribe', event=>this.unsubscribe(event));
-    this.socket.on('resetSubscriptions', event=>this.resetSubscriptions(event));
+    this.socket.on('chargerDomaine', (event, cb)=>this._chargerDomaine(event, cb));
+  }
+
+  _chargerDomaine(event, cb) {
+    console.debug("ChargerDomaine");
+    console.debug(event);
+    this.domaineCourant = event.domaine;
+    this.etatDocumentCourant = this.etatDocumentsDomaines.getDocumentsDomaine(this.domaineCourant);
+
+    // Tranamettre resultat via callback
+    let documentsDomaine = this.etatDocumentCourant.serialiser();
+    cb(documentsDomaine);
   }
 
   close() {
