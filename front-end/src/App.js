@@ -2,25 +2,58 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import {SenseursPassifsVitrine} from './domaines/SenseursPassifs';
+
+class App extends React.Component {
+
+  state = {
+    domaine: null,
+  }
+
+  domaines = {
+    SenseursPassifs: SenseursPassifsVitrine
+  }
+
+  afficherAccueil = event => {
+    this.setState({domaine: null});
+  }
+
+  changerDomaine = event => {
+    this.setState({domaine: event.currentTarget.value});
+  }
+
+  render() {
+
+    let content;
+    if(this.state.domaine) {
+      const DomaineElement = this.domaines[this.state.domaine];
+      content = (<DomaineElement />);
+    } else {
+      content = (
+        <p>Choisir un domaine</p>
+      );
+    }
+
+    let nav = (
+      <nav>
+        <div>
+          <div>
+            <button className="aslink" onClick={this.afficherAccueil} value="">Accueil</button>
+            <button className="aslink" onClick={this.changerDomaine} value="SenseursPassifs">Senseurs Passifs</button>
+          </div>
+        </div>
+      </nav>
+    )
+
+    return (
+      <div className="App">
+        <h1>Vitrine sur la MilleGrille XXXX</h1>
+        {nav}
+        {content}
+      </div>
+    );
+  }
+
 }
 
 export default App;
