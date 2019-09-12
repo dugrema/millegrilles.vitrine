@@ -30,19 +30,70 @@ export class SenseursPassifsVitrine extends React.Component {
     this.setState(event);
   }
 
-  messageMq(message) {
+  messageMq = message => {
     console.debug("Message MQ recu dans SenseursPassifs:");
     console.debug(message);
   }
 
-  documentsMq(message) {
+  documentsMq = message => {
     console.debug("Documents MQ");
-    console.debug(message);
+    // console.debug(message);
+    this.setState({senseurs: message.senseurs, noeuds: message.noeuds});
   }
 
   render() {
     return (
-      <div>Vitrine sur SenseursPassifs</div>
+      <div>
+        <div>Vitrine sur SenseursPassifs</div>
+
+        <AfficherListeNoeuds
+          noeuds={this.state.noeuds}
+          />
+      </div>
+    );
+  }
+
+}
+
+class AfficherListeNoeuds extends React.Component {
+
+  afficherNoeud(noeud) {
+
+    let listeSenseurs = [];
+    for(let noSenseur in noeud.dict_senseurs) {
+      let senseur = noeud.dict_senseurs[noSenseur];
+      console.debug(senseur);
+      listeSenseurs.push(
+        <div key={senseur.senseur + '@' + noeud.noeud}>
+          {senseur.senseur}:
+          {senseur.location}
+          {senseur.temperature}
+          {senseur.humidite}
+          {senseur.pression}
+          {senseur.millivolt}
+        </div>
+      );
+    }
+
+    return (
+      <div key={noeud.noeud}>
+        {listeSenseurs}
+      </div>
+    );
+
+  }
+
+  render() {
+    let noeudsRender = [];
+    for(let noeudNom in this.props.noeuds) {
+      console.debug("Noeud: " + noeudNom);
+      let noeud = this.props.noeuds[noeudNom];
+      let contenuNoeud = this.afficherNoeud(noeud);
+      noeudsRender.push(contenuNoeud);
+    }
+
+    return (
+      <div>{noeudsRender}</div>
     );
   }
 
