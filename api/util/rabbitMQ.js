@@ -388,6 +388,7 @@ class RoutingKeyManager {
     //   cle: string (routing key sur RabbitMQ)
     //   valeur: dict de socket ids / socket
     this.registeredRoutingKeysForSockets = {};
+    this.registeredRoutingKeysForNamespaces = {};
   }
 
   setWebSocketsManager(manager) {
@@ -415,6 +416,21 @@ class RoutingKeyManager {
     }
   }
 
+  addRoutingKeyForNamespace(namespace, routingKeys) {
+    for(var routingKey_idx in routingKeys) {
+      let routingKeyName = routingKeys[routingKey_idx];
+      // Ajouter la routing key
+      this.mq.channel.bindQueue(this.mq.reply_q.queue, 'millegrilles.noeuds', routingKeyName);
+
+      var socket_list = this.registeredRoutingKeysForNamespaces[routingKeyName];
+      if(!socket_list) {
+        socket_list = [];
+        this.registeredRoutingKeysForNamespaces[routingKeyName] = socket_list;
+      }
+      socket_list.push(namespace);
+    }
+  }
+
   removeRoutingKeysForSocket(socket, routingKeys) {
     // console.debug("Enlever routingKeys du socket " + socket.id);
     // console.debug(routingKeys);
@@ -427,11 +443,21 @@ class RoutingKeyManager {
   }
 
   emitMessage(routingKey, message) {
+    // let messageContent = decodeURIComponent(escape(message.content));
+    let json_message = JSON.parse(message);
+
+    // Emettre sur namespaces (specifiques au domaine)
+    let listeNamespaces = this.registeredRoutingKeysForNamespaces[routingKey];
+    for(let idx in listeNamespaces) {
+      let namespace = listeNamespaces[idx];
+      console.debug("Emission vers namespace  " + namespace.name + " pour " + routingKey);
+      // console.debug(namespace);
+      namespace.emit('mq_message', {routingKey, message: json_message});
+    }
+
     // Transmet un message aux subscribers appropries
     var dictSockets = this.registeredRoutingKeysForSockets[routingKey];
-    if(dictSockets) {
-      // let messageContent = decodeURIComponent(escape(message.content));
-      let json_message = JSON.parse(message);
+    if(dictSockets && this.websocketsManager) {
 
       let cleanupSockets = [];
       for(var socketId in dictSockets) {

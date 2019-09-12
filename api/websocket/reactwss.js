@@ -89,7 +89,7 @@ class SenseursPassifsDomaine {
 
   initialiser(server) {
     this._enregistrerEvenements(server);
-    rabbitMQ.routingKeyManager.addRoutingKeysForSocket(this.wssConnexion, Object.keys(this.routingKeys));
+    rabbitMQ.routingKeyManager.addRoutingKeyForNamespace(this.wssConnexion, Object.keys(this.routingKeys));
 
     // Effectuer les requetes et conserver localement les resultats
     var routingRequeteSenseursPassifs = 'requete.millegrilles.domaines.SenseursPassifs';
@@ -120,10 +120,10 @@ class SenseursPassifsDomaine {
   }
 
   _enregistrerEvenements(server) {
-    this.wssConnexion = server;
     let namespace = '/senseursPassifs';
+    this.wssConnexion = server.of(namespace);
     console.debug("Initialisation namespace " + namespace);
-    server.of(namespace).on('connection', socket=>{
+    this.wssConnexion.on('connection', socket=>{
       console.debug("Connexion sur " + namespace);
       socket.emit('documents', this._serialiser());
     })
@@ -155,7 +155,6 @@ class SenseursPassifsDomaine {
   _recevoirMessageMQ(message) {
     console.debug("Message MQ SenseursPassifs");
     console.debug(message.content.toString('utf-8'));
-
   }
 
 }

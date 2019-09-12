@@ -16,7 +16,7 @@ export class SenseursPassifsVitrine extends React.Component {
 
     // this.props.webSocketHandler.chargerDomaine(nomDomaine, reponse=>this.setDocuments(reponse));
 
-    this.webSocketHandler.enregistrerCallback('messageMq', this.messageMq);
+    this.webSocketHandler.enregistrerCallback('mq_message', this.messageMq);
     this.webSocketHandler.enregistrerCallback('documents', this.documentsMq);
   }
 
@@ -25,8 +25,8 @@ export class SenseursPassifsVitrine extends React.Component {
   }
 
   setDocuments(event) {
-    console.debug("Documents recus");
-    console.debug(event);
+    // console.debug("Documents recus");
+    // console.debug(event);
     this.setState(event);
   }
 
@@ -62,7 +62,7 @@ class AfficherListeNoeuds extends React.Component {
     let listeSenseurs = [];
     for(let noSenseur in noeud.dict_senseurs) {
       let senseur = noeud.dict_senseurs[noSenseur];
-      console.debug(senseur);
+      // console.debug(senseur);
       listeSenseurs.push(
         <div key={senseur.senseur + '@' + noeud.noeud}>
           {senseur.senseur}:
@@ -86,7 +86,7 @@ class AfficherListeNoeuds extends React.Component {
   render() {
     let noeudsRender = [];
     for(let noeudNom in this.props.noeuds) {
-      console.debug("Noeud: " + noeudNom);
+      // console.debug("Noeud: " + noeudNom);
       let noeud = this.props.noeuds[noeudNom];
       let contenuNoeud = this.afficherNoeud(noeud);
       noeudsRender.push(contenuNoeud);
