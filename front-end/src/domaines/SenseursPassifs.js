@@ -33,6 +33,18 @@ export class SenseursPassifsVitrine extends React.Component {
   messageMq = message => {
     console.debug("Message MQ recu dans SenseursPassifs:");
     console.debug(message);
+
+    if(message.routingKey === 'noeuds.source.millegrilles_domaines_SenseursPassifs.documents.noeud.individuel') {
+      let noeud = message.message;
+      let noeuds = {...this.state.noeuds};
+      noeuds[noeud.noeud] = noeud;
+      this.setState({noeuds: noeuds});
+    } else if(message.routingKey === 'noeuds.source.millegrilles_domaines_SenseursPassifs.documents.senseur.individuel') {
+      let senseur = message.message;
+      let senseurs = {...this.state.senseurs};
+      senseurs[senseur.senseur+'@'+senseur.noeud] = senseur;
+      this.setState({senseurs: senseurs});
+    }
   }
 
   documentsMq = message => {
