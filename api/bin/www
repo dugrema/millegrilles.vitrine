@@ -4,30 +4,51 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('api:server');
-var http = require('http');
+const app = require('../app');
+const debug = require('debug')('api:server');
+// var http = require('http');
+const FS = require("fs");
+const Path = require('path');
+const Spdy = require('spdy');
+const io = require('socket.io');
+const rabbitMQ = require('../util/rabbitMQ')
 
 /**
  * Get port from environment and store in Express.
  */
+const port = normalizePort(process.env.PORT || '443');
+const hostIp = process.env.HOST || 'dev2.maple.mdugre.info';
+const key_path = process.env.PRIVKEY;
+const cert_path = process.env.CERT;
+const nomMilleGrille = process.env.MG_NOM_MILLEGRILLE;
 
-var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
-/**
- * Create HTTP server.
- */
-
-var server = http.createServer(app);
 
 /**
- * Listen on provided port, on all network interfaces.
+ * Create SPDY/http2 server.
  */
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+const config = {
+    hostIp: hostIp,
+    cert: FS.readFileSync(cert_path),
+    key: FS.readFileSync(key_path)
+};
+
+const wss_server = io();
+const server = Spdy.createServer(config, app).listen(port, () => {
+  wss_server.listen(server);
+  wss_server.on('connection', (socket) => {
+    console.info("Connexion WSS id: " + socket.id + ", remoteAddress: " + socket.conn.remoteAddress);
+    websocketsapp.addSocket(socket);
+  });
+
+  console.log('Server is listening at https://localhost:' + port + '. Ctrl^C to stop it.');
+});
+
+// Connexion a RabbitMQ
+let mqConnectionUrl = process.env.MG_MQ_URL || 'amqps://mq:5673/' + nomMilleGrille;
+rabbitMQ.connect(mqConnectionUrl);
 
 /**
  * Normalize a port into a number, string, or false.
