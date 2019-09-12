@@ -77,11 +77,11 @@ class RabbitMQWrapper {
         console.log("Transmission certificat " + fingerprint);
 
         let messageJSONStr = JSON.stringify(messageCertificat);
-        let promise = this._publish(
+        this._publish(
           'pki.certificat.' + fingerprint, messageJSONStr
         );
         console.log("Certificat transmis");
-        return promise;
+        // return promise;
       }).catch(err => {
         this.connection = null;
         console.error("Erreur connexion RabbitMQ");

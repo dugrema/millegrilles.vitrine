@@ -1,4 +1,5 @@
 import React from 'react';
+import {VitrineWebSocketHandler} from '../websocket';
 
 const nomDomaine = 'senseursPassifs';
 
@@ -10,10 +11,14 @@ export class SenseursPassifsVitrine extends React.Component {
   }
 
   componentDidMount() {
-    this.props.webSocketHandler.chargerDomaine(nomDomaine, reponse=>this.setDocuments(reponse));
+    this.webSocketHandler = new VitrineWebSocketHandler(nomDomaine, this.messageMq);
+    this.webSocketHandler.connecter();
+
+    // this.props.webSocketHandler.chargerDomaine(nomDomaine, reponse=>this.setDocuments(reponse));
   }
 
   componentWillUnmount() {
+    this.webSocketHandler.deconnecter();
   }
 
   setDocuments(event) {
@@ -22,9 +27,9 @@ export class SenseursPassifsVitrine extends React.Component {
     this.setState(event);
   }
 
-  messageMq(event) {
+  messageMq(message) {
     console.debug("Message MQ recu dans SenseursPassifs:");
-    console.debug(event);
+    console.debug(message);
   }
 
   render() {

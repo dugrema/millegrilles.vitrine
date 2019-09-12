@@ -2,7 +2,6 @@ import React from 'react';
 import './App.css';
 
 import {SenseursPassifsVitrine} from './domaines/SenseursPassifs';
-import {VitrineWebSocketHandler} from './websocket.js';
 
 class App extends React.Component {
 
@@ -25,8 +24,6 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.webSocketHandler = new VitrineWebSocketHandler();
-    this.webSocketHandler.connecter();
   }
 
   render() {
@@ -35,8 +32,7 @@ class App extends React.Component {
     if(this.state.domaine) {
       const DomaineElement = this.domaines[this.state.domaine];
       content = (
-        <DomaineElement
-          webSocketHandler={this.webSocketHandler}/>
+        <DomaineElement />
       );
     } else {
       content = (

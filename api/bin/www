@@ -36,16 +36,12 @@ const config = {
 };
 
 // WebSocket application
-const vitrineWss = new WebSocketVitrineApp();
 
-const wss_server = io();
+const wss_server = io({path: '/vitrine'});
+const vitrineWss = new WebSocketVitrineApp(wss_server);
+
 const server = Spdy.createServer(config, app).listen(port, () => {
   wss_server.listen(server);
-  wss_server.on('connection', (socket) => {
-    console.info("Connexion WSS id: " + socket.id + ", remoteAddress: " + socket.conn.remoteAddress);
-    vitrineWss.addSocket(socket);
-  });
-
   console.log('Server is listening at https://localhost:' + port + '. Ctrl^C to stop it.');
 });
 
@@ -53,7 +49,7 @@ const server = Spdy.createServer(config, app).listen(port, () => {
 let mqConnectionUrl = process.env.MG_MQ_URL || 'amqps://mq:5673/' + nomMilleGrille;
 rabbitMQ.connect(mqConnectionUrl)
 .then(()=>{
-  vitrineWss.initialiserDocuments();
+  vitrineWss.initialiserDomaines();
 })
 .catch(err=>{
   console.error("Erreur initialisation documents domaines");
