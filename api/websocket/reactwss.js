@@ -89,7 +89,7 @@ class SenseursPassifsDomaine {
 
   initialiser(server) {
     this._enregistrerEvenements(server);
-    rabbitMQ.routingKeyManager.addRoutingKeyForNamespace(this.wssConnexion, Object.keys(this.routingKeys));
+    rabbitMQ.routingKeyManager.addRoutingKeyForNamespace(this, Object.keys(this.routingKeys));
 
     // Effectuer les requetes et conserver localement les resultats
     var routingRequeteSenseursPassifs = 'requete.millegrilles.domaines.SenseursPassifs';
@@ -113,6 +113,20 @@ class SenseursPassifsDomaine {
     .then(reponse=>{
       this._chargementInitial(reponse);
     })
+  }
+
+  emit(cle, message) {
+    // Emet un message MQ
+    this.wssConnexion.emit(cle, message);
+
+    // Faire l'entretien du document local
+    if(message.routingKey === 'noeuds.source.millegrilles_domaines_SenseursPassifs.documents.senseur.individuel') {
+      let senseur = message.message;
+      this._maj_senseur(senseur);
+    } else if(message.routingKey === 'noeuds.source.millegrilles_domaines_SenseursPassifs.documents.noeud.individuel') {
+      let noeud = message.message;
+      this._maj_noeud(noeud);
+    }
   }
 
   _serialiser() {
@@ -140,16 +154,24 @@ class SenseursPassifsDomaine {
 
     for(let idx in requeteNoeuds) {
       let noeud = requeteNoeuds[idx];
-      this.noeuds[noeud.noeud] = noeud;
+      this._maj_noeud(noeud);
       // console.debug(noeud);
     }
 
     for(let idx in requeteSenseurs) {
       let senseur = requeteSenseurs[idx];
-      this.senseurs[senseur.senseur + '@' + senseur.noeud] = senseur;
+      this._maj_senseur(senseur);
       // console.debug(senseur);
     }
 
+  }
+
+  _maj_noeud(noeud) {
+    this.noeuds[noeud.noeud] = noeud;
+  }
+
+  _maj_senseur(senseur) {
+    this.senseurs[senseur.senseur + '@' + senseur.noeud] = senseur;
   }
 
   _recevoirMessageMQ(message) {

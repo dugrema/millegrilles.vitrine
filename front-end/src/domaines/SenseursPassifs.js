@@ -76,20 +76,35 @@ class AfficherListeNoeuds extends React.Component {
       let senseur = noeud.dict_senseurs[noSenseur];
       // console.debug(senseur);
       listeSenseurs.push(
-        <div key={senseur.senseur + '@' + noeud.noeud}>
-          {senseur.senseur}:
-          {senseur.location}
-          {senseur.temperature}
-          {senseur.humidite}
-          {senseur.pression}
-          {senseur.millivolt}
-        </div>
+        <tr key={senseur.senseur + '@' + noeud.noeud}>
+          <td>{senseur.location}</td>
+          <td>{senseur.temperature}&deg;C</td>
+          <td>{senseur.humidite}%</td>
+          <td>{senseur.pression} kPa</td>
+          <td>{senseur.millivolt} mV</td>
+        </tr>
       );
     }
 
     return (
       <div key={noeud.noeud}>
-        {listeSenseurs}
+        <div>
+          <h2>Noeud {noeud.noeud}</h2>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Location</th>
+              <th>Temperature</th>
+              <th>Humidite</th>
+              <th>Pression</th>
+              <th>Millivolt</th>
+            </tr>
+          </thead>
+          <tbody>
+            {listeSenseurs}
+          </tbody>
+        </table>
       </div>
     );
 
