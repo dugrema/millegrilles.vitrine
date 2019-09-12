@@ -51,7 +51,14 @@ const server = Spdy.createServer(config, app).listen(port, () => {
 
 // Connexion a RabbitMQ
 let mqConnectionUrl = process.env.MG_MQ_URL || 'amqps://mq:5673/' + nomMilleGrille;
-rabbitMQ.connect(mqConnectionUrl);
+rabbitMQ.connect(mqConnectionUrl)
+.then(()=>{
+  vitrineWss.initialiserDocuments();
+})
+.catch(err=>{
+  console.error("Erreur initialisation documents domaines");
+  console.error(err);
+});
 
 /**
  * Normalize a port into a number, string, or false.

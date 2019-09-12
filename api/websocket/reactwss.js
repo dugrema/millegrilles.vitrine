@@ -5,6 +5,11 @@ class WebSocketVitrineApp {
 
   constructor() {
     this.sockets = {}; // Liste des sockets geres par l'application
+    this.etatDocumentsDomaines = new EtatDocumentsDomaines();
+  }
+
+  initialiserDocuments() {
+    this.etatDocumentsDomaines.initialiser();  // Lancer requete pour chargement initial
   }
 
   addSocket(socket) {
@@ -35,6 +40,52 @@ class WebSocketVitrineApp {
     delete this.sockets[socket.id];
 
     console.debug("Nombre sockets ouverts: " + Object.keys(this.sockets).length);
+  }
+
+}
+
+class EtatDocumentsDomaines {
+
+  constructor() {
+    this.senseursPassifsDocuments = new SenseursPassifsDocuments();
+  }
+
+  initialiser() {
+    this.senseursPassifsDocuments.initialiser();
+  }
+
+}
+
+class SenseursPassifsDocuments {
+
+  initialiser() {
+    // Effectuer les requetes et conserver localement les resultats
+    var routingRequeteSenseursPassifs = 'requete.millegrilles.domaines.SenseursPassifs';
+    var requetesSenseursPassifs = {
+      'requetes': [
+        {
+          'filtre': {
+            '_mg-libelle': 'noeud.individuel',
+          }
+        },
+        {
+          'filtre': {
+            '_mg-libelle': 'senseur.individuel',
+          }
+        },
+       ]};
+
+    rabbitMQ.transmettreRequete(routingRequeteSenseursPassifs, requetesSenseursPassifs)
+    .then(reponse=>{
+      this._chargementInitial(reponse);
+    })
+  }
+
+  _chargementInitial(reponse) {
+    console.debug("Reponse requete initiale");
+    let messageContent = reponse.content.toString('utf-8');
+    let json_message = JSON.parse(messageContent);
+    console.debug(json_message);
   }
 
 }

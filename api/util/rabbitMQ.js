@@ -27,7 +27,7 @@ class RabbitMQWrapper {
 
   connect(url) {
     this.url = url;
-    this._connect();
+    return this._connect();
   }
 
   _connect() {
@@ -52,7 +52,7 @@ class RabbitMQWrapper {
       }
       options['credentials'] = amqplib.credentials.external();
 
-      amqplib.connect(this.url, options)
+      return amqplib.connect(this.url, options)
       .then( conn => {
         console.debug("Connexion a RabbitMQ reussie");
         this.connection = conn;
@@ -77,10 +77,11 @@ class RabbitMQWrapper {
         console.log("Transmission certificat " + fingerprint);
 
         let messageJSONStr = JSON.stringify(messageCertificat);
-        this._publish(
+        let promise = this._publish(
           'pki.certificat.' + fingerprint, messageJSONStr
         );
         console.log("Certificat transmis");
+        return promise;
       }).catch(err => {
         this.connection = null;
         console.error("Erreur connexion RabbitMQ");
@@ -148,7 +149,7 @@ class RabbitMQWrapper {
           q.queue,
           (msg) => {
             let correlationId = msg.properties.correlationId;
-            let messageContent = decodeURIComponent(escape(msg.content));
+            let messageContent = msg.content.toString('utf-8');
             let routingKey = msg.fields.routingKey;
 
             if(correlationId) {
@@ -329,7 +330,7 @@ class RabbitMQWrapper {
 
   _publish(routingKey, jsonMessage) {
     // Faire la publication
-    this.channel.publish(
+    let promise = this.channel.publish(
       'millegrilles.noeuds',
       routingKey,
       Buffer.from(jsonMessage),
@@ -341,6 +342,8 @@ class RabbitMQWrapper {
         }
       }
     );
+
+    return promise;
   }
 
   // Retourne un document en fonction d'un domaine
