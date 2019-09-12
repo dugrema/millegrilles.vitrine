@@ -33,6 +33,8 @@ class WebSocketVitrineApp {
     }
 
     delete this.sockets[socket.id];
+
+    console.debug("Nombre sockets ouverts: " + Object.keys(this.sockets).length);
   }
 
 }
@@ -41,9 +43,48 @@ class WebSocketResources {
 
   constructor(socket) {
     this.socket = socket;
+    this.subscriptions = {};  // Cle de message ecoute par ce socket
+
+    this._enregistrerEvenements();
+
+    // Bind this
+    this.subscribe = this.subscribe.bind(this);
+    this.unsubscribe = this.unsubscribe.bind(this);
+    this.resetSubscriptions = this.resetSubscriptions.bind(this);
+  }
+
+  subscribe(event) {
+    console.debug("Subscribe");
+    console.debug(event);
+    for(let idx in event.routingKeys) {
+      let routingKey = event.routingKeys[idx];
+      this.subscriptions[routingKey] = true;
+    }
+  }
+
+  unsubscribe(event) {
+    console.debug("Unsubscribe");
+    console.debug(event);
+    for(let idx in event.routingKeys) {
+      let routingKey = event.routingKeys[idx];
+      if(this.subscriptions[routingKey]) {
+        delete this.subscriptions[routingKey];
+      }
+    }
+  }
+
+  resetSubscriptions(event) {
+    this.subscriptions = {};
+  }
+
+  _enregistrerEvenements() {
+    this.socket.on('subscribe', event=>this.subscribe(event));
+    this.socket.on('unsubscribe', event=>this.unsubscribe(event));
+    this.socket.on('resetSubscriptions', event=>this.resetSubscriptions(event));
   }
 
   close() {
+    console.debug("Deconnexion " + this.socket.id);
   }
 
 }

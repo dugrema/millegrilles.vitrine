@@ -1,5 +1,4 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 
 import {SenseursPassifsVitrine} from './domaines/SenseursPassifs';
@@ -35,7 +34,10 @@ class App extends React.Component {
     let content;
     if(this.state.domaine) {
       const DomaineElement = this.domaines[this.state.domaine];
-      content = (<DomaineElement />);
+      content = (
+        <DomaineElement
+          webSocketHandler={this.webSocketHandler}/>
+      );
     } else {
       content = (
         <p>Choisir un domaine</p>
