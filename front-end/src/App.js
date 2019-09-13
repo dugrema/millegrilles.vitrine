@@ -8,13 +8,14 @@ import {SenseursPassifsVitrine} from './domaines/SenseursPassifs';
 class App extends React.Component {
 
   state = {
-    domaine: null,
+    domaine: 'accueil',
   }
 
   webSocketHandler = null;
 
   domaines = {
-    SenseursPassifs: SenseursPassifsVitrine
+    accueil: Accueil,
+    SenseursPassifs: SenseursPassifsVitrine,
   }
 
   menuActions = {
@@ -37,23 +38,6 @@ class App extends React.Component {
     );
   }
 
-  contenuPageAccueil() {
-    return (
-      <div class="w3-row-padding w3-padding-64 w3-container">
-        <div class="w3-content">
-          <div class="w3-twothird">
-            <h1>Vitrine</h1>
-            <p class="w3-text-grey">Choisir un domaine pour continuer.</p>
-          </div>
-
-          <div class="w3-third w3-center">
-            <i class="fa fa-anchor w3-padding-64 w3-text-red"></i>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   render() {
 
     let content;
@@ -70,13 +54,31 @@ class App extends React.Component {
     return (
         <div className="App">
           <ToggleMenu
-            menuActions={this.menuActions}/>
+            menuActions={this.menuActions}
+            domaine={this.state.domaine} />
           {header}
           {content}
         </div>
     );
   }
 
+}
+
+function Accueil(props) {
+  return (
+    <div class="w3-row-padding w3-padding-64 w3-container">
+      <div class="w3-content">
+        <div class="w3-twothird">
+          <h1>Vitrine</h1>
+          <p class="w3-text-grey">Choisir un domaine dans le menu pour continuer.</p>
+        </div>
+
+        <div class="w3-third w3-center">
+          <i class="fa fa-clone fa-5x w3-padding-64 w3-text-red"></i>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 class ToggleMenu extends PureComponent {
@@ -105,13 +107,30 @@ class ToggleMenu extends PureComponent {
       mobileMenu = (
         <div id="navDemo" class="w3-bar-block w3-white w3-hide w3-hide-large w3-hide-medium w3-large w3-show">
           <button className="w3-bar-item w3-button w3-padding-large"
-            onClick={this.afficherAccueil} value="">Accueil</button>
+            onClick={this.changerDomaine} value="accueil">Accueil</button>
           <button className="w3-bar-item w3-button w3-padding-large"
             onClick={this.changerDomaine} value="SenseursPassifs">Senseurs Passifs</button>
         </div>
       );
     } else {
       mobileMenu = null;
+    }
+
+    let items = {'accueil': 'Accueil', 'SenseursPassifs': 'Senseurs Passifs'};
+    let boutons = [];
+    for(let domaine in items) {
+      let domaineDesc = items[domaine];
+      let className = 'w3-bar-item w3-button w3-padding-large';
+      if(this.props.domaine === domaine) {
+        className += ' w3-white';
+      } else {
+        className += ' w3-hide-small w3-hover-white';
+      }
+      boutons.push(
+        <button key={domaine}
+          className={className}
+          onClick={this.changerDomaine} value={domaine}>{domaineDesc}</button>
+      );
     }
 
     let content = (
@@ -123,13 +142,7 @@ class ToggleMenu extends PureComponent {
             title="Toggle Navigation Menu">
               <i class="fa fa-bars"></i>
           </button>
-          <button
-            className="w3-bar-item w3-button w3-padding-large w3-white"
-            onClick={this.afficherAccueil} value="">Accueil</button>
-          <button
-            className="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white"
-            onClick={this.changerDomaine}
-            value="SenseursPassifs">Senseurs Passifs</button>
+          {boutons}
         </div>
 
         {mobileMenu}
