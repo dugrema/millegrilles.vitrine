@@ -52,8 +52,10 @@ rabbitMQ.connect(mqConnectionUrl)
   vitrineWss.initialiserDomaines();
 })
 .catch(err=>{
-  console.error("Erreur initialisation documents domaines");
+  console.error("Erreur connexion MQ, on initialise les domaines conditionnellement");
   console.error(err);
+
+  vitrineWss.initialiserDomaines(true);
 });
 
 /**

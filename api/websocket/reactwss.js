@@ -9,30 +9,9 @@ class WebSocketVitrineApp {
     this.domaines = new GestionnaireDomaines();
   }
 
-  initialiserDomaines() {
-    this.domaines.initialiser(this.server);  // Lancer requete pour chargement initial
+  initialiserDomaines(modeErreur) {
+    this.domaines.initialiser(this.server, modeErreur);  // Lancer requete pour chargement initial
   }
-
-  // getDocumentsDomaine(domaine) {
-  //   return this.domaines.getDocumentsDomaine(domaine);
-  // }
-  //
-  // addSocket(socket) {
-  //   // Ajoute un socket d'une nouvelle connexion
-  //   // console.debug("Nouveau socket!");
-  //   if(!socket.disconnected) {
-  //     let socketResources = new WebSocketResources(socket, this.etatDocumentsDomaines);
-  //
-  //     // S'assure que le socket n'a pas ete deconnecte avant d'ajouter
-  //     // l'evenement de gestion du disconnect
-  //     socket.on('disconnect', ()=>{
-  //       this.disconnectedHandler(socket);
-  //     });
-  //     this.sockets[socket.id] = socketResources;
-  //     console.debug("Connexion socket " + socket.id);
-  //   }
-  //
-  // }
 
   disconnectedHandler(socket) {
     // console.debug("Socket deconnecte " + socket.id);
@@ -59,12 +38,12 @@ class GestionnaireDomaines {
     this.initialiser = this.initialiser.bind(this);
   }
 
-  initialiser(server) {
-    console.debug("Initialiser domaines");
+  initialiser(server, modeErreur) {
+    console.debug("Initialiser domaines, modeErreur:" + modeErreur);
 
     for(let domaine in this.domaines) {
       console.debug("Initialiser domaine " + domaine);
-      this.domaines[domaine].initialiser(server);
+      this.domaines[domaine].initialiser(server, modeErreur);
     }
   }
 
@@ -90,10 +69,17 @@ class SenseursPassifsDomaine {
     this.initialiser = this.initialiser.bind(this);
   }
 
-  initialiser(server) {
+  initialiser(server, modeErreur) {
     this._enregistrerEvenements(server);
     rabbitMQ.routingKeyManager.addRoutingKeyForNamespace(this, Object.keys(this.routingKeys));
-    this.requeteDocuments();
+    if(!modeErreur) {
+      this.requeteDocuments();
+    } else {
+      // On va attendre avant de charger les documents. Le system est probablement
+      // en initialisation/reboot.
+      console.warn("SenseursPassifs: Attente avant du chargement des documents (60s)");
+      this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, 60000);
+    }
   }
 
   requeteDocuments() {
@@ -115,8 +101,16 @@ class SenseursPassifsDomaine {
         },
        ]};
 
+    if(!this.timerChargement) {
+      this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, 30000);  // Ressayer dans 30 secondes
+    }
     rabbitMQ.transmettreRequete(routingRequeteSenseursPassifs, requetesSenseursPassifs)
     .then(reponse=>{
+      if(this.timerChargement) {
+        clearTimeout(this.timerChargement);
+        this.timerChargement = null;
+      }
+
       this._chargementInitial(reponse);
       if(this.wssConnexion) {
         this.wssConnexion.emit('documents', this._serialiser());
@@ -124,13 +118,11 @@ class SenseursPassifsDomaine {
     })
     .catch(err=>{
       console.info("Erreur chargement, on va ressayer plus tard");
-      if(!this.timerChargement) {
-        setTimeout(()=>{this.rechargerDocuments()}, 15000);  // Ressayer dans 15 secondes
-      }
     })
   }
 
   rechargerDocuments() {
+    console.info("Tentative de rechargement des documents");
     if(this.timerChargement) {
       clearTimeout(this.timerChargement);
       this.timerChargement = null;
@@ -161,7 +153,10 @@ class SenseursPassifsDomaine {
     this.wssConnexion = server.of(namespace);
     console.debug("Initialisation namespace " + namespace);
     this.wssConnexion.on('connection', socket=>{
-      console.debug("Connexion sur " + namespace);
+      console.info('CONNECT_WSS ' + new Date() + ": Connexion sur " + namespace + ' a partir de ' + socket.handshake.address);
+      socket.on('disconnect', ()=>{
+        console.info('DISCONNECT_WSS ' + new Date() + ": Deconnexion de " + namespace + ' a partir de ' + socket.handshake.address);
+      })
       socket.emit('documents', this._serialiser());
     })
   }
@@ -171,6 +166,10 @@ class SenseursPassifsDomaine {
     let messageContent = reponse.content.toString('utf-8');
     let json_message = JSON.parse(messageContent);
     // console.debug(json_message);
+
+    // Reset le contenu en memoire
+    this.noeuds = {};
+    this.senseurs = {};
 
     let requeteNoeuds = json_message.resultats[0];
     let requeteSenseurs = json_message.resultats[1];
@@ -203,47 +202,5 @@ class SenseursPassifsDomaine {
   }
 
 }
-
-// class WebSocketResources {
-//
-//   constructor(socket, etatDocumentsDomaines) {
-//     this.socket = socket;
-//     this.etatDocumentsDomaines = etatDocumentsDomaines;
-//
-//     this.domaineCourant = null;
-//     this.etatDocumentCourant = null;
-//
-//     // this._enregistrerEvenements();
-//     //
-//     // // Bind this
-//     // this._chargerDomaine = this._chargerDomaine.bind(this);
-//   }
-//
-//   // _enregistrerEvenements() {
-//   //   for(let domaine in this.etatDocumentsDomaines.documents) {
-//   //     this.socket
-//   //     .of(domaine)
-//   //     .on('chargerDomaine', domaine.serialiser)
-//   //   }
-//   //
-//   //   //this.socket.on('chargerDomaine', (event, cb)=>this._chargerDomaine(event, cb));
-//   // }
-//
-//   // _chargerDomaine(event, cb) {
-//   //   console.debug("ChargerDomaine");
-//   //   console.debug(event);
-//   //   this.domaineCourant = event.domaine;
-//   //   this.etatDocumentCourant = this.etatDocumentsDomaines.getDocumentsDomaine(this.domaineCourant);
-//   //
-//   //   // Tranamettre resultat via callback
-//   //   let documentsDomaine = this.etatDocumentCourant.serialiser();
-//   //   cb(documentsDomaine);
-//   // }
-//
-//   close() {
-//     console.debug("Deconnexion " + this.socket.id);
-//   }
-//
-// }
 
 module.exports = {WebSocketVitrineApp}

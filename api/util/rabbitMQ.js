@@ -71,6 +71,9 @@ class RabbitMQWrapper {
       }).then(()=>{
         console.log("Connexion et channel prets");
 
+        this.routingKeyManager.enregsitrerApresConnexion();
+        console.log("Routing Keys reassociee a Q");
+
         // Transmettre le certificat
         let messageCertificat = pki.preparerMessageCertificat();
         let fingerprint = messageCertificat.fingerprint;
@@ -81,7 +84,7 @@ class RabbitMQWrapper {
           'pki.certificat.' + fingerprint, messageJSONStr
         );
         console.log("Certificat transmis");
-        // return promise;
+
       }).catch(err => {
         this.connection = null;
         console.error("Erreur connexion RabbitMQ");
@@ -419,15 +422,34 @@ class RoutingKeyManager {
   addRoutingKeyForNamespace(namespace, routingKeys) {
     for(var routingKey_idx in routingKeys) {
       let routingKeyName = routingKeys[routingKey_idx];
-      // Ajouter la routing key
-      this.mq.channel.bindQueue(this.mq.reply_q.queue, 'millegrilles.noeuds', routingKeyName);
-
       var socket_list = this.registeredRoutingKeysForNamespaces[routingKeyName];
       if(!socket_list) {
         socket_list = [];
         this.registeredRoutingKeysForNamespaces[routingKeyName] = socket_list;
       }
       socket_list.push(namespace);
+
+      // Ajouter la routing key
+      try {
+        this.mq.channel.bindQueue(this.mq.reply_q.queue, 'millegrilles.noeuds', routingKeyName);
+      } catch (err) {
+        console.warn("Erreur enregistrement namespace sur routing key " + routingKeyName);
+      }
+    }
+  }
+
+  enregsitrerApresConnexion() {
+    // Permet de re-enregistrer les routingKeys apres une re-connexion a MQ
+    if(this.registeredRoutingKeysForNamespaces) {
+      for(var routingKey in this.registeredRoutingKeysForNamespaces) {
+        this.mq.channel.bindQueue(this.mq.reply_q.queue, 'millegrilles.noeuds', routingKey);
+      }
+    }
+
+    if(this.registeredRoutingKeysForSockets) {
+      for(var routingKey in this.registeredRoutingKeysForSockets) {
+        this.mq.channel.bindQueue(this.mq.reply_q.queue, 'millegrilles.noeuds', routingKey);
+      }
     }
   }
 
