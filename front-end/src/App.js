@@ -31,8 +31,7 @@ class App extends React.Component {
 
   header() {
     return (
-      <header className="w3-container w3-red w3-center">
-        <h1 className="w3-margin w3-jumbo">Vitrine</h1>
+      <header className="App-header w3-container w3-red w3-center">
         <p className="w3-xlarge">MilleGrille XXXX</p>
       </header>
     );
@@ -43,6 +42,7 @@ class App extends React.Component {
       <div class="w3-row-padding w3-padding-64 w3-container">
         <div class="w3-content">
           <div class="w3-twothird">
+            <h1>Vitrine</h1>
             <p class="w3-text-grey">Choisir un domaine pour continuer.</p>
           </div>
 
@@ -104,8 +104,10 @@ class ToggleMenu extends PureComponent {
     if(this.state.show) {
       mobileMenu = (
         <div id="navDemo" class="w3-bar-block w3-white w3-hide w3-hide-large w3-hide-medium w3-large w3-show">
-          <button className="w3-bar-item w3-button w3-padding-large" onClick={this.afficherAccueil} value="">Accueil</button>
-          <button className="w3-bar-item w3-button w3-padding-large" onClick={this.changerDomaine} value="SenseursPassifs">Senseurs Passifs</button>
+          <button className="w3-bar-item w3-button w3-padding-large"
+            onClick={this.afficherAccueil} value="">Accueil</button>
+          <button className="w3-bar-item w3-button w3-padding-large"
+            onClick={this.changerDomaine} value="SenseursPassifs">Senseurs Passifs</button>
         </div>
       );
     } else {
@@ -121,8 +123,13 @@ class ToggleMenu extends PureComponent {
             title="Toggle Navigation Menu">
               <i class="fa fa-bars"></i>
           </button>
-          <button className="w3-bar-item w3-button w3-padding-large w3-white" onClick={this.afficherAccueil} value="">Accueil</button>
-          <button className="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white" onClick={this.changerDomaine} value="SenseursPassifs">Senseurs Passifs</button>
+          <button
+            className="w3-bar-item w3-button w3-padding-large w3-white"
+            onClick={this.afficherAccueil} value="">Accueil</button>
+          <button
+            className="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white"
+            onClick={this.changerDomaine}
+            value="SenseursPassifs">Senseurs Passifs</button>
         </div>
 
         {mobileMenu}
