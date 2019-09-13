@@ -8,13 +8,13 @@ import {SenseursPassifsVitrine} from './domaines/SenseursPassifs';
 class App extends React.Component {
 
   state = {
-    domaine: 'accueil',
+    domaine: 'vitrine',
   }
 
   webSocketHandler = null;
 
   domaines = {
-    accueil: Accueil,
+    vitrine: Accueil,
     SenseursPassifs: SenseursPassifsVitrine,
   }
 
@@ -106,8 +106,9 @@ class ToggleMenu extends PureComponent {
     if(this.state.show) {
       mobileMenu = (
         <div id="navDemo" className="w3-bar-block w3-white w3-hide w3-hide-large w3-hide-medium w3-large w3-show">
+          <a href='/' className="w3-bar-item w3-button w3-padding-large">Accueil</a>
           <button className="w3-bar-item w3-button w3-padding-large"
-            onClick={this.changerDomaine} value="accueil">Accueil</button>
+            onClick={this.changerDomaine} value="vitrine">Vitrine</button>
           <button className="w3-bar-item w3-button w3-padding-large"
             onClick={this.changerDomaine} value="SenseursPassifs">Senseurs Passifs</button>
         </div>
@@ -116,7 +117,7 @@ class ToggleMenu extends PureComponent {
       mobileMenu = null;
     }
 
-    let items = {'accueil': 'Accueil', 'SenseursPassifs': 'Senseurs Passifs'};
+    let items = {'vitrine': 'Vitrine', 'SenseursPassifs': 'Senseurs Passifs'};
     let boutons = [];
     for(var domaine in items) {
       let domaineDesc = items[domaine];
@@ -142,6 +143,8 @@ class ToggleMenu extends PureComponent {
             title="Toggle Navigation Menu">
               <i className="fa fa-bars"></i>
           </button>
+          <a className='w3-bar-item w3-button w3-padding-large w3-hide-small w3-hover-white'
+            href='/'>Accueil</a>
           {boutons}
         </div>
 
