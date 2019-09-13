@@ -3,17 +3,6 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-// import { createBrowserHistory } from 'history';
-import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router'
-
-// export const history = createBrowserHistory({
-//     basename: '/vitrine'
-// });
-let container = (
-  <Router basename={process.env.PUBLIC_URL}>
-    <Route path='/' component={App}/>
-  </Router>
-)
 
 ReactDOM.render(<App/>, document.getElementById('root'));
 
