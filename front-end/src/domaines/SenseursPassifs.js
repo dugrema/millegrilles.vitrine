@@ -167,9 +167,23 @@ class AfficherListeNoeuds extends React.Component {
       noeudsRender.push(contenuNoeud);
     }
 
-    return (
-      <div className="w3-col m12">{noeudsRender}</div>
-    );
+    let content;
+    if(noeudsRender.length > 0) {
+      content = noeudsRender;
+    } else {
+      content = (
+        <div>
+          <h1>Contenu non disponible</h1>
+          <p>
+            Aucun contenu disponible sur le serveur.
+            Il est possible que le système soit en période de redémarrage.
+            Si du contenu devient disponible, il sera affiché immédiatement.
+          </p>
+        </div>
+      );
+    }
+
+    return content;
   }
 
 }
