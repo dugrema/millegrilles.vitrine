@@ -76,6 +76,9 @@ class SenseursPassifsDomaine {
   constructor() {
     this.wssConnexion = null;
 
+    this.dateChargement = null;
+    this.timerChargement = null;
+
     this.senseurs = {};
     this.noeuds = {};
 
@@ -90,7 +93,10 @@ class SenseursPassifsDomaine {
   initialiser(server) {
     this._enregistrerEvenements(server);
     rabbitMQ.routingKeyManager.addRoutingKeyForNamespace(this, Object.keys(this.routingKeys));
+    this.requeteDocuments();
+  }
 
+  requeteDocuments() {
     // Effectuer les requetes et conserver localement les resultats
     var routingRequeteSenseursPassifs = 'requete.millegrilles.domaines.SenseursPassifs';
     var requetesSenseursPassifs = {
@@ -112,7 +118,24 @@ class SenseursPassifsDomaine {
     rabbitMQ.transmettreRequete(routingRequeteSenseursPassifs, requetesSenseursPassifs)
     .then(reponse=>{
       this._chargementInitial(reponse);
+      if(this.wssConnexion) {
+        this.wssConnexion.emit('documents', this._serialiser());
+      }
     })
+    .catch(err=>{
+      console.info("Erreur chargement, on va ressayer plus tard");
+      if(!this.timerChargement) {
+        setTimeout(()=>{this.rechargerDocuments()}, 15000);  // Ressayer dans 15 secondes
+      }
+    })
+  }
+
+  rechargerDocuments() {
+    if(this.timerChargement) {
+      clearTimeout(this.timerChargement);
+      this.timerChargement = null;
+    }
+    this.requeteDocuments();
   }
 
   emit(cle, message) {
