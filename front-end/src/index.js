@@ -3,15 +3,19 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+// import { createBrowserHistory } from 'history';
 import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router'
 
+// export const history = createBrowserHistory({
+//     basename: '/vitrine'
+// });
 let container = (
-  <Router basename={'/vitrine'}>
-    <App />
+  <Router basename={process.env.PUBLIC_URL}>
+    <Route path='/' component={App}/>
   </Router>
 )
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App/>, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
