@@ -17,12 +17,13 @@ class App extends React.Component {
     SenseursPassifs: SenseursPassifsVitrine
   }
 
-  afficherAccueil = event => {
-    this.setState({domaine: null});
-  }
-
-  changerDomaine = event => {
-    this.setState({domaine: event.currentTarget.value});
+  menuActions = {
+    afficherAccueil: event => {
+      this.setState({domaine: null});
+    },
+    changerDomaine: event => {
+      this.setState({domaine: event.currentTarget.value});
+    }
   }
 
   componentDidMount() {
@@ -68,7 +69,8 @@ class App extends React.Component {
     let header = this.header();
     return (
         <div className="App">
-          <ToggleMenu />
+          <ToggleMenu
+            menuActions={this.menuActions}/>
           {header}
           {content}
         </div>
@@ -85,6 +87,16 @@ class ToggleMenu extends PureComponent {
 
   toggleMenu = event => {
     this.setState({show: !this.state.show});
+  }
+
+  afficherAccueil = event => {
+    this.setState({show: false});
+    this.props.menuActions.afficherAccueil(event);
+  }
+
+  changerDomaine = event => {
+    this.setState({show: false});
+    this.props.menuActions.changerDomaine(event);
   }
 
   render() {
