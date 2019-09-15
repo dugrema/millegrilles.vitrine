@@ -66,10 +66,10 @@ class RabbitMQWrapper {
         return conn.createChannel();
       }).then( (ch) => {
         this.channel = ch;
-        console.log("Channel ouvert");
+        console.debug("Channel ouvert");
         return this.ecouter();
       }).then(()=>{
-        console.log("Connexion et channel prets");
+        console.debug("Connexion et channel prets");
 
         this.routingKeyManager.enregsitrerApresConnexion();
         console.log("Routing Keys reassociee a Q");
@@ -77,14 +77,13 @@ class RabbitMQWrapper {
         // Transmettre le certificat
         let messageCertificat = pki.preparerMessageCertificat();
         let fingerprint = messageCertificat.fingerprint;
-        console.log("Transmission certificat " + fingerprint);
+        // console.debug("Transmission certificat " + fingerprint);
 
         let messageJSONStr = JSON.stringify(messageCertificat);
         this._publish(
           'pki.certificat.' + fingerprint, messageJSONStr
         );
-        console.log("Certificat transmis");
-
+        // console.debug("Certificat transmis");
       }).catch(err => {
         this.connection = null;
         console.error("Erreur connexion RabbitMQ");
@@ -144,13 +143,14 @@ class RabbitMQWrapper {
         exclusive: true,
       })
       .then( (q) => {
-        console.log("Queue cree"),
-        console.log(q);
+        console.debug("Queue reponse globale cree"),
+        // console.log(q);
         this.reply_q = q;
 
         this.channel.consume(
           q.queue,
           (msg) => {
+            // console.log('1. Message recu');
             let correlationId = msg.properties.correlationId;
             let messageContent = msg.content.toString('utf-8');
             let routingKey = msg.fields.routingKey;
