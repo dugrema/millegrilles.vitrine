@@ -1,6 +1,6 @@
 import React from 'react';
 import {VitrineWebSocketHandler} from '../websocket';
-import {dateformatter} from '../formatters'
+import {dateformatter, numberformatter} from '../formatters'
 
 import './SenseursPassifs.css';
 const nomDomaine = 'senseursPassifs';
@@ -47,7 +47,7 @@ export class SenseursPassifsVitrine extends React.Component {
       for(var nosenseur in noeud.dict_senseurs) {
         let senseur = noeud.dict_senseurs[nosenseur];
         let id_cle = nosenseur+'@'+noeud_nom;
-        let dateLecture = senseur['temps_lecture'];
+        let dateLecture = senseur['timestamp'];
         if(dateLecture) {
           let dateExpiree = (new Date().getTime()/1000) > dateLecture+120;
           if(dateExpiree) {
@@ -115,25 +115,27 @@ class AfficherListeNoeuds extends React.Component {
         classRow += ' expiree';
       }
 
+      var lectureFormattee = formatterLecture(senseur);
+
       // console.debug(senseur);
       let cleSenseur = noSenseur + '@' + noeud.noeud;
       listeSenseurs.push(
         <div key={cleSenseur} className={classRow}>
-          <div className="w3-col m4 w3-text-blue-grey">{senseur.location}</div>
+          <div className="w3-col m4 w3-text-blue-grey">{lectureFormattee.nomSenseur}</div>
           <div className="w3-col m1 nowrap w3-small temperature">
-            <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Température </span>{senseur.temperature}&deg;C
+            <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Température </span>{lectureFormattee.temperature}
           </div>
           <div className="w3-col m1 nowrap w3-small humidite">
-            <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Humidité </span>{senseur.humidite} %
+            <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Humidité </span>{lectureFormattee.humidite}
           </div>
           <div className="w3-col m2 nowrap w3-small pression">
-            <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Pression </span>{senseur.pression} kPa
+            <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Pression </span>{lectureFormattee.pression}
           </div>
-          <div className="w3-col m1 nowrap w3-small millivolt">
-            <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Millivolt </span>{senseur.millivolt} mV
+          <div className="w3-col m1 nowrap w3-small">
+            {lectureFormattee.batterieIcon}
           </div>
           <div className="w3-col m1 nowrap w3-small date">
-            <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Date</span>{dateformatter.format_datetime(senseur['temps_lecture'])}
+            <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Date</span>{dateformatter.format_datetime(senseur['timestamp'])}
           </div>
         </div>
       );
@@ -149,7 +151,7 @@ class AfficherListeNoeuds extends React.Component {
           <div className="w3-col m1 w3-hide w3-hide-small w3-show w3-show-medium">Tempér.</div>
           <div className="w3-col m1 w3-hide w3-hide-small w3-show w3-show-medium">Humidité</div>
           <div className="w3-col m2 w3-hide w3-hide-small w3-show w3-show-medium">Pression</div>
-          <div className="w3-col m1 w3-hide w3-hide-small w3-show w3-show-medium">Millivolt</div>
+          <div className="w3-col m1 w3-hide w3-hide-small w3-show w3-show-medium">Batterie</div>
           <div className="w3-col m3 w3-hide w3-hide-small w3-show w3-show-medium">Date</div>
         </div>
         {listeSenseurs}
@@ -186,4 +188,53 @@ class AfficherListeNoeuds extends React.Component {
     return content;
   }
 
+}
+
+function getBatterieIcon(documentSenseur) {
+  if(!documentSenseur) return null;
+
+  var batterieIcon = null;
+  if(documentSenseur.bat_reserve > 100) {
+    batterieIcon = (<i className="fa fa-bug"/>);
+  } else if(documentSenseur.bat_reserve === 100) {
+    batterieIcon = (<i className="fa fa-bolt"/>);
+  } else if(documentSenseur.bat_reserve < 100 && documentSenseur.millivolt > 75) {
+    batterieIcon = (<i className="fa fa-battery-full"/>);
+  } else if(documentSenseur.bat_reserve > 50) {
+    batterieIcon = (<i className="fa fa-battery-three-quarters"/>);
+  } else if(documentSenseur.bat_reserve > 20) {
+    batterieIcon = (<i className="fa fa-battery-quarter"/>);
+  } else if(documentSenseur.bat_reserve > 0) {
+    batterieIcon = (<i className="fa fa-battery-empty"/>);
+  } else {
+    batterieIcon = (<i className="fa fa-bug"/>);
+  }
+
+  return batterieIcon;
+}
+
+function formatterLecture(documentSenseur) {
+  let temperature = null, humidite = null, pression = null, timestamp = null;
+  if(documentSenseur.temperature) { temperature = (<span>{numberformatter.format_numberdecimals(documentSenseur.temperature, 1)}&deg;C</span>); }
+  if(documentSenseur.humidite) { humidite = (<span>{documentSenseur.humidite}%</span>); }
+  if(documentSenseur.pression) { pression = (<span>{documentSenseur.pression} kPa</span>); }
+  if(documentSenseur.timestamp) {
+    timestamp = dateformatter.format_monthhour(documentSenseur.timestamp);
+  }
+
+  var bat_mv, bat_reserve;
+  var batterieIcon = getBatterieIcon(documentSenseur);
+  if(documentSenseur.bat_mv) {
+    bat_mv = (<span>{documentSenseur.bat_mv} mV</span>);
+  }
+  if(documentSenseur.bat_reserve) {
+    bat_reserve = (<span>{documentSenseur.bat_reserve}%</span>);
+  }
+
+  var nomSenseur = documentSenseur.location;
+  if(!nomSenseur || nomSenseur === '') {
+    nomSenseur = documentSenseur.uuid_senseur;
+  }
+
+  return {nomSenseur, temperature, humidite, pression, timestamp, batterieIcon, bat_mv, bat_reserve};
 }
