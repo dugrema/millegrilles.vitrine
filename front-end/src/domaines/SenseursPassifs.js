@@ -205,7 +205,7 @@ function getBatterieIcon(documentSenseur) {
   } else if(documentSenseur.bat_reserve > 20) {
     batterieIcon = (<i className="fa fa-battery-quarter"/>);
   } else if(documentSenseur.bat_reserve > 0) {
-    batterieIcon = (<i className="fa fa-battery-empty"/>);
+    batterieIcon = (<i className="fa fa-battery-empty w3-red"/>);
   } else {
     batterieIcon = (<i className="fa fa-bug"/>);
   }
