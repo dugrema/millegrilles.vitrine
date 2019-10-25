@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-CERT_FOLDER=/opt/millegrilles/dev3/pki/deployeur
+CERT_FOLDER=/home/mathieu/mgdev/certs
 export MG_NOM_MILLEGRILLE=dev3
 
-export MG_MQ_CAFILE=$CERT_FOLDER/pki.ca.fullchain.pem
-export MG_MQ_CERTFILE=$CERT_FOLDER/deployeur.cert.pem
-export MG_MQ_KEYFILE=$CERT_FOLDER/deployeur.key.pem
+export MG_MQ_CAFILE=$CERT_FOLDER/pki.ca.root.cert
+export MG_MQ_CERTFILE=$CERT_FOLDER/pki.nginx.fullchain
+export MG_MQ_KEYFILE=$CERT_FOLDER/pki.nginx.key
 export CERT=$MG_MQ_CERTFILE
 export PRIVKEY=$MG_MQ_KEYFILE
 
