@@ -49,7 +49,7 @@ export class SenseursPassifsVitrine extends React.Component {
         let id_cle = nosenseur+'@'+noeud_nom;
         let dateLecture = senseur['timestamp'];
         if(dateLecture) {
-          let dateExpiree = (new Date().getTime()/1000) > dateLecture+120;
+          let dateExpiree = (new Date().getTime()/1000) > dateLecture+300;
           if(dateExpiree) {
             senseurs_expires[id_cle] = true;
           }
@@ -110,7 +110,7 @@ class AfficherListeNoeuds extends React.Component {
     for(var noSenseur in noeud.dict_senseurs) {
       let senseur = noeud.dict_senseurs[noSenseur];
       // Veririer si lecture plus vieille que 2 minutes
-      let classRow = 'w3-card w3-row-padding row-donnees';
+      let classRow = '';
       if(this.props.expiresSurNoeud[noSenseur+'@'+noeud.noeud]) {
         classRow += ' expiree';
       }
@@ -119,39 +119,65 @@ class AfficherListeNoeuds extends React.Component {
 
       // console.debug(senseur);
       let cleSenseur = noSenseur + '@' + noeud.noeud;
+
+      var listeAppareils = [];
+      for(var cleAppareil in senseur.affichage) {
+        var appareil = senseur.affichage[cleAppareil];
+        var lectureFormatteeAppareil = formatterLecture(appareil);
+        if(!lectureFormatteeAppareil.nomSenseur) {
+          lectureFormatteeAppareil.nomSenseur = cleAppareil;
+        }
+        listeAppareils.push(
+          <div key={cleSenseur+cleAppareil} className={'w3-row-padding row-donnees ' + classRow}>
+            <div className="w3-col m4 w3-text-blue-grey">{lectureFormatteeAppareil.nomSenseur}</div>
+            <div className="w3-col m1 nowrap w3-small temperature">
+              <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Température </span>{lectureFormatteeAppareil.temperature}
+            </div>
+            <div className="w3-col m1 nowrap w3-small humidite">
+              <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Humidité </span>{lectureFormatteeAppareil.humidite}
+            </div>
+            <div className="w3-col m2 nowrap w3-small pression">
+              <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Pression </span>{lectureFormatteeAppareil.pression}
+            </div>
+            <div className="w3-col m4 nowrap w3-small date">
+              <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Date</span>{dateformatter.format_datetime(appareil['timestamp'])}
+            </div>
+          </div>
+        );
+      }
+
       listeSenseurs.push(
-        <div key={cleSenseur} className={classRow}>
-          <div className="w3-col m4 w3-text-blue-grey">{lectureFormattee.nomSenseur}</div>
-          <div className="w3-col m1 nowrap w3-small temperature">
-            <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Température </span>{lectureFormattee.temperature}
+        <div key={cleSenseur} className={'w3-card w3-row-padding ' + classRow}>
+          <div className='w3-row-padding row-donnees modulesenseur'>
+            <div className="w3-col m7 w3-text-blue-grey">{lectureFormattee.nomSenseur}</div>
+            <div className="w3-col m1 nowrap w3-small">
+              <span title={lectureFormattee.bat_mv + ', ' + lectureFormattee.bat_reserve}>
+                {lectureFormattee.batterieIcon}
+              </span>
+            </div>
+            <div className="w3-col m3 nowrap w3-small date">
+              <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Date</span>{dateformatter.format_datetime(senseur['timestamp'])}
+            </div>
           </div>
-          <div className="w3-col m1 nowrap w3-small humidite">
-            <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Humidité </span>{lectureFormattee.humidite}
-          </div>
-          <div className="w3-col m2 nowrap w3-small pression">
-            <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Pression </span>{lectureFormattee.pression}
-          </div>
-          <div className="w3-col m1 nowrap w3-small">
-            {lectureFormattee.batterieIcon}
-          </div>
-          <div className="w3-col m1 nowrap w3-small date">
-            <span className="w3-hide w3-hide-large w3-hide-medium w3-show-inline-block label">Date</span>{dateformatter.format_datetime(senseur['timestamp'])}
-          </div>
+
+          {listeAppareils}
         </div>
       );
+
     }
 
     return (
       <div key={noeud.noeud}>
-        <div className="w3-row-padding">
           <div className="w3-col m12 w3-row-padding">
+          <div className="w3-row-padding">
             <h2 className="w3-text-blue-grey">{noeud.noeud}</h2>
           </div>
+        </div>
+        <div className="w3-row-padding">
           <div className="w3-col m4 w3-hide w3-hide-small w3-show w3-show-medium">Location</div>
           <div className="w3-col m1 w3-hide w3-hide-small w3-show w3-show-medium">Tempér.</div>
           <div className="w3-col m1 w3-hide w3-hide-small w3-show w3-show-medium">Humidité</div>
           <div className="w3-col m2 w3-hide w3-hide-small w3-show w3-show-medium">Pression</div>
-          <div className="w3-col m1 w3-hide w3-hide-small w3-show w3-show-medium">Batterie</div>
           <div className="w3-col m3 w3-hide w3-hide-small w3-show w3-show-medium">Date</div>
         </div>
         {listeSenseurs}
@@ -198,14 +224,16 @@ function getBatterieIcon(documentSenseur) {
     batterieIcon = (<i className="fa fa-bug"/>);
   } else if(documentSenseur.bat_reserve === 100) {
     batterieIcon = (<i className="fa fa-bolt"/>);
-  } else if(documentSenseur.bat_reserve < 100 && documentSenseur.millivolt > 75) {
+  } else if(documentSenseur.bat_reserve < 100 && documentSenseur.bat_reserve > 80) {
     batterieIcon = (<i className="fa fa-battery-full"/>);
-  } else if(documentSenseur.bat_reserve > 50) {
+  } else if(documentSenseur.bat_reserve > 66) {
     batterieIcon = (<i className="fa fa-battery-three-quarters"/>);
-  } else if(documentSenseur.bat_reserve > 20) {
+  } else if(documentSenseur.bat_reserve > 33) {
+    batterieIcon = (<i className="fa fa-battery-half"/>);
+  } else if(documentSenseur.bat_reserve > 5) {
     batterieIcon = (<i className="fa fa-battery-quarter"/>);
   } else if(documentSenseur.bat_reserve > 0) {
-    batterieIcon = (<i className="fa fa-battery-empty w3-red"/>);
+    batterieIcon = (<i className="fa fa-battery-empty"/>);
   } else {
     batterieIcon = (<i className="fa fa-bug"/>);
   }
@@ -225,10 +253,10 @@ function formatterLecture(documentSenseur) {
   var bat_mv, bat_reserve;
   var batterieIcon = getBatterieIcon(documentSenseur);
   if(documentSenseur.bat_mv) {
-    bat_mv = (<span>{documentSenseur.bat_mv} mV</span>);
+    bat_mv = documentSenseur.bat_mv + ' mV';
   }
   if(documentSenseur.bat_reserve) {
-    bat_reserve = (<span>{documentSenseur.bat_reserve}%</span>);
+    bat_reserve = documentSenseur.bat_reserve + '%';
   }
 
   var nomSenseur = documentSenseur.location;
