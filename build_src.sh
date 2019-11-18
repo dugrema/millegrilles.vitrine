@@ -10,7 +10,8 @@ if [ -z $VERSION ]; then
 fi
 
 BUILD_FILE=vitrine_react.$VERSION.tar.gz
-BUILD_PATH=/home/mathieu/git/MilleGrilles.vitrine
+REMOTE_PATH=/home/mathieu/git/MilleGrilles.vitrine
+BUILD_PATH=`pwd`
 
 traiter_fichier_react() {
   # Decide si on bati ou telecharge un package pour le build react.
@@ -39,7 +40,7 @@ package_build() {
 }
 
 telecharger_package() {
-  sftp ${URL_SERVEUR_DEV}:${BUILD_PATH}/$BUILD_FILE
+  sftp ${URL_SERVEUR_DEV}:${REMOTE_PATH}/$BUILD_FILE
   if [ $? -ne 0 ]; then
     echo "Erreur download fichier react"
     exit 1
