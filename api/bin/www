@@ -13,6 +13,7 @@ const Spdy = require('spdy');
 const io = require('socket.io');
 const rabbitMQ = require('../util/rabbitMQ')
 const {WebSocketVitrineApp} = require('../websocket/reactwss')
+// const {trackerServer, bindTrackerServer} = require('../util/torrentTracker')
 
 /**
  * Get port from environment and store in Express.
@@ -43,6 +44,15 @@ const vitrineWss = new WebSocketVitrineApp(wss_server);
 const server = Spdy.createServer(config, app).listen(port, () => {
   wss_server.listen(server);
   console.log('Server is listening at https://localhost:' + port + '. Ctrl^C to stop it.');
+
+  // Torrent tracker
+  // trackerServer.onHttpRequest.bind(server);
+
+  // app.get('/stats', trackerServer.onHttpRequest);
+  // app.get('/announce', server);
+  // app.get('/scrape', server);
+  // app.get('/stats', tracker.onHttpRequest);
+
 });
 
 // Connexion a RabbitMQ
@@ -57,6 +67,7 @@ rabbitMQ.connect(mqConnectionUrl)
 
   vitrineWss.initialiserDomaines(true);
 });
+
 
 /**
  * Normalize a port into a number, string, or false.

@@ -1,16 +1,10 @@
 const express = require('express');
 const TrackerServer = require('bittorrent-tracker').Server;  // bittorrent-tracker
 
-
-// Bittorrent tracker
-// var whitelist = {
-//   UT: true // uTorrent
-// }
-
 const trackerServer = new TrackerServer({
-  udp: true, // enable udp server? [default=true]
-  http: true, // enable http server? [default=true]
-  ws: true, // enable websocket server? [default=true]
+  udp: false, // enable udp server? [default=true]
+  http: false, // enable http server? [default=true]
+  ws: false, // enable websocket server? [default=true]
   stats: true, // enable web-based statistics? [default=true]
   filter: function (infoHash, params, cb) {
     // Blacklist/whitelist function for allowing/disallowing torrents. If this option is
@@ -36,14 +30,42 @@ const trackerServer = new TrackerServer({
       cb(new Error('disallowed torrent'));
     }
   }
-})
-
+});
 
 trackerServer.on('error', function (err) {
   // fatal server error!
+  console.error("Tracker server error");
   console.error(err.message)
 })
 
-const torrentTracker = trackerServer.onHttpRequest.bind(trackerServer);
+trackerServer.on('warning', function (err) {
+  // client sent bad data. probably not a problem, just a buggy client.
+  console.warn("Tracker warning");
+  console.warn(err.message);
+  console.debug(err);
+})
 
-module.exports = {torrentTracker};
+trackerServer.on('listening', function () {
+  // fired when all requested servers are listening
+  console.log("Torrent tracker listening");
+  // console.log('listening on http port:' + server.http.address().port)
+  // console.log('listening on udp port:' + server.udp.address().port)
+})
+
+trackerServer.on('start', function (addr) {
+  console.log("Tracker server start " + addr);
+})
+
+trackerServer.on('complete', function (addr) {
+  console.log("Tracker complete " + addr);
+})
+
+trackerServer.on('update', function (addr) {
+  console.log("Tracker update " + addr);
+})
+
+trackerServer.on('stop', function (addr) {
+  console.log("Tracker stop " + addr);
+})
+
+module.exports = {trackerServer};

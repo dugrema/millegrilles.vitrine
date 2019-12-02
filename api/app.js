@@ -5,7 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-const {torrentTracker} = require('./routes/torrentTracker');
+const {trackerServer} = require('./util/torrentTracker');
 // var usersRouter = require('./routes/users');
 
 const app = express();
@@ -15,16 +15,15 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 app.use(logger('dev'));
-app.use(express.json());
+// app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+// app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/announce', torrentTracker);
-app.get('/scrape', torrentTracker);
-
 app.use('/', indexRouter);
-// app.use('/users', usersRouter);
+app.get('/announce', (req, res) => trackerServer.onHttpRequest(req, res, { action: 'announce' }))
+app.get('/scrape', (req, res) => trackerServer.onHttpRequest(req, res, { action: 'scrape' }))
+app.get('/stats', (req, res) => trackerServer.onHttpRequest(req, res))
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
