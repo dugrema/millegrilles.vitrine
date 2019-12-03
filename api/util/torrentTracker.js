@@ -18,6 +18,13 @@ const trackerServer = new TrackerServer({
     // This example only allows one torrent.
     console.debug("Infohash");
     console.debug(infoHash);
+
+    // if(trackerServer.torrents[infoHash]) {
+    //   console.debug(trackerServer.torrents[infoHash]);
+    //   console.debug("Seeders: ");
+    //   console.debug(trackerServer.torrents[infoHash].complete);
+    // }
+
     // console.debug(params);
 
     var allowed = true; // (infoHash === 'aaa67059ed6bd08362da625b3ae77f6f4a075aaa')
