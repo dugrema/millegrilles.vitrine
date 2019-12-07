@@ -21,8 +21,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.get('/announce', (req, res) => trackerServer.onHttpRequest(req, res, { action: 'announce' }))
-app.get('/scrape', (req, res) => trackerServer.onHttpRequest(req, res, { action: 'scrape' }))
+app.get('/announce', (req, res) => trackerServer.onHttpRequest(req, res, { action: 'announce', trustProxy: true }))
+app.get('/scrape', (req, res) => trackerServer.onHttpRequest(req, res, { action: 'scrape', trustProxy: true }))
 app.get('/stats', (req, res) => trackerServer.onHttpRequest(req, res))
 
 // catch 404 and forward to error handler

@@ -16,8 +16,9 @@ const trackerServer = new TrackerServer({
     // are available in `params`.
 
     // This example only allows one torrent.
-    console.debug("Infohash");
-    console.debug(infoHash);
+    console.debug("Infohash " + infoHash + ", ipv4 " + params.ip + ", ipv6 " + params.ipv6);
+    console.debug(params.headers);
+    // console.debug(params);
 
     // if(trackerServer.torrents[infoHash]) {
     //   console.debug(trackerServer.torrents[infoHash]);
