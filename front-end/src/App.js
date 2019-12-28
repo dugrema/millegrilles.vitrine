@@ -1,20 +1,20 @@
 import React, {PureComponent} from 'react';
+import {Jumbotron, Card, Container, Row, Col} from 'react-bootstrap';
 import './w3.css';  // Copie de https://www.w3schools.com/w3css/4/w3.css
 import './App.css';
-import 'font-awesome/css/font-awesome.min.css';
 
 import {SenseursPassifsVitrine} from './domaines/SenseursPassifs';
 
 class App extends React.Component {
 
   state = {
-    domaine: 'vitrine',
+    domaine: '',
   }
 
   webSocketHandler = null;
 
   domaines = {
-    vitrine: Accueil,
+    '': Accueil,
     SenseursPassifs: SenseursPassifsVitrine,
   }
 
@@ -30,33 +30,32 @@ class App extends React.Component {
   componentDidMount() {
   }
 
-  header() {
-    return (
-      <header className="App-header w3-container w3-red w3-center">
-        <p className="w3-xlarge">MilleGrille XXXX</p>
-      </header>
-    );
-  }
-
   render() {
 
     let content;
-    if(this.state.domaine) {
+    if(this.state.domaine && this.state.domaine != '') {
       const DomaineElement = this.domaines[this.state.domaine];
+      let header = (
+        <header className="App-header w3-container w3-red w3-center">
+          <p className="w3-xlarge">MilleGrille XXXXA</p>
+        </header>
+      );
+
       content = (
-        <DomaineElement />
+        [
+          header,
+          <DomaineElement />
+        ]
       );
     } else {
-      content = this.contenuPageAccueil();
+      content = (<Accueil/>);
     }
 
-    let header = this.header();
     return (
         <div className="App">
           <ToggleMenu
             menuActions={this.menuActions}
             domaine={this.state.domaine} />
-          {header}
           {content}
         </div>
     );
@@ -66,18 +65,22 @@ class App extends React.Component {
 
 function Accueil(props) {
   return (
-    <div className="w3-row-padding w3-padding-64 w3-container">
-      <div className="w3-content">
-        <div className="w3-twothird">
-          <h1>Vitrine</h1>
-          <p className="w3-text-grey">Choisir un domaine dans le menu pour continuer.</p>
-        </div>
-
-        <div className="w3-third w3-center">
-          <i className="fa fa-clone fa-5x w3-padding-64 w3-text-red"></i>
-        </div>
-      </div>
-    </div>
+    <Jumbotron>
+      <Container>
+        <Row>
+          <Col>
+            <h1>MilleGrille XXXX</h1>
+            <p>
+              Vitrine sur MilleGrilles.
+            </p>
+            <p>Choisir une option dans le menu pour poursuivre.</p>
+          </Col>
+          <Col>
+            <i className="fa fa-clone fa-5x w3-padding-64 w3-text-red"></i>
+          </Col>
+        </Row>
+      </Container>
+    </Jumbotron>
   );
 }
 
@@ -117,7 +120,7 @@ class ToggleMenu extends PureComponent {
       mobileMenu = null;
     }
 
-    let items = {'vitrine': 'Vitrine', 'SenseursPassifs': 'Senseurs Passifs'};
+    let items = {'': 'Accueil', 'SenseursPassifs': 'Senseurs Passifs'};
     let boutons = [];
     for(var domaine in items) {
       let domaineDesc = items[domaine];
@@ -143,8 +146,6 @@ class ToggleMenu extends PureComponent {
             title="Toggle Navigation Menu">
               <i className="fa fa-bars"></i>
           </button>
-          <a className='w3-bar-item w3-button w3-padding-large w3-hide-small w3-hover-white'
-            href='/'>Accueil</a>
           {boutons}
         </div>
 
