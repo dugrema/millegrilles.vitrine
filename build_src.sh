@@ -31,7 +31,7 @@ traiter_fichier_react() {
 }
 
 package_build() {
-  echo "Building new Coup D'Oeil React app"
+  echo "Building new Vitrine React app"
   cd $BUILD_PATH/front-end
   # Sauvegarder information de version
   makeManifest
@@ -49,7 +49,7 @@ telecharger_package() {
 }
 
 installer() {
-  echo "Installation de l'application coupdoeil React dans $BUILD_PATH"
+  echo "Installation de l'application Vitrine React dans $BUILD_PATH"
   cd $BUILD_PATH
   rm -rf react_build
   mkdir react_build && \
