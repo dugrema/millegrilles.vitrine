@@ -33,6 +33,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "https://localhost:3004",
-  "homepage": "/vitrine/"
+  "proxy": "https://localhost:3004"
 }
