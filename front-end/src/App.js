@@ -167,14 +167,14 @@ class _toggleMenu extends React.Component {
     }
 
     // Ajouter fonctionnalite pour changer de langage
-    const { t, i18n } = this.props;
+    const i18n = this.props.i18n;
     const changeLanguage = lng => {
       i18n.changeLanguage(lng);
     };
     const languageChangement = 'fr'===i18n.language?'en':'fr';
 
     let content = (
-      <Navbar collapseOnSelect expand="md" bg="danger" variant="dark" fixed="top">
+      <Navbar collapseOnSelect expand="sm" bg="danger" variant="dark" fixed="top">
         <Navbar.Brand href='#' onClick={this.changerSection}><Trans>application.nom</Trans></Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-menu" />
         <Navbar.Collapse id="responsive-navbar-menu">
@@ -191,7 +191,7 @@ class _toggleMenu extends React.Component {
               }
             </Translation>
           </Nav>
-          <Nav className="mr-auto" activeKey={this.props.section}>
+          <Nav className="justify-content-end" activeKey={this.props.section}>
             <Nav.Link eventKey={languageChangement} onSelect={changeLanguage}><Trans>menu.changerLangue</Trans></Nav.Link>
           </Nav>
         </Navbar.Collapse>
