@@ -8,6 +8,7 @@ import './App.css';
 import {SenseursPassifsVitrine} from './domaines/SenseursPassifs';
 
 const CONFIGURATION_MILLEGRILLE = 'configuration.millegrille';
+const CONFIGURATION_MILLEGRILLE_LASTMODIFIED = 'configuration.millegrille.lastModified';
 
 class App extends React.Component {
 
@@ -38,11 +39,6 @@ class App extends React.Component {
 
   render() {
 
-    ReactDOM.render(
-      <Titre configuration={this.state.configuration}/>,
-      document.getElementById('titre')
-    );
-
     let content;
     if(this.state.domaine && this.state.domaine !== '') {
       const DomaineElement = this.domaines[this.state.domaine];
@@ -67,13 +63,38 @@ class App extends React.Component {
   _chargerConfiguration() {
     let config = localStorage.getItem(CONFIGURATION_MILLEGRILLE);
     if(config) {
-      this.setState({configuration: JSON.parse(config)});
+      const configJson = JSON.parse(config);
+      this.setState({configuration: configJson});
+      ReactDOM.render(
+        <Titre configuration={configJson}/>,
+        document.getElementById('titre')
+      );
     }
-    axios.get('/defauts/millegrille.json').then(resp=>{
+
+    let lastModified = localStorage.getItem(CONFIGURATION_MILLEGRILLE_LASTMODIFIED);
+    const headers = {};
+    if(lastModified) {
+      headers['If-Modified-Since'] = lastModified;
+    }
+
+    axios.get('/defauts/millegrille.json', {
+      headers,
+      validateStatus: status=>{return status === 200 || status === 304}
+    })
+    .then(resp=>{
+      console.debug(resp);
       if(resp.status === 200) {
+        // Sauvegarder la configuration
         const configuration = resp.data;
         this.setState({configuration});
         localStorage.setItem(CONFIGURATION_MILLEGRILLE, JSON.stringify(configuration));
+        localStorage.setItem(CONFIGURATION_MILLEGRILLE_LASTMODIFIED, resp.headers['last-modified']);
+
+        // Mettre a jour le titre de Vitrine
+        ReactDOM.render(
+          <Titre configuration={this.state.configuration}/>,
+          document.getElementById('titre')
+        );
       }
     })
     .catch(err=>{

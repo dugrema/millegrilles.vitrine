@@ -7,7 +7,7 @@ import './accueil.css';
 export class AccueilVitrine extends React.Component {
 
   render() {
-    var idmg = 'MilleGrille', descriptif = null;
+    var idmg, descriptif;
     if(this.props.configuration) {
       idmg = this.props.configuration.idmg;
       descriptif = (<p>{this.props.configuration.descriptif}</p>);
@@ -20,7 +20,6 @@ export class AccueilVitrine extends React.Component {
               <Col>
                 <h1>{descriptif}</h1>
                 {idmg}
-                <p>Choisir une option dans le menu pour poursuivre.</p>
               </Col>
               <Col>
                 <i className="fa fa-clone fa-5x w3-padding-64 w3-text-red"></i>
