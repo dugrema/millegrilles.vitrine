@@ -1,11 +1,17 @@
 {
   "translation": {
-    "application.nom": "Vitrine",
-    "menu.albums": "Albums",
-    "menu.documents": "Documents",
-    "menu.fichiers": "Fichiers",
-    "menu.domaines": "Par domaine",
-    "domaines.SenseursPassifs": "Senseurs Passifs",
-    "menu.changerLangue": "English"
+    "application": {
+      "nom": "Vitrine"
+    },
+    "menu": {
+      "albums": "Albums",
+      "documents": "Documents",
+      "fichiers": "Fichiers",
+      "domaines": "Par domaine",
+      "changerLangue": "English"
+    },
+    "domaines": {
+      "SenseursPassifs": "Senseurs Passifs"
+    }
   }
 }
