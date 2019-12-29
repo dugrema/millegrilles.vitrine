@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import {Nav, Navbar, NavDropdown} from 'react-bootstrap';
-import {AccueilVitrine} from './accueil/accueil';
+import {AccueilVitrine} from './sections/accueil';
 import './App.css';
 
 import {SenseursPassifsVitrine} from './domaines/SenseursPassifs';
