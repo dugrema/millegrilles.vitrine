@@ -34,7 +34,7 @@ class App extends React.Component {
   render() {
 
     let content;
-    if(this.state.domaine && this.state.domaine != '') {
+    if(this.state.domaine && this.state.domaine !== '') {
       const DomaineElement = this.domaines[this.state.domaine];
       content = (<DomaineElement key="domaine" />);
     } else {
@@ -112,16 +112,6 @@ function Accueil(props) {
 class ToggleMenu extends PureComponent {
 
   state = {
-    show: false,
-  }
-
-  toggleMenu = event => {
-    this.setState({show: !this.state.show});
-  }
-
-  afficherAccueil = event => {
-    this.setState({show: false});
-    this.props.menuActions.afficherAccueil(event);
   }
 
   changerDomaine = event => {
@@ -133,46 +123,26 @@ class ToggleMenu extends PureComponent {
       domaine = event;
     }
     this.props.menuActions.changerDomaine(domaine);
-
   }
 
   render() {
-    let mobileMenu;
-    if(this.state.show) {
-      mobileMenu = (
-        <div id="navDemo" className="w3-bar-block w3-white w3-hide w3-hide-large w3-hide-medium w3-large w3-show">
-          <a href='/' className="w3-bar-item w3-button w3-padding-large">Accueil</a>
-          <button className="w3-bar-item w3-button w3-padding-large"
-            onClick={this.changerDomaine} value="vitrine">Vitrine</button>
-          <button className="w3-bar-item w3-button w3-padding-large"
-            onClick={this.changerDomaine} value="SenseursPassifs">Senseurs Passifs</button>
-        </div>
-      );
-    } else {
-      mobileMenu = null;
-    }
-
     let items = {'SenseursPassifs': 'Senseurs Passifs'};
     let boutons = [];
     for(var domaine in items) {
       let domaineDesc = items[domaine];
-      let className = 'w3-bar-item w3-button w3-padding-large';
-      if(this.props.domaine === domaine) {
-        className += ' w3-white';
-      } else {
-        className += ' w3-hide-small w3-hover-white';
-      }
+      let actif = this.props.domaine === domaine;
       boutons.push(
         <Nav.Link key={domaine} eventKey={domaine}>{domaineDesc}</Nav.Link>
       );
     }
 
     let content = (
-      <Navbar collapseOnSelect expand="md" bg="dark" variant="dark" fixed="top" onSelect={this.changerDomaine}>
+      <Navbar collapseOnSelect expand="md" bg="dark" variant="dark" fixed="top"
+              onSelect={this.changerDomaine}>
         <Navbar.Brand href='#' onClick={this.changerDomaine}>Vitrine</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
-          <Nav className="mr-auto">
+          <Nav className="mr-auto" activeKey={this.props.domaine}>
             {boutons}
           </Nav>
         </Navbar.Collapse>
