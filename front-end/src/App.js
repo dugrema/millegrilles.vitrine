@@ -2,17 +2,21 @@ import React from 'react';
 import axios from 'axios';
 import {Nav, Navbar, NavDropdown} from 'react-bootstrap';
 import {AccueilVitrine} from './sections/accueil';
+import {AlbumsVitrine} from './sections/albums';
 import './App.css';
 
 import {getDomaine} from './domaines/domainesSupportes';
 
 const MILLEGRILLE_LIBELLE = 'millegrille.configuration', MILLEGRILLE_URL = '/millegrille.json';
 
+const sections = {
+  Albums: AlbumsVitrine
+}
+
 class App extends React.Component {
 
   state = {
     section: '',
-    domaine: '',
     configuration: null,
   }
 
@@ -22,16 +26,9 @@ class App extends React.Component {
     afficherAccueil: event => {
       this.setState({domaine: null});
     },
-    changerSection: section => {
+    changerSection: page => {
       this.setState({
-        domaine: '',
-        section: section,
-      });
-    },
-    changerDomaine: domaine => {
-      this.setState({
-        domaine: domaine,
-        section: '',
+        section: page,
       });
     }
   }
@@ -43,17 +40,18 @@ class App extends React.Component {
 
   render() {
 
-    let content;
-    if(this.state.domaine && this.state.domaine !== '') {
-      // const DomaineElement = this.domaines[this.state.domaine];
-      const DomaineElement = getDomaine(this.state.domaine);
-      content = (<DomaineElement key="domaine" />);
+    let SectionElement;
+    if(this.state.section && this.state.section !== '') {
+      if(sections[this.state.section]) {
+        SectionElement = sections[this.state.section];
+      } else {
+        // const DomaineElement = this.domaines[this.state.domaine];
+        SectionElement = getDomaine(this.state.domaine);
+      }
     } else {
-      content = (
-        <AccueilVitrine
-          configuration={this.state.configuration} />
-      );
+      SectionElement = AccueilVitrine;
     }
+    let content = (<SectionElement configuration={this.state.configuration}/>);
 
     return (
         <div className="App">
@@ -121,7 +119,7 @@ class ToggleMenu extends React.Component {
     } else {
       domaine = event;
     }
-    this.props.menuActions.changerDomaine(domaine);
+    this.props.menuActions.changerSection(domaine);
   }
 
   render() {

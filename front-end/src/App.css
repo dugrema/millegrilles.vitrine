@@ -2,11 +2,9 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Tahoma", sans-serif}
 .w3-bar,h1,button {font-family: "Verdana", sans-serif}
 .fa-anchor,.fa-coffee {font-size:200px}
 
-/*
-.App-header {
-  padding-top:40px;
+.App {
+  padding-top:3.5em;
 }
-*/
 
 .App-link {
   color: #61dafb;
