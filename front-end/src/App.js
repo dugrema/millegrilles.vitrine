@@ -4,29 +4,35 @@ import {Nav, Navbar, NavDropdown} from 'react-bootstrap';
 import {AccueilVitrine} from './sections/accueil';
 import './App.css';
 
-import {SenseursPassifsVitrine} from './domaines/SenseursPassifs';
+import {getDomaine} from './domaines/domainesSupportes';
 
 const MILLEGRILLE_LIBELLE = 'millegrille.configuration', MILLEGRILLE_URL = '/millegrille.json';
 
 class App extends React.Component {
 
   state = {
+    section: '',
     domaine: '',
     configuration: null,
   }
 
   webSocketHandler = null;
 
-  domaines = {
-    SenseursPassifs: SenseursPassifsVitrine,
-  }
-
   menuActions = {
     afficherAccueil: event => {
       this.setState({domaine: null});
     },
+    changerSection: section => {
+      this.setState({
+        domaine: '',
+        section: section,
+      });
+    },
     changerDomaine: domaine => {
-      this.setState({domaine: domaine});
+      this.setState({
+        domaine: domaine,
+        section: '',
+      });
     }
   }
 
@@ -39,7 +45,8 @@ class App extends React.Component {
 
     let content;
     if(this.state.domaine && this.state.domaine !== '') {
-      const DomaineElement = this.domaines[this.state.domaine];
+      // const DomaineElement = this.domaines[this.state.domaine];
+      const DomaineElement = getDomaine(this.state.domaine);
       content = (<DomaineElement key="domaine" />);
     } else {
       content = (
