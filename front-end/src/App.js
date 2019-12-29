@@ -3,16 +3,24 @@ import axios from 'axios';
 import {Nav, Navbar, NavDropdown} from 'react-bootstrap';
 import {AccueilVitrine} from './sections/accueil';
 
+// Importer sections et domaines
 import {AlbumsVitrine} from './sections/albums';
 import {DocumentsVitrine} from './sections/documents';
 import {FichiersVitrine} from './sections/fichiers';
+import {getDomaine, listerDomaines} from './domaines/domainesSupportes';
+
+import fr from './vitrine.fr'
 
 import './App.css';
 
-import {getDomaine} from './domaines/domainesSupportes';
+const locales = {
+  'fr': fr,
+}
 
 const MILLEGRILLE_LIBELLE = 'millegrille.configuration', MILLEGRILLE_URL = '/millegrille.json';
+const USER_LOCALE = 'user.locale';
 
+// Mapping des sections principales de Vitrine
 const sections = {
   Albums: AlbumsVitrine,
   Documents: DocumentsVitrine,
@@ -21,9 +29,12 @@ const sections = {
 
 class App extends React.Component {
 
+  localeProps = locales['fr'];
+
   state = {
     section: '',
     configuration: null,
+    locale: 'fr',
   }
 
   webSocketHandler = null;
@@ -44,6 +55,11 @@ class App extends React.Component {
     this._chargerConfiguration();
   }
 
+  componentDidUpdate() {
+    localStorage.setItem('locale', this.state.locale);
+    _setTitre(this.localeProps, this.state.configuration);
+  }
+
   render() {
 
     let SectionElement;
@@ -57,11 +73,15 @@ class App extends React.Component {
     } else {
       SectionElement = AccueilVitrine;
     }
-    let content = (<SectionElement configuration={this.state.configuration}/>);
+    let content = (
+      <SectionElement locale={this.state.locale} configuration={this.state.configuration}/>
+    );
 
     return (
       <div className="App">
         <ToggleMenu
+          locale={this.state.locale}
+          localeProps={this.localeProps}
           menuActions={this.menuActions}
           section={this.state.section} />
         {content}
@@ -70,13 +90,21 @@ class App extends React.Component {
   }
 
   _chargerConfiguration() {
-    let contenuStr = localStorage.getItem(MILLEGRILLE_LIBELLE);
+    const valeursInitiales = {};
+
+    // Verifier si l'usager a deja la langue dans sa configuration
+    let locale = localStorage.getItem(USER_LOCALE);
+    if(locale) {
+      valeursInitiales.locale = locale;
+    }
 
     const headers = {};
+    let contenuStr = localStorage.getItem(MILLEGRILLE_LIBELLE);
     if(contenuStr) {
       const configuration = JSON.parse(contenuStr);
-      this.setState({configuration});
-      _setTitre(configuration);
+      valeursInitiales.configuration = configuration;
+      this.setState(valeursInitiales);
+      _setTitre(this.localeProps, configuration);
 
       let lastModified = configuration.lastModified;
       if(lastModified) {
@@ -97,11 +125,13 @@ class App extends React.Component {
           contenuPage,
           lastModified: resp.headers['last-modified'],
         }
-        this.setState({configuration});
-        localStorage.setItem(MILLEGRILLE_LIBELLE, JSON.stringify(configuration));
 
-        // Mettre a jour le titre de Vitrine
-        _setTitre(this.state.configuration);
+        if(!locale) {
+          locale = contenuPage['default.locale'];
+        }
+
+        this.setState({configuration, locale});
+        localStorage.setItem(MILLEGRILLE_LIBELLE, JSON.stringify(configuration));
       }
     })
     .catch(err=>{
@@ -128,10 +158,10 @@ class ToggleMenu extends React.Component {
   }
 
   render() {
-    let items = {'SenseursPassifs': 'Senseurs Passifs'};
+    let items = listerDomaines();
     let liensDomaines = [];
     for(var domaine in items) {
-      let domaineDesc = items[domaine];
+      let domaineDesc = items[domaine][this.props.locale];
       liensDomaines.push(
         <NavDropdown.Item key={domaine} eventKey={domaine}>{domaineDesc}</NavDropdown.Item>
       );
@@ -144,10 +174,10 @@ class ToggleMenu extends React.Component {
         <Navbar.Toggle aria-controls="responsive-navbar-menu" />
         <Navbar.Collapse id="responsive-navbar-menu">
           <Nav className="mr-auto" activeKey={this.props.section}>
-            <Nav.Link eventKey="Albums">Albums</Nav.Link>
-            <Nav.Link eventKey="Documents">Documents</Nav.Link>
-            <Nav.Link eventKey="Fichiers">Fichiers</Nav.Link>
-            <NavDropdown title="Par domaine" id="collasible-nav-domaines">
+            <Nav.Link eventKey="Albums">{this.props.localeProps.get('menu.albums')}</Nav.Link>
+            <Nav.Link eventKey="Documents">{this.props.localeProps.get('menu.documents')}</Nav.Link>
+            <Nav.Link eventKey="Fichiers">{this.props.localeProps.get('menu.fichiers')}</Nav.Link>
+            <NavDropdown title={this.props.localeProps.get('menu.domaines')} id="collasible-nav-domaines">
               {liensDomaines}
             </NavDropdown>
           </Nav>
@@ -159,11 +189,12 @@ class ToggleMenu extends React.Component {
   }
 }
 
-function _setTitre(configuration) {
+function _setTitre(localeProps, configuration) {
+  const vitrineDescription = localeProps.get('application.nom');
   if(configuration) {
-    document.title = configuration.contenuPage.descriptif || 'Vitrine';
+    document.title = configuration.contenuPage.descriptif || vitrineDescription;
   } else {
-    document.title = 'Vitrine';
+    document.title = vitrineDescription;
   }
 }
 
