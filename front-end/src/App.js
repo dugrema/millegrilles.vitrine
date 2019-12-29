@@ -10,7 +10,7 @@ import {FichiersVitrine} from './sections/fichiers';
 import {getDomaine, listerDomaines} from './domaines/domainesSupportes';
 
 import './i18n';
-import { Trans, Translation } from 'react-i18next';
+import { Trans, Translation, withTranslation } from 'react-i18next';
 
 import './App.css';
 
@@ -29,7 +29,6 @@ class App extends React.Component {
   state = {
     section: '',
     configuration: null,
-    locale: 'fr',
   }
 
   webSocketHandler = null;
@@ -112,7 +111,7 @@ class App extends React.Component {
       validateStatus: status=>{return status === 200 || status === 304}
     })
     .then(resp=>{
-      console.debug(resp);
+      // console.debug(resp);
       if(resp.status === 200) {
         // Sauvegarder la configuration
         const contenuPage = resp.data;
@@ -137,12 +136,15 @@ class App extends React.Component {
 
 }
 
-class ToggleMenu extends React.Component {
+class _toggleMenu extends React.Component {
 
   state = {
   }
 
   changerSection = event => {
+    // Changement de lange n'est pas un changement de section
+    if(event === 'fr' || event === 'en') return;
+
     let section;
     if(event.currentTarget) {
       section = event.currentTarget.value;
@@ -164,13 +166,19 @@ class ToggleMenu extends React.Component {
       );
     }
 
+    // Ajouter fonctionnalite pour changer de langage
+    const { t, i18n } = this.props;
+    const changeLanguage = lng => {
+      i18n.changeLanguage(lng);
+    };
+    const languageChangement = 'fr'===i18n.language?'en':'fr';
+
     let content = (
-      <Navbar collapseOnSelect expand="md" bg="danger" variant="dark" fixed="top"
-              onSelect={this.changerSection}>
-        <Navbar.Brand href='#' onClick={this.changerSection}>Vitrine</Navbar.Brand>
+      <Navbar collapseOnSelect expand="md" bg="danger" variant="dark" fixed="top">
+        <Navbar.Brand href='#' onClick={this.changerSection}><Trans>application.nom</Trans></Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-menu" />
         <Navbar.Collapse id="responsive-navbar-menu">
-          <Nav className="mr-auto" activeKey={this.props.section}>
+          <Nav className="mr-auto" activeKey={this.props.section} onSelect={this.changerSection}>
             <Nav.Link eventKey="Albums"><Trans>menu.albums</Trans></Nav.Link>
             <Nav.Link eventKey="Documents"><Trans>menu.documents</Trans></Nav.Link>
             <Nav.Link eventKey="Fichiers"><Trans>menu.fichiers</Trans></Nav.Link>
@@ -183,6 +191,9 @@ class ToggleMenu extends React.Component {
               }
             </Translation>
           </Nav>
+          <Nav className="mr-auto" activeKey={this.props.section}>
+            <Nav.Link eventKey={languageChangement} onSelect={changeLanguage}><Trans>menu.changerLangue</Trans></Nav.Link>
+          </Nav>
         </Navbar.Collapse>
       </Navbar>
     );
@@ -190,6 +201,8 @@ class ToggleMenu extends React.Component {
     return content;
   }
 }
+
+const ToggleMenu = withTranslation()(_toggleMenu);
 
 function _setTitre(localeProps, configuration) {
   const vitrineDescription = (<Translation>{t=>t('application.nom')}</Translation>);

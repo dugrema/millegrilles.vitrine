@@ -5,6 +5,7 @@
     "menu.documents": "Documents",
     "menu.fichiers": "Files",
     "menu.domaines": "By domain",
-    "domaines.SenseursPassifs": "Sensors"
+    "domaines.SenseursPassifs": "Sensors",
+    "menu.changerLangue": "Francais"
   }
 }

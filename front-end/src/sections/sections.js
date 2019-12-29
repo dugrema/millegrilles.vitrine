@@ -34,7 +34,7 @@ export class SectionVitrine extends React.Component {
       validateStatus: status=>{return status === 200 || status === 304}
     })
     .then(resp=>{
-      console.debug(resp);
+      // console.debug(resp);
       if(resp.status === 200) {
         // Sauvegarder le contenu mis a jour localement
         const contenuPage = resp.data;
