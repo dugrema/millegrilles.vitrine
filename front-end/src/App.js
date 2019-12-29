@@ -1,7 +1,6 @@
-import React, {PureComponent} from 'react';
+import React from 'react';
 import {Jumbotron, Card, CardDeck, Button, Nav, Navbar,
         Container, Row, Col} from 'react-bootstrap';
-import './w3.css';  // Copie de https://www.w3schools.com/w3css/4/w3.css
 import './App.css';
 
 import {SenseursPassifsVitrine} from './domaines/SenseursPassifs';
@@ -109,7 +108,7 @@ function Accueil(props) {
   );
 }
 
-class ToggleMenu extends PureComponent {
+class ToggleMenu extends React.Component {
 
   state = {
   }
@@ -130,14 +129,13 @@ class ToggleMenu extends PureComponent {
     let boutons = [];
     for(var domaine in items) {
       let domaineDesc = items[domaine];
-      let actif = this.props.domaine === domaine;
       boutons.push(
         <Nav.Link key={domaine} eventKey={domaine}>{domaineDesc}</Nav.Link>
       );
     }
 
     let content = (
-      <Navbar collapseOnSelect expand="md" bg="dark" variant="dark" fixed="top"
+      <Navbar collapseOnSelect expand="md" bg="danger" variant="dark" fixed="top"
               onSelect={this.changerDomaine}>
         <Navbar.Brand href='#' onClick={this.changerDomaine}>Vitrine</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
