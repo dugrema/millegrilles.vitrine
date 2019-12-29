@@ -1,10 +1,22 @@
 {
-  "messageBienvenue": "Bienvenue sur l'application par defaut de Vitrine. Cette application n'est pas encore configuree.",
+  "messageBienvenue": "Bienvenue sur l'application publique Vitrine de MilleGrilles. La MilleGrille n'est pas encore configuree.",
   "cartes": [
     {
-      "image": "12838-38843-abeff123-12323",
-      "titre": "Titre de la carte",
-      "texte": "Contenu de la carte"
+      "titre": "Securitaire",
+      "texte": "MilleGrilles est un systeme d'information personnel base sur 4 niveaux de securite : public, prive, protege, secure. Ceci simplifie la protection de vos donnees tout en facilitant le partage sur internet."
+    },{
+      "image": "logo512.png",
+      "titre": "Albums",
+      "texte": "Placez vos photos et videos dans votre MilleGrille pour les sauvegarder et les partager."
+    },{
+      "titre": "Collections et recherche",
+      "texte": "Archivez vos documents personnels et partagez securitairement vos idees. Classez vos documents et fichiers dans des collections et cherchez simplement en utilisant les mots cles et les groupes d'etiquettes."
+    },{
+      "titre": "A bas les mots de passe",
+      "texte": "MilleGrilles n'utilise pas de mots de passe. Vous devez utiliser une cle de securite physique (USB) pour la configuration initiale. Ceci vous permet ensuite de lier vos appareils mobiles et donner acces a d'autres MilleGrilles sans jamais avoir a vous souvenir de mots de passes."
+    },{
+      "titre": "Votre MilleGrille, vos donnees",
+      "texte": "Toutes les donnees placees dans votre MilleGrille vous appartiennent. Vous n'avez pas besoin de demander de permission pour les transferer, personne ne peut les bloquer ou les effacer. Personne ne peut ouvrir vos donnes protegees sans votre permission. Personne d'autre que vous ne peut acceder a vos donnees secures."
     }
   ]
 }

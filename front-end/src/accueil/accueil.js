@@ -18,65 +18,18 @@ export class AccueilVitrine extends React.Component {
   }
 
   render() {
-    var idmg, descriptif, messageBienvenue;
-    if(this.props.configuration) {
-      idmg = this.props.configuration.contenuPage.idmg;
-      descriptif = (<p>{this.props.configuration.contenuPage.descriptif}</p>);
+    var contenuPageAccueil = [
+      this._renderJumbotron()
+    ];
+
+    if(this.state.contenu && this.state.contenu.contenuPage) {
+      const contenuPage = this.state.contenu.contenuPage;
+      if(contenuPage.cartes) {
+        contenuPageAccueil.push(this._renderCartes(contenuPage.cartes));
+      }
     }
-    if(this.state.contenu && this.state.contenu.contenuPage.messageBienvenue) {
-      messageBienvenue = (<p>{this.state.contenu.contenuPage.messageBienvenue}</p>);
-    }
-    return (
-      [
-        <Jumbotron key='accueilHaut'>
-          <Container>
-            <Row>
-              <Col>
-                <h1>{descriptif}</h1>
-                {idmg}
-                {messageBienvenue}
-              </Col>
-              <Col>
-                <i className="fa fa-clone fa-5x w3-padding-64 w3-text-red"></i>
-              </Col>
-            </Row>
-          </Container>
-        </Jumbotron>,
-        <CardDeck key='accueilBas'>
-          <Card>
-            <Card.Img variant="top" src="/logo512.png" />
-            <Card.Body>
-              <Card.Title>Card Title</Card.Title>
-              <Card.Text>
-                Some quick example text to build on the card title and make up the bulk of
-                the card's content.
-              </Card.Text>
-              <Button variant="primary">Go somewhere</Button>
-            </Card.Body>
-          </Card>
-          <Card>
-            <Card.Body>
-              <Card.Title>Card Title</Card.Title>
-              <Card.Text>
-                Some quick example text to build on the card title and make up the bulk of
-                the card's content.
-              </Card.Text>
-              <Button variant="primary">Go somewhere</Button>
-            </Card.Body>
-          </Card>
-          <Card>
-            <Card.Body>
-              <Card.Title>Card Title</Card.Title>
-              <Card.Text>
-                Some quick example text to build on the card title and make up the bulk of
-                the card's content.
-              </Card.Text>
-              <Button variant="primary">Go somewhere</Button>
-            </Card.Body>
-          </Card>
-        </CardDeck>
-      ]
-    );
+
+    return contenuPageAccueil;
   }
 
   // Charge le fichier json qui s'occupe du contenu de cette page
@@ -119,5 +72,80 @@ export class AccueilVitrine extends React.Component {
       console.error(err);
     })
 
+  }
+
+  _renderJumbotron() {
+
+    var idmg, descriptif, messageBienvenue;
+
+    if(this.props.configuration) {
+      idmg = this.props.configuration.contenuPage.idmg;
+      descriptif = (<p>{this.props.configuration.contenuPage.descriptif}</p>);
+    }
+    if(this.state.contenu && this.state.contenu.contenuPage) {
+      const contenuPage = this.state.contenu.contenuPage;
+      if(contenuPage.messageBienvenue) {
+        messageBienvenue = (<p>{contenuPage.messageBienvenue}</p>);
+      }
+    }
+
+    return (
+      <Jumbotron key='accueilHaut'>
+        <Container>
+          <Row>
+            <Col>
+              <h1>{descriptif}</h1>
+              {idmg}
+              {messageBienvenue}
+            </Col>
+            <Col>
+              <i className="fa fa-clone fa-5x w3-padding-64 w3-text-red"></i>
+            </Col>
+          </Row>
+        </Container>
+      </Jumbotron>
+    );
+  }
+
+  _renderCartes(cartes) {
+    const listeCartes = [];
+    for(let idx in cartes) {
+      const carte = cartes[idx];
+      var image = null;
+      var titre = null;
+      var texte = null;
+      var bouton = null;
+
+      if(carte.image) {
+        image = (<Card.Img variant="top" src={"/" + carte.image} />);
+      }
+      if(carte.titre) {
+        titre = (<Card.Title>{carte.titre}</Card.Title>);
+      }
+      if(carte.texte) {
+        texte = (<Card.Text>{carte.texte}</Card.Text>);
+      }
+      if(carte.bouton) {
+        bouton = (<Button variant="primary">{carte.bouton.texte}</Button>);
+      }
+      listeCartes.push(
+        <Card key={idx}>
+          {image}
+          <Card.Body>
+            {titre}
+            {texte}
+            {bouton}
+          </Card.Body>
+        </Card>
+      );
+    }
+
+    const cardDeck = (
+      <CardDeck key='accueilBas'>
+        {listeCartes}
+      </CardDeck>
+    );
+
+    return cardDeck;
   }
 }
