@@ -7,10 +7,12 @@
     "bootstrap": "^4.4.1",
     "font-awesome": "^4.7.0",
     "history": "^4.10.0",
+    "i18next": "^19.0.2",
     "moment": "^2.24.0",
     "react": "^16.9.0",
     "react-bootstrap": "^1.0.0-beta.16",
     "react-dom": "^16.9.0",
+    "react-i18next": "^11.2.7",
     "react-router": "^5.0.1",
     "react-scripts": "^3.3.0",
     "socket.io-client": "^2.2.0"

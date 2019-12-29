@@ -9,13 +9,10 @@ import {DocumentsVitrine} from './sections/documents';
 import {FichiersVitrine} from './sections/fichiers';
 import {getDomaine, listerDomaines} from './domaines/domainesSupportes';
 
-import fr from './vitrine.fr'
+import './i18n';
+import { Trans, Translation } from 'react-i18next';
 
 import './App.css';
-
-const locales = {
-  'fr': fr,
-}
 
 const MILLEGRILLE_LIBELLE = 'millegrille.configuration', MILLEGRILLE_URL = '/millegrille.json';
 const USER_LOCALE = 'user.locale';
@@ -28,8 +25,6 @@ const sections = {
 }
 
 class App extends React.Component {
-
-  localeProps = locales['fr'];
 
   state = {
     section: '',
@@ -174,12 +169,17 @@ class ToggleMenu extends React.Component {
         <Navbar.Toggle aria-controls="responsive-navbar-menu" />
         <Navbar.Collapse id="responsive-navbar-menu">
           <Nav className="mr-auto" activeKey={this.props.section}>
-            <Nav.Link eventKey="Albums">{this.props.localeProps.get('menu.albums')}</Nav.Link>
-            <Nav.Link eventKey="Documents">{this.props.localeProps.get('menu.documents')}</Nav.Link>
-            <Nav.Link eventKey="Fichiers">{this.props.localeProps.get('menu.fichiers')}</Nav.Link>
-            <NavDropdown title={this.props.localeProps.get('menu.domaines')} id="collasible-nav-domaines">
-              {liensDomaines}
-            </NavDropdown>
+            <Nav.Link eventKey="Albums"><Trans>menu.albums</Trans></Nav.Link>
+            <Nav.Link eventKey="Documents"><Trans>menu.documents</Trans></Nav.Link>
+            <Nav.Link eventKey="Fichiers"><Trans>menu.fichiers</Trans></Nav.Link>
+            <Translation>
+              {
+                t =>
+                <NavDropdown title={t('menu.domaines')} id="collasible-nav-domaines">
+                  {liensDomaines}
+                </NavDropdown>
+              }
+            </Translation>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
@@ -190,7 +190,7 @@ class ToggleMenu extends React.Component {
 }
 
 function _setTitre(localeProps, configuration) {
-  const vitrineDescription = localeProps.get('application.nom');
+  const vitrineDescription = (<Translation>{t=>t('application.nom')}</Translation>);
   if(configuration) {
     document.title = configuration.contenuPage.descriptif || vitrineDescription;
   } else {
