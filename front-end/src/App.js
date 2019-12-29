@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import axios from 'axios';
 import {Nav, Navbar, NavDropdown} from 'react-bootstrap';
 import {AccueilVitrine} from './accueil/accueil';
@@ -12,6 +13,7 @@ class App extends React.Component {
 
   state = {
     domaine: '',
+    configuration: null,
   }
 
   webSocketHandler = null;
@@ -35,6 +37,11 @@ class App extends React.Component {
   }
 
   render() {
+
+    ReactDOM.render(
+      <Titre configuration={this.state.configuration}/>,
+      document.getElementById('titre')
+    );
 
     let content;
     if(this.state.domaine && this.state.domaine !== '') {
@@ -122,6 +129,14 @@ class ToggleMenu extends React.Component {
     );
 
     return content;
+  }
+}
+
+function Titre(props) {
+  if(props.configuration) {
+    return props.configuration.descriptif || 'Vitrine';
+  } else {
+    return 'Vitrine';
   }
 }
 
