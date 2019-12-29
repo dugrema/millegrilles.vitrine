@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import axios from 'axios';
 import {Nav, Navbar, NavDropdown} from 'react-bootstrap';
 import {AccueilVitrine} from './accueil/accueil';
@@ -65,10 +64,7 @@ class App extends React.Component {
     if(config) {
       const configJson = JSON.parse(config);
       this.setState({configuration: configJson});
-      ReactDOM.render(
-        <Titre configuration={configJson}/>,
-        document.getElementById('titre')
-      );
+      _setTitre(configJson);
     }
 
     let lastModified = localStorage.getItem(CONFIGURATION_MILLEGRILLE_LASTMODIFIED);
@@ -91,10 +87,7 @@ class App extends React.Component {
         localStorage.setItem(CONFIGURATION_MILLEGRILLE_LASTMODIFIED, resp.headers['last-modified']);
 
         // Mettre a jour le titre de Vitrine
-        ReactDOM.render(
-          <Titre configuration={this.state.configuration}/>,
-          document.getElementById('titre')
-        );
+        _setTitre(this.state.configuration);
       }
     })
     .catch(err=>{
@@ -153,11 +146,11 @@ class ToggleMenu extends React.Component {
   }
 }
 
-function Titre(props) {
-  if(props.configuration) {
-    return props.configuration.descriptif || 'Vitrine';
+function _setTitre(configuration) {
+  if(configuration) {
+    document.title = configuration.descriptif || 'Vitrine';
   } else {
-    return 'Vitrine';
+    document.title = 'Vitrine';
   }
 }
 
