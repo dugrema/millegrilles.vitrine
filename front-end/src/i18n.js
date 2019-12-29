@@ -1,23 +1,24 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import fr from './vitrine.fr.json';
-import en from './vitrine.en.json';
+import LanguageDetector from 'i18next-browser-languagedetector';
 
 // the translations
-// (tip move them in a JSON file and import them)
+import fr from './vitrine.fr.json';
+import en from './vitrine.en.json';
 const resources = {fr, en};
 
 i18n
+  .use(LanguageDetector)
   .use(initReactI18next) // passes i18n down to react-i18next
   .init({
     resources,
-    lng: "fr",
+    fallbackLng: 'fr',
 
-    keySeparator: true, // we do not use keys in form messages.welcome
+    keySeparator: false, // we use keys in form messages.welcome
 
     interpolation: {
-      escapeValue: false // react already safes from xss
+      escapeValue: false // react is already safe from xss
     }
   });
 
-  export default i18n;
+export default i18n;
