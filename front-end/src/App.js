@@ -1,9 +1,12 @@
 import React from 'react';
-import {Jumbotron, Card, CardDeck, Button, Nav, Navbar,
-        Container, Row, Col} from 'react-bootstrap';
+import axios from 'axios';
+import {Nav, Navbar, NavDropdown} from 'react-bootstrap';
+import {AccueilVitrine} from './accueil/accueil';
 import './App.css';
 
 import {SenseursPassifsVitrine} from './domaines/SenseursPassifs';
+
+const CONFIGURATION_MILLEGRILLE = 'configuration.millegrille';
 
 class App extends React.Component {
 
@@ -14,7 +17,6 @@ class App extends React.Component {
   webSocketHandler = null;
 
   domaines = {
-    '': Accueil,
     SenseursPassifs: SenseursPassifsVitrine,
   }
 
@@ -28,6 +30,8 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+    // Charger la configuration de la MilleGrille
+    this._chargerConfiguration();
   }
 
   render() {
@@ -37,7 +41,10 @@ class App extends React.Component {
       const DomaineElement = this.domaines[this.state.domaine];
       content = (<DomaineElement key="domaine" />);
     } else {
-      content = (<Accueil/>);
+      content = (
+        <AccueilVitrine
+          configuration={this.state.configuration} />
+      );
     }
 
     return (
@@ -50,62 +57,24 @@ class App extends React.Component {
     );
   }
 
-}
+  _chargerConfiguration() {
+    let config = localStorage.getItem(CONFIGURATION_MILLEGRILLE);
+    if(config) {
+      this.setState({configuration: JSON.parse(config)});
+    }
+    axios.get('/defauts/millegrille.json').then(resp=>{
+      if(resp.status === 200) {
+        const configuration = resp.data;
+        this.setState({configuration});
+        localStorage.setItem(CONFIGURATION_MILLEGRILLE, JSON.stringify(configuration));
+      }
+    })
+    .catch(err=>{
+      console.error("Erreur acces config defaut /defauts/millegrille.json");
+      console.error(err);
+    })
+  }
 
-function Accueil(props) {
-  return (
-    [
-      <Jumbotron>
-        <Container>
-          <Row>
-            <Col>
-              <h1>MilleGrille XXXX</h1>
-              <p>
-                Vitrine sur MilleGrilles.
-              </p>
-              <p>Choisir une option dans le menu pour poursuivre.</p>
-            </Col>
-            <Col>
-              <i className="fa fa-clone fa-5x w3-padding-64 w3-text-red"></i>
-            </Col>
-          </Row>
-        </Container>
-      </Jumbotron>,
-      <CardDeck>
-        <Card>
-          <Card.Img variant="top" src="/logo512.png" />
-          <Card.Body>
-            <Card.Title>Card Title</Card.Title>
-            <Card.Text>
-              Some quick example text to build on the card title and make up the bulk of
-              the card's content.
-            </Card.Text>
-            <Button variant="primary">Go somewhere</Button>
-          </Card.Body>
-        </Card>
-        <Card>
-          <Card.Body>
-            <Card.Title>Card Title</Card.Title>
-            <Card.Text>
-              Some quick example text to build on the card title and make up the bulk of
-              the card's content.
-            </Card.Text>
-            <Button variant="primary">Go somewhere</Button>
-          </Card.Body>
-        </Card>
-        <Card>
-          <Card.Body>
-            <Card.Title>Card Title</Card.Title>
-            <Card.Text>
-              Some quick example text to build on the card title and make up the bulk of
-              the card's content.
-            </Card.Text>
-            <Button variant="primary">Go somewhere</Button>
-          </Card.Body>
-        </Card>
-      </CardDeck>
-    ]
-  );
 }
 
 class ToggleMenu extends React.Component {
@@ -126,11 +95,11 @@ class ToggleMenu extends React.Component {
 
   render() {
     let items = {'SenseursPassifs': 'Senseurs Passifs'};
-    let boutons = [];
+    let liensDomaines = [];
     for(var domaine in items) {
       let domaineDesc = items[domaine];
-      boutons.push(
-        <Nav.Link key={domaine} eventKey={domaine}>{domaineDesc}</Nav.Link>
+      liensDomaines.push(
+        <NavDropdown.Item key={domaine} eventKey={domaine}>{domaineDesc}</NavDropdown.Item>
       );
     }
 
@@ -138,10 +107,15 @@ class ToggleMenu extends React.Component {
       <Navbar collapseOnSelect expand="md" bg="danger" variant="dark" fixed="top"
               onSelect={this.changerDomaine}>
         <Navbar.Brand href='#' onClick={this.changerDomaine}>Vitrine</Navbar.Brand>
-        <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-        <Navbar.Collapse id="responsive-navbar-nav">
+        <Navbar.Toggle aria-controls="responsive-navbar-menu" />
+        <Navbar.Collapse id="responsive-navbar-menu">
           <Nav className="mr-auto" activeKey={this.props.domaine}>
-            {boutons}
+            <Nav.Link eventKey="Album">Album</Nav.Link>
+            <Nav.Link eventKey="Documents">Documents</Nav.Link>
+            <Nav.Link eventKey="Fichiers">Fichiers</Nav.Link>
+            <NavDropdown title="Par domaine" id="collasible-nav-domaines">
+              {liensDomaines}
+            </NavDropdown>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
