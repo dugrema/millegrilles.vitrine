@@ -155,10 +155,12 @@ class ToggleMenu extends React.Component {
   render() {
     let items = listerDomaines();
     let liensDomaines = [];
-    for(var domaine in items) {
-      let domaineDesc = items[domaine][this.props.locale];
+    for(var idx in items) {
+      let domaine = items[idx];
       liensDomaines.push(
-        <NavDropdown.Item key={domaine} eventKey={domaine}>{domaineDesc}</NavDropdown.Item>
+        <NavDropdown.Item key={domaine} eventKey={domaine}>
+          <Trans>{'domaines.' + domaine}</Trans>
+        </NavDropdown.Item>
       );
     }
 

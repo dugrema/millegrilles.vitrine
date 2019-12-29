@@ -54,6 +54,7 @@ export class AccueilVitrine extends SectionVitrine {
             <Col>
               <h1>{descriptif}</h1>
               {idmg}
+              <hr/>
               {messageBienvenue}
             </Col>
             <Col>
