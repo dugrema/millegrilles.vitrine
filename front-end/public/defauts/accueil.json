@@ -1,0 +1,10 @@
+{
+  "messageBienvenue": "Bienvenue sur l'application par defaut de Vitrine. Cette application n'est pas encore configuree.",
+  "cartes": [
+    {
+      "image": "12838-38843-abeff123-12323",
+      "titre": "Titre de la carte",
+      "texte": "Contenu de la carte"
+    }
+  ]
+}

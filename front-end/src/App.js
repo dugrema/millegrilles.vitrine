@@ -6,8 +6,7 @@ import './App.css';
 
 import {SenseursPassifsVitrine} from './domaines/SenseursPassifs';
 
-const CONFIGURATION_MILLEGRILLE = 'configuration.millegrille';
-const CONFIGURATION_MILLEGRILLE_LASTMODIFIED = 'configuration.millegrille.lastModified';
+const MILLEGRILLE_LIBELLE = 'millegrille.configuration', MILLEGRILLE_URL = '/millegrille.json';
 
 class App extends React.Component {
 
@@ -60,20 +59,21 @@ class App extends React.Component {
   }
 
   _chargerConfiguration() {
-    let config = localStorage.getItem(CONFIGURATION_MILLEGRILLE);
-    if(config) {
-      const configJson = JSON.parse(config);
-      this.setState({configuration: configJson});
-      _setTitre(configJson);
-    }
+    let contenuStr = localStorage.getItem(MILLEGRILLE_LIBELLE);
 
-    let lastModified = localStorage.getItem(CONFIGURATION_MILLEGRILLE_LASTMODIFIED);
     const headers = {};
-    if(lastModified) {
-      headers['If-Modified-Since'] = lastModified;
+    if(contenuStr) {
+      const configuration = JSON.parse(contenuStr);
+      this.setState({configuration});
+      _setTitre(configuration);
+
+      let lastModified = configuration.lastModified;
+      if(lastModified) {
+        headers['If-Modified-Since'] = lastModified;
+      }
     }
 
-    axios.get('/defauts/millegrille.json', {
+    axios.get('/defauts' + MILLEGRILLE_URL, {
       headers,
       validateStatus: status=>{return status === 200 || status === 304}
     })
@@ -81,10 +81,13 @@ class App extends React.Component {
       console.debug(resp);
       if(resp.status === 200) {
         // Sauvegarder la configuration
-        const configuration = resp.data;
+        const contenuPage = resp.data;
+        const configuration = {
+          contenuPage,
+          lastModified: resp.headers['last-modified'],
+        }
         this.setState({configuration});
-        localStorage.setItem(CONFIGURATION_MILLEGRILLE, JSON.stringify(configuration));
-        localStorage.setItem(CONFIGURATION_MILLEGRILLE_LASTMODIFIED, resp.headers['last-modified']);
+        localStorage.setItem(MILLEGRILLE_LIBELLE, JSON.stringify(configuration));
 
         // Mettre a jour le titre de Vitrine
         _setTitre(this.state.configuration);
@@ -131,7 +134,7 @@ class ToggleMenu extends React.Component {
         <Navbar.Toggle aria-controls="responsive-navbar-menu" />
         <Navbar.Collapse id="responsive-navbar-menu">
           <Nav className="mr-auto" activeKey={this.props.domaine}>
-            <Nav.Link eventKey="Album">Album</Nav.Link>
+            <Nav.Link eventKey="Albums">Albums</Nav.Link>
             <Nav.Link eventKey="Documents">Documents</Nav.Link>
             <Nav.Link eventKey="Fichiers">Fichiers</Nav.Link>
             <NavDropdown title="Par domaine" id="collasible-nav-domaines">
@@ -148,7 +151,7 @@ class ToggleMenu extends React.Component {
 
 function _setTitre(configuration) {
   if(configuration) {
-    document.title = configuration.descriptif || 'Vitrine';
+    document.title = configuration.contenuPage.descriptif || 'Vitrine';
   } else {
     document.title = 'Vitrine';
   }
