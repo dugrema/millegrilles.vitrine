@@ -1,5 +1,6 @@
 import React, {PureComponent} from 'react';
-import {Jumbotron, Card, Container, Row, Col} from 'react-bootstrap';
+import {Jumbotron, Card, CardDeck, Button, Nav, Navbar,
+        Container, Row, Col} from 'react-bootstrap';
 import './w3.css';  // Copie de https://www.w3schools.com/w3css/4/w3.css
 import './App.css';
 
@@ -22,8 +23,8 @@ class App extends React.Component {
     afficherAccueil: event => {
       this.setState({domaine: null});
     },
-    changerDomaine: event => {
-      this.setState({domaine: event.currentTarget.value});
+    changerDomaine: domaine => {
+      this.setState({domaine: domaine});
     }
   }
 
@@ -35,18 +36,7 @@ class App extends React.Component {
     let content;
     if(this.state.domaine && this.state.domaine != '') {
       const DomaineElement = this.domaines[this.state.domaine];
-      let header = (
-        <header className="App-header w3-container w3-red w3-center">
-          <p className="w3-xlarge">MilleGrille XXXXA</p>
-        </header>
-      );
-
-      content = (
-        [
-          header,
-          <DomaineElement />
-        ]
-      );
+      content = (<DomaineElement key="domaine" />);
     } else {
       content = (<Accueil/>);
     }
@@ -65,22 +55,57 @@ class App extends React.Component {
 
 function Accueil(props) {
   return (
-    <Jumbotron>
-      <Container>
-        <Row>
-          <Col>
-            <h1>MilleGrille XXXX</h1>
-            <p>
-              Vitrine sur MilleGrilles.
-            </p>
-            <p>Choisir une option dans le menu pour poursuivre.</p>
-          </Col>
-          <Col>
-            <i className="fa fa-clone fa-5x w3-padding-64 w3-text-red"></i>
-          </Col>
-        </Row>
-      </Container>
-    </Jumbotron>
+    [
+      <Jumbotron>
+        <Container>
+          <Row>
+            <Col>
+              <h1>MilleGrille XXXX</h1>
+              <p>
+                Vitrine sur MilleGrilles.
+              </p>
+              <p>Choisir une option dans le menu pour poursuivre.</p>
+            </Col>
+            <Col>
+              <i className="fa fa-clone fa-5x w3-padding-64 w3-text-red"></i>
+            </Col>
+          </Row>
+        </Container>
+      </Jumbotron>,
+      <CardDeck>
+        <Card>
+          <Card.Img variant="top" src="/logo512.png" />
+          <Card.Body>
+            <Card.Title>Card Title</Card.Title>
+            <Card.Text>
+              Some quick example text to build on the card title and make up the bulk of
+              the card's content.
+            </Card.Text>
+            <Button variant="primary">Go somewhere</Button>
+          </Card.Body>
+        </Card>
+        <Card>
+          <Card.Body>
+            <Card.Title>Card Title</Card.Title>
+            <Card.Text>
+              Some quick example text to build on the card title and make up the bulk of
+              the card's content.
+            </Card.Text>
+            <Button variant="primary">Go somewhere</Button>
+          </Card.Body>
+        </Card>
+        <Card>
+          <Card.Body>
+            <Card.Title>Card Title</Card.Title>
+            <Card.Text>
+              Some quick example text to build on the card title and make up the bulk of
+              the card's content.
+            </Card.Text>
+            <Button variant="primary">Go somewhere</Button>
+          </Card.Body>
+        </Card>
+      </CardDeck>
+    ]
   );
 }
 
@@ -101,7 +126,14 @@ class ToggleMenu extends PureComponent {
 
   changerDomaine = event => {
     this.setState({show: false});
-    this.props.menuActions.changerDomaine(event);
+    let domaine;
+    if(event.currentTarget) {
+      domaine = event.currentTarget.value;
+    } else {
+      domaine = event;
+    }
+    this.props.menuActions.changerDomaine(domaine);
+
   }
 
   render() {
@@ -120,7 +152,7 @@ class ToggleMenu extends PureComponent {
       mobileMenu = null;
     }
 
-    let items = {'': 'Accueil', 'SenseursPassifs': 'Senseurs Passifs'};
+    let items = {'SenseursPassifs': 'Senseurs Passifs'};
     let boutons = [];
     for(var domaine in items) {
       let domaineDesc = items[domaine];
@@ -131,26 +163,20 @@ class ToggleMenu extends PureComponent {
         className += ' w3-hide-small w3-hover-white';
       }
       boutons.push(
-        <button key={domaine}
-          className={className}
-          onClick={this.changerDomaine} value={domaine}>{domaineDesc}</button>
+        <Nav.Link key={domaine} eventKey={domaine}>{domaineDesc}</Nav.Link>
       );
     }
 
     let content = (
-      <nav className="w3-top">
-        <div className="w3-bar w3-red w3-card w3-left-align w3-large">
-          <button
-            className="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-padding-large w3-hover-white w3-large w3-red"
-            onClick={this.toggleMenu}
-            title="Toggle Navigation Menu">
-              <i className="fa fa-bars"></i>
-          </button>
-          {boutons}
-        </div>
-
-        {mobileMenu}
-      </nav>
+      <Navbar collapseOnSelect expand="md" bg="dark" variant="dark" fixed="top" onSelect={this.changerDomaine}>
+        <Navbar.Brand href='#' onClick={this.changerDomaine}>Vitrine</Navbar.Brand>
+        <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+        <Navbar.Collapse id="responsive-navbar-nav">
+          <Nav className="mr-auto">
+            {boutons}
+          </Nav>
+        </Navbar.Collapse>
+      </Navbar>
     );
 
     return content;
