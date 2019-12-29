@@ -2,7 +2,11 @@ import React from 'react';
 import axios from 'axios';
 import {Nav, Navbar, NavDropdown} from 'react-bootstrap';
 import {AccueilVitrine} from './sections/accueil';
+
 import {AlbumsVitrine} from './sections/albums';
+import {DocumentsVitrine} from './sections/documents';
+import {FichiersVitrine} from './sections/fichiers';
+
 import './App.css';
 
 import {getDomaine} from './domaines/domainesSupportes';
@@ -10,7 +14,9 @@ import {getDomaine} from './domaines/domainesSupportes';
 const MILLEGRILLE_LIBELLE = 'millegrille.configuration', MILLEGRILLE_URL = '/millegrille.json';
 
 const sections = {
-  Albums: AlbumsVitrine
+  Albums: AlbumsVitrine,
+  Documents: DocumentsVitrine,
+  Fichiers: FichiersVitrine,
 }
 
 class App extends React.Component {
@@ -54,12 +60,12 @@ class App extends React.Component {
     let content = (<SectionElement configuration={this.state.configuration}/>);
 
     return (
-        <div className="App">
-          <ToggleMenu
-            menuActions={this.menuActions}
-            domaine={this.state.domaine} />
-          {content}
-        </div>
+      <div className="App">
+        <ToggleMenu
+          menuActions={this.menuActions}
+          section={this.state.section} />
+        {content}
+      </div>
     );
   }
 
@@ -111,15 +117,14 @@ class ToggleMenu extends React.Component {
   state = {
   }
 
-  changerDomaine = event => {
-    this.setState({show: false});
-    let domaine;
+  changerSection = event => {
+    let section;
     if(event.currentTarget) {
-      domaine = event.currentTarget.value;
+      section = event.currentTarget.value;
     } else {
-      domaine = event;
+      section = event;
     }
-    this.props.menuActions.changerSection(domaine);
+    this.props.menuActions.changerSection(section);
   }
 
   render() {
@@ -134,11 +139,11 @@ class ToggleMenu extends React.Component {
 
     let content = (
       <Navbar collapseOnSelect expand="md" bg="danger" variant="dark" fixed="top"
-              onSelect={this.changerDomaine}>
-        <Navbar.Brand href='#' onClick={this.changerDomaine}>Vitrine</Navbar.Brand>
+              onSelect={this.changerSection}>
+        <Navbar.Brand href='#' onClick={this.changerSection}>Vitrine</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-menu" />
         <Navbar.Collapse id="responsive-navbar-menu">
-          <Nav className="mr-auto" activeKey={this.props.domaine}>
+          <Nav className="mr-auto" activeKey={this.props.section}>
             <Nav.Link eventKey="Albums">Albums</Nav.Link>
             <Nav.Link eventKey="Documents">Documents</Nav.Link>
             <Nav.Link eventKey="Fichiers">Fichiers</Nav.Link>
