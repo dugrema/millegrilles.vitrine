@@ -28,22 +28,10 @@ const sections = {
 class App extends React.Component {
 
   state = {
-    section: '',
     configuration: null,
   }
 
   webSocketHandler = null;
-
-  menuActions = {
-    afficherAccueil: event => {
-      this.setState({domaine: null});
-    },
-    changerSection: page => {
-      this.setState({
-        section: page,
-      });
-    }
-  }
 
   componentDidMount() {
     // Charger la configuration de la MilleGrille
@@ -57,21 +45,6 @@ class App extends React.Component {
 
   render() {
 
-    let SectionElement;
-    if(this.state.section && this.state.section !== '') {
-      if(sections[this.state.section]) {
-        SectionElement = sections[this.state.section];
-      } else {
-        // const DomaineElement = this.domaines[this.state.domaine];
-        SectionElement = getDomaine(this.state.domaine);
-      }
-    } else {
-      SectionElement = AccueilVitrine;
-    }
-    let content = (
-      <SectionElement locale={this.state.locale} configuration={this.state.configuration}/>
-    );
-
     return (
       <Router>
         <div className="App">
@@ -83,11 +56,19 @@ class App extends React.Component {
             section={this.state.section} />
 
           <Switch>
-            <Route exact path="/" component={AccueilVitrine}/>
-            <Route path="/albums" component={AlbumsVitrine}/>
-            <Route path="/documents" component={DocumentsVitrine}/>
-            <Route path="/fichiers" component={FichiersVitrine}/>
-            <Route render={() => <h1>Page not found</h1>} />
+            <Route exact path="/">
+              <AccueilVitrine configuration={this.state.configuration}/>
+            </Route>
+            <Route path="/albums">
+              <AlbumsVitrine configuration={this.state.configuration}/>
+            </Route>
+            <Route path="/documents">
+              <DocumentsVitrine configuration={this.state.configuration}/>
+            </Route>
+            <Route path="/fichiers">
+              <FichiersVitrine configuration={this.state.configuration}/>
+            </Route>
+            <Route render={() => <h1><Trans>application.pageNonTrouvee</Trans></h1>} />
           </Switch>
         </div>
       </Router>
@@ -149,21 +130,21 @@ class App extends React.Component {
 
 class _toggleMenu extends React.Component {
 
-  state = {
-  }
-
-  changerSection = event => {
-    // Changement de lange n'est pas un changement de section
-    if(event === 'fr' || event === 'en') return;
-
-    let section;
-    if(event.currentTarget) {
-      section = event.currentTarget.value;
-    } else {
-      section = event;
-    }
-    this.props.menuActions.changerSection(section);
-  }
+  // state = {
+  // }
+  //
+  // changerSection = event => {
+  //   // Changement de lange n'est pas un changement de section
+  //   if(event === 'fr' || event === 'en') return;
+  //
+  //   let section;
+  //   if(event.currentTarget) {
+  //     section = event.currentTarget.value;
+  //   } else {
+  //     section = event;
+  //   }
+  //   this.props.menuActions.changerSection(section);
+  // }
 
   render() {
     let items = listerDomaines();

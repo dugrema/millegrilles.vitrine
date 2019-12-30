@@ -132,7 +132,7 @@ export class AccueilVitrine extends SectionVitrine {
         texte = [];
         for(let idxPara in medium.texte) {
           let paragraphe = medium.texte[idxPara];
-          texte.push(<p>{paragraphe}</p>)
+          texte.push(<p key={idxPara}>{paragraphe}</p>)
         }
       }
 

@@ -1,7 +1,8 @@
 {
   "translation": {
     "application": {
-      "nom": "Vitrine"
+      "nom": "Vitrine",
+      "pageNonTrouvee": "Page not found"
     },
     "menu": {
       "albums": "Albums",
