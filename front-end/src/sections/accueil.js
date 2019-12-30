@@ -3,6 +3,9 @@ import {SectionVitrine} from './sections';
 import {Jumbotron, Card, CardDeck, Button, Image, Media,
         Container, Row, Col} from 'react-bootstrap';
 
+import '../i18n';
+import { Trans, Translation, withTranslation } from 'react-i18next';
+
 import './accueil.css';
 
 const ACCUEIL_LIBELLE = 'page.accueil', ACCUEIL_URL = '/accueil.json';
@@ -115,7 +118,7 @@ export class AccueilVitrine extends SectionVitrine {
     for(let idx in media) {
       let medium = media[idx];
 
-      var image, titre, texte;
+      var image, titre, texte, footer;
       if(medium.image) {
         image = (
           <img
@@ -135,13 +138,18 @@ export class AccueilVitrine extends SectionVitrine {
           texte.push(<p key={idxPara}>{paragraphe}</p>)
         }
       }
+      if(medium.modifie) {
+        const dateModifiee = new Date(medium.modifie * 1000);
+        footer = (<p className="mediaFooter"><Trans values={{date: dateModifiee}}>accueil.dateModifiee</Trans></p>)
+      }
 
       mediaList.push(
-        <Media key={idx}>
+        <Media key={idx} className="blogpost">
           {image}
           <Media.Body>
             {titre}
             {texte}
+            {footer}
           </Media.Body>
         </Media>
       );

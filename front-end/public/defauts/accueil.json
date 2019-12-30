@@ -1,5 +1,5 @@
 {
-  "messageBienvenue": "Bienvenue sur l'application publique Vitrine de MilleGrilles. La MilleGrille n'est pas encore configuree.",
+  "messageBienvenue": "Bienvenue sur l'application publique Vitrine de MilleGrilles. La MilleGrille n'est pas encore configurée.",
   "cartes": [
     {
       "image": "res/oliver-ash-Ke20IqFHjfQ-unsplash.jpg",
@@ -25,7 +25,8 @@
       "texte": [
           "MilleGrilles est un systeme d'information personnel base sur 4 niveaux de securite : public, prive, protege, secure. Ceci simplifie la protection de vos donnees tout en facilitant le partage sur internet.",
           "L'utilisation de cryptographie et de certificats de securite permet de proteger les donnees en transit et au repos."
-        ]
+        ],
+      "modifie": 1577744420
     },
     {
       "image": "res/mike-petrucci-c9FQyqIECds-unsplash.jpg",
@@ -33,7 +34,8 @@
       "texte": [
           "MilleGrilles n'utilise pas de mots de passe.",
           "Vous devez utiliser une cle de securite physique (USB) pour la configuration initiale. Ceci vous permet ensuite de lier vos appareils mobiles et donner acces a d'autres MilleGrilles sans jamais avoir a vous souvenir de mots de passes."
-        ]
+        ],
+      "modifie": 1577742420
     }
   ]
 }

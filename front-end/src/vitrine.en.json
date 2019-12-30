@@ -11,6 +11,9 @@
       "domaines": "By domain",
       "changerLangue": "Francais"
     },
+    "accueil": {
+      "dateModifiee": "Last updated on {{date, MMMM DD, YYYY}} at {{date, h:mm a}}"
+    },
     "domaines": {
       "SenseursPassifs": "Sensors"
     }

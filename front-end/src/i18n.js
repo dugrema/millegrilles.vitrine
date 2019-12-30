@@ -1,11 +1,21 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from 'i18next-browser-languagedetector';
+import moment from 'moment';
 
 // the translations
+import 'moment/locale/fr'
 import fr from './vitrine.fr.json';
 import en from './vitrine.en.json';
 const resources = {fr, en};
+
+function formatterValeur(value, format, lng) {
+  if(value instanceof Date) {
+    return moment(value).locale(lng).format(format);
+  }
+
+  return value;
+}
 
 i18n
   .use(LanguageDetector)
@@ -17,7 +27,8 @@ i18n
     keySeparator: '.', // we use keys in form messages.welcome
 
     interpolation: {
-      escapeValue: false // react is already safe from xss
+      escapeValue: false, // react is already safe from xss,
+      format: formatterValeur
     }
   });
 
