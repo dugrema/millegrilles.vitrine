@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import axios from 'axios';
 
@@ -8,7 +8,7 @@ import { AccueilVitrine } from './sections/accueil';
 import { AlbumsVitrine } from './sections/albums';
 import { DocumentsVitrine } from './sections/documents';
 import { FichiersVitrine } from './sections/fichiers';
-import {getDomaine, listerDomaines} from './domaines/domainesSupportes';
+import {listerDomaines} from './domaines/domainesSupportes';
 
 import './i18n';
 import { Trans, Translation, withTranslation } from 'react-i18next';
@@ -18,14 +18,7 @@ import './App.css';
 const MILLEGRILLE_LIBELLE = 'millegrille.configuration', MILLEGRILLE_URL = '/millegrille.json';
 const USER_LOCALE = 'user.locale';
 
-// Mapping des sections principales de Vitrine
-const sections = {
-  Albums: AlbumsVitrine,
-  Documents: DocumentsVitrine,
-  Fichiers: FichiersVitrine,
-}
-
-class App extends React.Component {
+class _app extends React.Component {
 
   state = {
     configuration: null,
@@ -45,13 +38,21 @@ class App extends React.Component {
 
   render() {
 
+    // Ajouter fonctionnalite pour changer de langage
+    const i18n = this.props.i18n;
+    const changeLanguage = lng => {
+      console.debug("Changer langage vers " + lng);
+      i18n.changeLanguage(lng);
+    };
+    const languageChangement = 'fr'===i18n.language?'en':'fr';
+
     return (
       <Router>
         <div className="App">
           <ToggleMenu
             configuration={this.state.configuration}
-            locale={this.state.locale}
-            localeProps={this.localeProps}
+            languageChangement={languageChangement}
+            changeLanguage={changeLanguage}
             menuActions={this.menuActions}
             section={this.state.section} />
 
@@ -128,7 +129,9 @@ class App extends React.Component {
 
 }
 
-class _toggleMenu extends React.Component {
+const App = withTranslation()(_app);
+
+class ToggleMenu extends React.Component {
 
   // state = {
   // }
@@ -158,13 +161,6 @@ class _toggleMenu extends React.Component {
       );
     }
 
-    // Ajouter fonctionnalite pour changer de langage
-    const i18n = this.props.i18n;
-    const changeLanguage = lng => {
-      i18n.changeLanguage(lng);
-    };
-    const languageChangement = 'fr'===i18n.language?'en':'fr';
-
     var nomMilleGrille = (<Trans>application.nom</Trans>);
     if(this.props.configuration && this.props.configuration.contenuPage.descriptif) {
       nomMilleGrille = this.props.configuration.contenuPage.descriptif;
@@ -188,8 +184,8 @@ class _toggleMenu extends React.Component {
               }
             </Translation>
           </Nav>
-          <Nav className="justify-content-end" activeKey={this.props.section}>
-            <Nav.Link eventKey={languageChangement} onSelect={changeLanguage}><Trans>menu.changerLangue</Trans></Nav.Link>
+          <Nav className="justify-content-end">
+            <Nav.Link eventKey={this.props.languageChangement} onSelect={this.props.changeLanguage}><Trans>menu.changerLangue</Trans></Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
@@ -199,7 +195,7 @@ class _toggleMenu extends React.Component {
   }
 }
 
-const ToggleMenu = withTranslation()(_toggleMenu);
+// const ToggleMenu = withTranslation()(_toggleMenu);
 
 function _setTitre(localeProps, configuration) {
   const vitrineDescription = (<Translation>{t=>t('application.nom')}</Translation>);

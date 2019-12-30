@@ -1,6 +1,5 @@
 import React from 'react';
-import {Card, CardColumns, Carousel,
-        Container, Row, Col} from 'react-bootstrap';
+import {Card, CardColumns, Carousel} from 'react-bootstrap';
 import {SectionVitrine} from './sections';
 
 import './albums.css';
@@ -99,7 +98,7 @@ export class AlbumsVitrine extends SectionVitrine {
 
       listeRendered.push(
         <Carousel.Item key={idx}>
-          <img className="d-block w-100" src={element.thumbnail} />
+          <img className="d-block w-100" src={element.thumbnail} alt={descriptif}/>
           {legende}
         </Carousel.Item>
       );

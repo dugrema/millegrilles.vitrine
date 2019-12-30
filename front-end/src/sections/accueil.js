@@ -3,8 +3,7 @@ import {SectionVitrine} from './sections';
 import {Jumbotron, Card, CardDeck, Button, Image, Media,
         Container, Row, Col} from 'react-bootstrap';
 
-import '../i18n';
-import { Trans, Translation, withTranslation } from 'react-i18next';
+import { Trans } from 'react-i18next';
 
 import './accueil.css';
 
