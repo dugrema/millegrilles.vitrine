@@ -34,10 +34,9 @@ export class AccueilVitrine extends SectionVitrine {
 
   _renderJumbotron() {
 
-    var idmg, descriptif, messageBienvenue;
+    var descriptif, messageBienvenue;
 
     if(this.props.configuration) {
-      idmg = this.props.configuration.contenuPage.idmg;
       descriptif = (<p>{this.props.configuration.contenuPage.descriptif}</p>);
     }
     if(this.state.contenu && this.state.contenu.contenuPage) {
@@ -53,7 +52,6 @@ export class AccueilVitrine extends SectionVitrine {
           <Row>
             <Col>
               <h1>{descriptif}</h1>
-              {idmg}
               <hr/>
               {messageBienvenue}
             </Col>

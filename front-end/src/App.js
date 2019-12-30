@@ -74,6 +74,7 @@ class App extends React.Component {
     return (
       <div className="App">
         <ToggleMenu
+          configuration={this.state.configuration}
           locale={this.state.locale}
           localeProps={this.localeProps}
           menuActions={this.menuActions}
@@ -173,9 +174,14 @@ class _toggleMenu extends React.Component {
     };
     const languageChangement = 'fr'===i18n.language?'en':'fr';
 
+    var nomMilleGrille = (<Trans>application.nom</Trans>);
+    if(this.props.configuration && this.props.configuration.contenuPage.descriptif) {
+      nomMilleGrille = this.props.configuration.contenuPage.descriptif;
+    }
+
     let content = (
-      <Navbar collapseOnSelect expand="sm" bg="danger" variant="dark" fixed="top">
-        <Navbar.Brand href='#' onClick={this.changerSection}><Trans>application.nom</Trans></Navbar.Brand>
+      <Navbar collapseOnSelect expand="md" bg="danger" variant="dark" fixed="top">
+        <Navbar.Brand href='#' onClick={this.changerSection}>{nomMilleGrille}</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-menu" />
         <Navbar.Collapse id="responsive-navbar-menu">
           <Nav className="mr-auto" activeKey={this.props.section} onSelect={this.changerSection}>
