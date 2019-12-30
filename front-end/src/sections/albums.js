@@ -20,6 +20,7 @@ export class AlbumsVitrine extends SectionVitrine {
     return (
       <div>
         {this._renderRecent()}
+        {this._renderCollections()}
       </div>
     );
   }
@@ -103,5 +104,34 @@ export class AlbumsVitrine extends SectionVitrine {
 
   _renderCollections() {
 
+    const collectionsListe = [];
+    if(this.state.contenu && this.state.contenu.contenuPage) {
+      const collections = this.state.contenu.contenuPage.collections;
+      for(let idx in collections) {
+        let collection = collections[idx];
+        var legende;
+
+        if(collection.descriptif) {
+          legende = (
+            <Card.Body>
+              <Card.Text>{collection.descriptif}</Card.Text>
+            </Card.Body>
+          );
+        }
+
+        collectionsListe.push(
+          <Card key={idx}>
+            <Card.Img variant="top" src={collection.thumbnail} />
+            {legende}
+          </Card>
+        );
+      }
+    }
+
+    return (
+      <CardColumns>
+        {collectionsListe}
+      </CardColumns>
+    );
   }
 }
