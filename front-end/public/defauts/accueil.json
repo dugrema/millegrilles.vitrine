@@ -2,21 +2,31 @@
   "messageBienvenue": "Bienvenue sur l'application publique Vitrine de MilleGrilles. La MilleGrille n'est pas encore configuree.",
   "cartes": [
     {
+      "image": "res/oliver-ash-Ke20IqFHjfQ-unsplash.jpg",
+      "titre": "Votre MilleGrille, vos donnees",
+      "texte": "Toutes les donnees placees dans votre MilleGrille vous appartiennent. Vous n'avez pas besoin de demander de permission pour les transferer, personne ne peut les bloquer ou les effacer. Personne ne peut ouvrir vos donnees protegees sans votre permission. Personne d'autre que vous ne peut acceder a vos donnees secures.",
+      "footer": "Photo by Oliver Ash on Unsplash"
+    },{
+      "image": "res/tessa-wilson-wya0Ls5bxMM-unsplash.jpg",
+      "titre": "Albums",
+      "texte": "Placez vos photos et videos dans votre MilleGrille pour les sauvegarder et les partager.",
+      "footer": "Photo by Tessa Wilson on Unsplash"
+    },{
+      "image": "res/guido-hofmann-G7BDFhrV00E-unsplash.jpg",
+      "titre": "Collections et recherche",
+      "texte": "Archivez vos documents personnels et partagez securitairement vos idees. Classez vos documents et fichiers dans des collections et cherchez simplement en utilisant les mots cles et les groupes d'etiquettes.",
+      "footer": "Photo by Guido Hofmann on Unsplash"
+    }
+  ],
+  "blog": [
+    {
+      "image": "res/zac-wolff-lxDYQM5E0bI-unsplash.jpg",
       "titre": "Securitaire",
       "texte": "MilleGrilles est un systeme d'information personnel base sur 4 niveaux de securite : public, prive, protege, secure. Ceci simplifie la protection de vos donnees tout en facilitant le partage sur internet."
-    },{
-      "image": "logo128.png",
-      "titre": "Albums",
-      "texte": "Placez vos photos et videos dans votre MilleGrille pour les sauvegarder et les partager."
-    },{
-      "titre": "Collections et recherche",
-      "texte": "Archivez vos documents personnels et partagez securitairement vos idees. Classez vos documents et fichiers dans des collections et cherchez simplement en utilisant les mots cles et les groupes d'etiquettes."
-    },{
+    },
+    {
       "titre": "A bas les mots de passe",
       "texte": "MilleGrilles n'utilise pas de mots de passe. Vous devez utiliser une cle de securite physique (USB) pour la configuration initiale. Ceci vous permet ensuite de lier vos appareils mobiles et donner acces a d'autres MilleGrilles sans jamais avoir a vous souvenir de mots de passes."
-    },{
-      "titre": "Votre MilleGrille, vos donnees",
-      "texte": "Toutes les donnees placees dans votre MilleGrille vous appartiennent. Vous n'avez pas besoin de demander de permission pour les transferer, personne ne peut les bloquer ou les effacer. Personne ne peut ouvrir vos donnees protegees sans votre permission. Personne d'autre que vous ne peut acceder a vos donnees secures."
     }
   ]
 }
