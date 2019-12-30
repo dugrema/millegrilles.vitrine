@@ -1,12 +1,13 @@
 import React from 'react';
+import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom';
+import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import axios from 'axios';
-import {Nav, Navbar, NavDropdown} from 'react-bootstrap';
-import {AccueilVitrine} from './sections/accueil';
 
 // Importer sections et domaines
-import {AlbumsVitrine} from './sections/albums';
-import {DocumentsVitrine} from './sections/documents';
-import {FichiersVitrine} from './sections/fichiers';
+import { AccueilVitrine } from './sections/accueil';
+import { AlbumsVitrine } from './sections/albums';
+import { DocumentsVitrine } from './sections/documents';
+import { FichiersVitrine } from './sections/fichiers';
 import {getDomaine, listerDomaines} from './domaines/domainesSupportes';
 
 import './i18n';
@@ -72,15 +73,24 @@ class App extends React.Component {
     );
 
     return (
-      <div className="App">
-        <ToggleMenu
-          configuration={this.state.configuration}
-          locale={this.state.locale}
-          localeProps={this.localeProps}
-          menuActions={this.menuActions}
-          section={this.state.section} />
-        {content}
-      </div>
+      <Router>
+        <div className="App">
+          <ToggleMenu
+            configuration={this.state.configuration}
+            locale={this.state.locale}
+            localeProps={this.localeProps}
+            menuActions={this.menuActions}
+            section={this.state.section} />
+
+          <Switch>
+            <Route exact path="/" component={AccueilVitrine}/>
+            <Route path="/albums" component={AlbumsVitrine}/>
+            <Route path="/documents" component={DocumentsVitrine}/>
+            <Route path="/fichiers" component={FichiersVitrine}/>
+            <Route render={() => <h1>Page not found</h1>} />
+          </Switch>
+        </div>
+      </Router>
     );
   }
 
@@ -181,13 +191,13 @@ class _toggleMenu extends React.Component {
 
     let content = (
       <Navbar collapseOnSelect expand="md" bg="danger" variant="dark" fixed="top">
-        <Navbar.Brand href='#' onClick={this.changerSection}>{nomMilleGrille}</Navbar.Brand>
+        <Navbar.Brand href='/'>{nomMilleGrille}</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-menu" />
         <Navbar.Collapse id="responsive-navbar-menu">
           <Nav className="mr-auto" activeKey={this.props.section} onSelect={this.changerSection}>
-            <Nav.Link eventKey="Albums"><Trans>menu.albums</Trans></Nav.Link>
-            <Nav.Link eventKey="Documents"><Trans>menu.documents</Trans></Nav.Link>
-            <Nav.Link eventKey="Fichiers"><Trans>menu.fichiers</Trans></Nav.Link>
+            <Nav.Link href="/albums"><Trans>menu.albums</Trans></Nav.Link>
+            <Nav.Link href="/documents"><Trans>menu.documents</Trans></Nav.Link>
+            <Nav.Link href="/fichiers"><Trans>menu.fichiers</Trans></Nav.Link>
             <Translation>
               {
                 t =>
