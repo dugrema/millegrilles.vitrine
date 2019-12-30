@@ -1,5 +1,5 @@
 import React from 'react';
-import {Card, CardColumns} from 'react-bootstrap';
+import {Card, CardColumns, Carousel} from 'react-bootstrap';
 import {SectionVitrine} from './sections';
 
 import './albums.css';
@@ -26,106 +26,26 @@ export class AlbumsVitrine extends SectionVitrine {
   }
 
   _renderRecent() {
+
+    var liste = null;
+    if(this.state.contenu && this.state.contenu.contenuPage) {
+      const recents = this.state.contenu.contenuPage.recent;
+      liste = this._genererListeCarousel(recents);
+    }
+
     return (
-      <CardColumns>
-        <Card>
-          <Card.Img variant="top" src="res/guido-hofmann-G7BDFhrV00E-unsplash.jpg" />
-          <Card.Body>
-            <Card.Title>Card title that wraps to a new line</Card.Title>
-            <Card.Text>
-              This is a longer card with supporting text below as a natural lead-in to
-              additional content. This content is a little bit longer.
-            </Card.Text>
-          </Card.Body>
-        </Card>
-        <Card>
-          <Card.Img variant="top" src="res/guido-hofmann-G7BDFhrV00E-unsplash.jpg" />
-          <Card.Body>
-            <Card.Title>Card title that wraps to a new line</Card.Title>
-            <Card.Text>
-              This is a longer card with supporting text below as a natural lead-in to
-              additional content. This content is a little bit longer.
-            </Card.Text>
-          </Card.Body>
-        </Card>
-        <Card>
-          <Card.Img variant="top" src="res/guido-hofmann-G7BDFhrV00E-unsplash.jpg" />
-          <Card.Body>
-            <Card.Title>Card title that wraps to a new line</Card.Title>
-            <Card.Text>
-              This is a longer card with supporting text below as a natural lead-in to
-              additional content. This content is a little bit longer.
-            </Card.Text>
-          </Card.Body>
-        </Card>
-        <Card>
-          <Card.Img variant="top" src="res/guido-hofmann-G7BDFhrV00E-unsplash.jpg" />
-          <Card.Body>
-            <Card.Title>Card title that wraps to a new line</Card.Title>
-            <Card.Text>
-              This is a longer card with supporting text below as a natural lead-in to
-              additional content. This content is a little bit longer.
-            </Card.Text>
-          </Card.Body>
-        </Card>
-        <Card>
-          <Card.Img variant="top" src="res/guido-hofmann-G7BDFhrV00E-unsplash.jpg" />
-          <Card.Body>
-            <Card.Title>Card title that wraps to a new line</Card.Title>
-            <Card.Text>
-              This is a longer card with supporting text below as a natural lead-in to
-              additional content. This content is a little bit longer.
-            </Card.Text>
-          </Card.Body>
-        </Card>
-        <Card>
-          <Card.Img variant="top" src="res/guido-hofmann-G7BDFhrV00E-unsplash.jpg" />
-          <Card.Body>
-            <Card.Title>Card title that wraps to a new line</Card.Title>
-            <Card.Text>
-              This is a longer card with supporting text below as a natural lead-in to
-              additional content. This content is a little bit longer.
-            </Card.Text>
-          </Card.Body>
-        </Card>
-        <Card>
-          <Card.Img variant="top" src="res/guido-hofmann-G7BDFhrV00E-unsplash.jpg" />
-          <Card.Body>
-            <Card.Title>Card title that wraps to a new line</Card.Title>
-            <Card.Text>
-              This is a longer card with supporting text below as a natural lead-in to
-              additional content. This content is a little bit longer.
-            </Card.Text>
-          </Card.Body>
-        </Card>
-      </CardColumns>
-    )
+      <Carousel interval={5000}>
+        {liste}
+      </Carousel>
+    );
   }
 
   _renderCollections() {
 
-    const collectionsListe = [];
+    var collectionsListe = null;
     if(this.state.contenu && this.state.contenu.contenuPage) {
       const collections = this.state.contenu.contenuPage.collections;
-      for(let idx in collections) {
-        let collection = collections[idx];
-        var legende;
-
-        if(collection.descriptif) {
-          legende = (
-            <Card.Body>
-              <Card.Text>{collection.descriptif}</Card.Text>
-            </Card.Body>
-          );
-        }
-
-        collectionsListe.push(
-          <Card key={idx}>
-            <Card.Img variant="top" src={collection.thumbnail} />
-            {legende}
-          </Card>
-        );
-      }
+      collectionsListe = this._genererListeCartes(collections);
     }
 
     return (
@@ -133,5 +53,57 @@ export class AlbumsVitrine extends SectionVitrine {
         {collectionsListe}
       </CardColumns>
     );
+  }
+
+  _genererListeCartes(liste) {
+    const listeRendered = [];
+    for(let idx in liste) {
+      let element = liste[idx];
+      let descriptif = element.descriptif || element.legende;
+
+      var legende;
+      if(descriptif) {
+        legende = (
+          <Card.Body>
+            <Card.Text>{descriptif}</Card.Text>
+          </Card.Body>
+        );
+      }
+
+      listeRendered.push(
+        <Card key={idx}>
+          <Card.Img variant="top" src={element.thumbnail} />
+          {legende}
+        </Card>
+      );
+    }
+
+    return listeRendered;
+  }
+
+  _genererListeCarousel(liste) {
+    const listeRendered = [];
+    for(let idx in liste) {
+      let element = liste[idx];
+      let descriptif = element.descriptif || element.legende;
+
+      var legende;
+      if(descriptif) {
+        legende = (
+          <Carousel.Caption>
+            <p>{descriptif}</p>
+          </Carousel.Caption>
+        );
+      }
+
+      listeRendered.push(
+        <Carousel.Item key={idx}>
+          <img className="d-block w-100" src={element.thumbnail} />
+          {legende}
+        </Carousel.Item>
+      );
+    }
+
+    return listeRendered;
   }
 }
