@@ -18,15 +18,22 @@
       "footer": "Photo by Guido Hofmann on Unsplash"
     }
   ],
-  "blog": [
+  "media": [
     {
       "image": "res/zac-wolff-lxDYQM5E0bI-unsplash.jpg",
       "titre": "Securitaire",
-      "texte": "MilleGrilles est un systeme d'information personnel base sur 4 niveaux de securite : public, prive, protege, secure. Ceci simplifie la protection de vos donnees tout en facilitant le partage sur internet."
+      "texte": [
+          "MilleGrilles est un systeme d'information personnel base sur 4 niveaux de securite : public, prive, protege, secure. Ceci simplifie la protection de vos donnees tout en facilitant le partage sur internet.",
+          "L'utilisation de cryptographie et de certificats de securite permet de proteger les donnees en transit et au repos."
+        ]
     },
     {
+      "image": "res/mike-petrucci-c9FQyqIECds-unsplash.jpg",
       "titre": "A bas les mots de passe",
-      "texte": "MilleGrilles n'utilise pas de mots de passe. Vous devez utiliser une cle de securite physique (USB) pour la configuration initiale. Ceci vous permet ensuite de lier vos appareils mobiles et donner acces a d'autres MilleGrilles sans jamais avoir a vous souvenir de mots de passes."
+      "texte": [
+          "MilleGrilles n'utilise pas de mots de passe.",
+          "Vous devez utiliser une cle de securite physique (USB) pour la configuration initiale. Ceci vous permet ensuite de lier vos appareils mobiles et donner acces a d'autres MilleGrilles sans jamais avoir a vous souvenir de mots de passes."
+        ]
     }
   ]
 }

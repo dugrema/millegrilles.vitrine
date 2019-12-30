@@ -1,6 +1,6 @@
 import React from 'react';
 import {SectionVitrine} from './sections';
-import {Jumbotron, Card, CardDeck, Button, Image,
+import {Jumbotron, Card, CardDeck, Button, Image, Media,
         Container, Row, Col} from 'react-bootstrap';
 
 import './accueil.css';
@@ -26,6 +26,9 @@ export class AccueilVitrine extends SectionVitrine {
       const contenuPage = this.state.contenu.contenuPage;
       if(contenuPage.cartes) {
         contenuPageAccueil.push(this._renderCartes(contenuPage.cartes));
+      }
+      if(contenuPage.media) {
+        contenuPageAccueil.push.apply(contenuPageAccueil, this._renderMedia(contenuPage.media));
       }
     }
 
@@ -104,5 +107,46 @@ export class AccueilVitrine extends SectionVitrine {
     );
 
     return cardDeck;
+  }
+
+  _renderMedia(media) {
+    const mediaList = [];
+
+    for(let idx in media) {
+      let medium = media[idx];
+
+      var image, titre, texte;
+      if(medium.image) {
+        image = (
+          <img
+            width={128}
+            className="align-self-start mr-3"
+            src={medium.image}
+            alt={medium.titre}
+            />);
+      }
+      if(medium.titre) {
+        titre = (<h3>{medium.titre}</h3>)
+      }
+      if(medium.texte) {
+        texte = [];
+        for(let idxPara in medium.texte) {
+          let paragraphe = medium.texte[idxPara];
+          texte.push(<p>{paragraphe}</p>)
+        }
+      }
+
+      mediaList.push(
+        <Media key={idx}>
+          {image}
+          <Media.Body>
+            {titre}
+            {texte}
+          </Media.Body>
+        </Media>
+      );
+    }
+
+    return mediaList;
   }
 }
