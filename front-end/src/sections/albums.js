@@ -1,5 +1,6 @@
 import React from 'react';
-import {Card, CardColumns, Carousel} from 'react-bootstrap';
+import {Card, CardColumns, Carousel,
+        Container, Row, Col} from 'react-bootstrap';
 import {SectionVitrine} from './sections';
 
 import './albums.css';
@@ -34,7 +35,7 @@ export class AlbumsVitrine extends SectionVitrine {
     }
 
     return (
-      <Carousel interval={5000}>
+      <Carousel className="carousel" interval={5000}>
         {liste}
       </Carousel>
     );
