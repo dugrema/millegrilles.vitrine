@@ -1,6 +1,6 @@
 import React from 'react';
 import {SectionVitrine} from './sections';
-import {Jumbotron, Card, CardDeck, Button,
+import {Jumbotron, Card, CardDeck, Button, Image,
         Container, Row, Col} from 'react-bootstrap';
 
 import './accueil.css';
@@ -50,13 +50,13 @@ export class AccueilVitrine extends SectionVitrine {
       <Jumbotron key='accueilHaut'>
         <Container>
           <Row>
-            <Col>
+            <Col lg={9}>
               <h1>{descriptif}</h1>
               <hr/>
               {messageBienvenue}
             </Col>
             <Col>
-              <i className="fa fa-clone fa-5x w3-padding-64 w3-text-red"></i>
+              <Image src="/logo128.png" rounded/>
             </Col>
           </Row>
         </Container>
