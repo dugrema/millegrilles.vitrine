@@ -4,8 +4,8 @@
   "cartes": [
     {
       "image": "res/oliver-ash-Ke20IqFHjfQ-unsplash.jpg",
-      "titre": "Votre MilleGrille, vos donnees",
-      "texte": "Toutes les donnees placees dans votre MilleGrille vous appartiennent. Vous n'avez pas besoin de demander de permission pour les transferer, personne ne peut les bloquer ou les effacer. Personne ne peut ouvrir vos donnees protegees sans votre permission. Personne d'autre que vous ne peut acceder a vos donnees secures.",
+      "titre": "Votre MilleGrille, vos données",
+      "texte": "Toutes les données placées dans votre MilleGrille vous appartiennent. Vous n'avez pas besoin de demander de permission pour les transférer, personne ne peut les bloquer ou les effacer. Personne ne peut ouvrir vos données protegées sans votre permission. Personne d'autre que vous ne peut accéder a vos données sécures.",
       "footer": "Photo par Oliver Ash sur Unsplash",
       "titre_en": "Your MilleGrille, your data",
       "texte_en": "All data and information placed on your MilleGrille belongs to you. There is no need to ask for permission to copy or transfer information, no one can block or erase it. No one can view protected data without your consent. No one may access your secure data, other than you of course.",
@@ -13,22 +13,33 @@
     },{
       "image": "res/tessa-wilson-wya0Ls5bxMM-unsplash.jpg",
       "titre": "Albums",
-      "texte": "Placez vos photos et videos dans votre MilleGrille pour les sauvegarder et les partager.",
-      "footer": "Photo by Tessa Wilson on Unsplash"
+      "texte": "Placez vos photos et vidéos dans votre MilleGrille pour les sauvegarder et les partager.",
+      "footer": "Photo par Tessa Wilson sur Unsplash",
+      "titre_en": "Albums",
+      "texte_en": "Upload your pictures and videos on your MilleGrille to preserve and share them.",
+      "footer_en": "Photo by Tessa Wilson on Unsplash"
     },{
       "image": "res/guido-hofmann-G7BDFhrV00E-unsplash.jpg",
       "titre": "Collections et recherche",
-      "texte": "Archivez vos documents personnels et partagez securitairement vos idees. Classez vos documents et fichiers dans des collections et cherchez simplement en utilisant les mots cles et les groupes d'etiquettes.",
-      "footer": "Photo by Guido Hofmann on Unsplash"
+      "texte": "Archivez vos documents personnels et partagez sécuritairement vos idées. Classez vos documents et fichiers dans des collections et cherchez simplement en utilisant les mots cles et les groupes d'étiquettes.",
+      "footer": "Photo par Guido Hofmann sur Unsplash",
+      "titre_en": "Collections and searching",
+      "texte_en": "Archive your personal documents and safely share your ideas. File your documents and files using collections and search with keywords and labels.",
+      "footer_en": "Photo by Guido Hofmann on Unsplash"
     }
   ],
   "media": [
     {
       "image": "res/zac-wolff-lxDYQM5E0bI-unsplash.jpg",
-      "titre": "Securitaire",
+      "titre": "Sécuritaire",
       "texte": [
-          "MilleGrilles est un systeme d'information personnel base sur 4 niveaux de securite : public, prive, protege, secure. Ceci simplifie la protection de vos donnees tout en facilitant le partage sur internet.",
-          "L'utilisation de cryptographie et de certificats de securite permet de proteger les donnees en transit et au repos."
+          "MilleGrilles est un système d'information personnel base sur 4 niveaux de sécurité : public, privé, protégé et sécure. Ceci simplifie la protection de vos données tout en facilitant le partage sur internet.",
+          "L'utilisation de cryptographie et de certificats de sécurité permet de protéger les données en transit et au repos."
+        ],
+      "titre_en": "Secure",
+      "texte_en": [
+          "MilleGrille is a personal information system based on 4 security levels: public, private, protected and secure. This simplifies the protection of your data while keeping it easy to share over the internet.",
+          "Usage of cryptography and security certificates protects your data in transit and at rest."
         ],
       "modifie": 1577744420
     },
@@ -37,7 +48,12 @@
       "titre": "A bas les mots de passe",
       "texte": [
           "MilleGrilles n'utilise pas de mots de passe.",
-          "Vous devez utiliser une cle de securite physique (USB) pour la configuration initiale. Ceci vous permet ensuite de lier vos appareils mobiles et donner acces a d'autres MilleGrilles sans jamais avoir a vous souvenir de mots de passes."
+          "Vous devez utiliser une clé de sécurité physique (USB) pour la configuration initiale. Ceci vous permet ensuite de lier vos appareils mobiles et donner accès à d'autres MilleGrilles sans jamais avoir à vous souvenir de mots de passes."
+        ],
+      "titre_en": "Out with passwords",
+      "texte_en": [
+          "MilleGrilles does not use passwords.",
+          "To get started, you must use a security key (USB). From that point on you can link your mobile devices and even share with other MilleGrilles. All this without ever having to remember a password."
         ],
       "modifie": 1577742420
     }
