@@ -1,11 +1,15 @@
 {
   "messageBienvenue": "Bienvenue sur l'application publique Vitrine de MilleGrilles. La MilleGrille n'est pas encore configurée.",
+  "messageBienvenue_en": "Welcome to the application Vitrine of MilleGrilles. The MilleGrille is not configured yet.",
   "cartes": [
     {
       "image": "res/oliver-ash-Ke20IqFHjfQ-unsplash.jpg",
       "titre": "Votre MilleGrille, vos donnees",
       "texte": "Toutes les donnees placees dans votre MilleGrille vous appartiennent. Vous n'avez pas besoin de demander de permission pour les transferer, personne ne peut les bloquer ou les effacer. Personne ne peut ouvrir vos donnees protegees sans votre permission. Personne d'autre que vous ne peut acceder a vos donnees secures.",
-      "footer": "Photo by Oliver Ash on Unsplash"
+      "footer": "Photo par Oliver Ash sur Unsplash",
+      "titre_en": "Your MilleGrille, your data",
+      "texte_en": "All data and information placed on your MilleGrille belongs to you. There is no need to ask for permission to copy or transfer information, no one can block or erase it. No one can view protected data without your consent. No one may access your secure data, other than you of course.",
+      "footer_en": "Photo by Oliver Ash on Unsplash"
     },{
       "image": "res/tessa-wilson-wya0Ls5bxMM-unsplash.jpg",
       "titre": "Albums",

@@ -12,6 +12,7 @@ import {listerDomaines} from './domaines/domainesSupportes';
 
 import './i18n';
 import { Trans, Translation, withTranslation } from 'react-i18next';
+import { traduire } from './langutils.js';
 
 import './App.css';
 
@@ -44,30 +45,45 @@ class _app extends React.Component {
       console.debug("Changer langage vers " + lng);
       i18n.changeLanguage(lng);
     };
-    const languageChangement = 'fr'===i18n.language?'en':'fr';
+    const language = i18n.language;
+    const languageChangement = language==='fr'?'en':'fr';
 
     return (
       <Router>
         <div className="App">
           <ToggleMenu
             configuration={this.state.configuration}
+            language={language}
             languageChangement={languageChangement}
             changeLanguage={changeLanguage}
             menuActions={this.menuActions}
-            section={this.state.section} />
+            section={this.state.section}
+            />
 
           <Switch>
             <Route exact path="/">
-              <AccueilVitrine configuration={this.state.configuration}/>
+              <AccueilVitrine
+                language={language}
+                configuration={this.state.configuration}
+                />
             </Route>
             <Route path="/albums">
-              <AlbumsVitrine configuration={this.state.configuration}/>
+              <AlbumsVitrine
+                language={language}
+                configuration={this.state.configuration}
+                />
             </Route>
             <Route path="/documents">
-              <DocumentsVitrine configuration={this.state.configuration}/>
+              <DocumentsVitrine
+                language={language}
+                configuration={this.state.configuration}
+                />
             </Route>
             <Route path="/fichiers">
-              <FichiersVitrine configuration={this.state.configuration}/>
+              <FichiersVitrine
+                language={language}
+                configuration={this.state.configuration}
+                />
             </Route>
             <Route render={() => <h1><Trans>application.pageNonTrouvee</Trans></h1>} />
           </Switch>
@@ -163,7 +179,7 @@ class ToggleMenu extends React.Component {
 
     var nomMilleGrille = (<Trans>application.nom</Trans>);
     if(this.props.configuration && this.props.configuration.contenuPage.descriptif) {
-      nomMilleGrille = this.props.configuration.contenuPage.descriptif;
+      nomMilleGrille = traduire(this.props.configuration.contenuPage, 'descriptif', this.props.language);
     }
 
     let content = (

@@ -5,6 +5,8 @@ import {Jumbotron, Card, CardDeck, Button, Image, Media,
 
 import { Trans } from 'react-i18next';
 
+import { traduire } from '../langutils.js';
+
 import './accueil.css';
 
 const ACCUEIL_LIBELLE = 'page.accueil', ACCUEIL_URL = '/accueil.json';
@@ -39,15 +41,20 @@ export class AccueilVitrine extends SectionVitrine {
 
   _renderJumbotron() {
 
-    var descriptif, messageBienvenue;
-
+    var contenuConfiguration;
     if(this.props.configuration) {
-      descriptif = (<p>{this.props.configuration.contenuPage.descriptif}</p>);
+      contenuConfiguration = this.props.configuration.contenuPage;
+    }
+
+    var descriptif, messageBienvenue;
+    if(contenuConfiguration && contenuConfiguration.descriptif) {
+      descriptif = (<p>{traduire(contenuConfiguration, 'descriptif', this.props.language)}</p>);
     }
     if(this.state.contenu && this.state.contenu.contenuPage) {
       const contenuPage = this.state.contenu.contenuPage;
       if(contenuPage.messageBienvenue) {
-        messageBienvenue = (<p>{contenuPage.messageBienvenue}</p>);
+        let texte = traduire(contenuPage, 'messageBienvenue', this.props.language);
+        messageBienvenue = (<p>{texte}</p>);
       }
     }
 
@@ -82,13 +89,13 @@ export class AccueilVitrine extends SectionVitrine {
         image = (<Card.Img variant="top" src={"/" + carte.image} />);
       }
       if(carte.titre) {
-        titre = (<Card.Title>{carte.titre}</Card.Title>);
+        titre = (<Card.Title>{traduire(carte, 'titre', this.props.language)}</Card.Title>);
       }
       if(carte.texte) {
-        texte = (<Card.Text>{carte.texte}</Card.Text>);
+        texte = (<Card.Text>{traduire(carte, 'texte', this.props.language)}</Card.Text>);
       }
       if(carte.bouton) {
-        bouton = (<Button variant="primary">{carte.bouton.texte}</Button>);
+        bouton = (<Button variant="primary">{traduire(carte.bouton, 'texte', this.props.language)}</Button>);
       }
       listeCartes.push(
         <Card key={idx}>
@@ -128,12 +135,13 @@ export class AccueilVitrine extends SectionVitrine {
             />);
       }
       if(medium.titre) {
-        titre = (<h3>{medium.titre}</h3>)
+        titre = (<h3>{traduire(medium, 'titre', this.props.language)}</h3>)
       }
       if(medium.texte) {
         texte = [];
-        for(let idxPara in medium.texte) {
-          let paragraphe = medium.texte[idxPara];
+        let paragraphes = traduire(medium, 'texte', this.props.language);
+        for(let idxPara in paragraphes) {
+          let paragraphe = paragraphes[idxPara];
           texte.push(<p key={idxPara}>{paragraphe}</p>)
         }
       }
