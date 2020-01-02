@@ -6,7 +6,7 @@ import axios from 'axios';
 // Importer sections et domaines
 import { AccueilVitrine } from './sections/accueil';
 import { AlbumsVitrine } from './sections/albums';
-import { DocumentsVitrine } from './sections/documents';
+import { MessagesVitrine } from './sections/messages';
 import { FichiersVitrine } from './sections/fichiers';
 import {listerDomaines} from './domaines/domainesSupportes';
 
@@ -73,8 +73,8 @@ class _app extends React.Component {
                 configuration={this.state.configuration}
                 />
             </Route>
-            <Route path="/documents">
-              <DocumentsVitrine
+            <Route path="/messages">
+              <MessagesVitrine
                 language={language}
                 configuration={this.state.configuration}
                 />
@@ -189,7 +189,7 @@ class ToggleMenu extends React.Component {
         <Navbar.Collapse id="responsive-navbar-menu">
           <Nav className="mr-auto" activeKey={this.props.section} onSelect={this.changerSection}>
             <Nav.Link href="/albums"><Trans>menu.albums</Trans></Nav.Link>
-            <Nav.Link href="/documents"><Trans>menu.documents</Trans></Nav.Link>
+            <Nav.Link href="/messages"><Trans>menu.messages</Trans></Nav.Link>
             <Nav.Link href="/fichiers"><Trans>menu.fichiers</Trans></Nav.Link>
             <Translation>
               {

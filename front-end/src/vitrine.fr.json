@@ -6,13 +6,16 @@
     },
     "menu": {
       "albums": "Albums",
-      "documents": "Documents",
+      "messages": "Blog et messages",
       "fichiers": "Fichiers",
       "domaines": "Par domaine",
       "changerLangue": "English"
     },
     "accueil": {
       "dateModifiee": "Dernière mise à jour le {{date, DD MMMM YYYY}} à {{date, HH:mm}}"
+    },
+    "messages": {
+      "titrePage": "Blog et messages"
     },
     "domaines": {
       "SenseursPassifs": "Senseurs Passifs"
