@@ -13,12 +13,14 @@ import { traduire } from './langutils.js';
 import './App.css';
 
 const MILLEGRILLE_LIBELLE = 'millegrille.configuration', MILLEGRILLE_URL = '/millegrille.json';
+const NOEUDPUBLIC_LIBELLE = 'noeudPublic.configuration', NOEUDPUBLIC_URL = '/noeudPublic.json';
 const USER_LOCALE = 'user.locale';
 
 class _app extends React.Component {
 
   state = {
     configuration: null,
+    noeudPublic: null,
   }
 
   webSocketHandler = null;
@@ -29,8 +31,9 @@ class _app extends React.Component {
   }
 
   componentDidUpdate() {
-    localStorage.setItem('locale', this.state.locale);
-    _setTitre(this.localeProps, this.state.configuration);
+    const i18n = this.props.i18n;
+    const language = i18n.language;
+    _setTitre(language, this._milleGrille());
   }
 
   render() {
@@ -44,11 +47,20 @@ class _app extends React.Component {
     const language = i18n.language;
     const languageChangement = language==='fr'?'en':'fr';
 
+    var configurationNoeud, configurationMilleGrille;
+    if(this.state[MILLEGRILLE_LIBELLE] && this.state[MILLEGRILLE_LIBELLE].contenu) {
+      configurationMilleGrille = this.state[MILLEGRILLE_LIBELLE].contenu;
+    }
+    if(this.state[NOEUDPUBLIC_LIBELLE] && this.state[NOEUDPUBLIC_LIBELLE].contenu) {
+      configurationNoeud = this.state[NOEUDPUBLIC_LIBELLE].contenu;
+    }
+
     return (
       <Router>
         <div className="App">
           <ToggleMenu
-            configuration={this.state.configuration}
+            millegrille={configurationMilleGrille}
+            configuration={configurationNoeud}
             language={language}
             languageChangement={languageChangement}
             changeLanguage={changeLanguage}
@@ -56,26 +68,26 @@ class _app extends React.Component {
             section={this.state.section}
             />
 
-          <AfficherSection configuration={this.state.configuration} language={language} />
+          <AfficherSection
+            millegrille={configurationMilleGrille}
+            configuration={configurationNoeud}
+            language={language} />
         </div>
       </Router>
     );
   }
 
   _chargerConfiguration() {
-    const valeursInitiales = {};
+    this._chargerFichierConfiguration(MILLEGRILLE_URL, MILLEGRILLE_LIBELLE);
+    this._chargerFichierConfiguration(NOEUDPUBLIC_URL, NOEUDPUBLIC_LIBELLE);
+  }
 
-    // Verifier si l'usager a deja la langue dans sa configuration
-    let locale = localStorage.getItem(USER_LOCALE);
-    if(locale) {
-      valeursInitiales.locale = locale;
-    }
-
-    const headers = {};
-    let contenuStr = localStorage.getItem(MILLEGRILLE_LIBELLE);
+  _chargerFichierConfiguration(url, libelle) {
+    const headers = {}, valeursInitiales = {};
+    let contenuStr = localStorage.getItem(libelle);
     if(contenuStr) {
       const configuration = JSON.parse(contenuStr);
-      valeursInitiales.configuration = configuration;
+      valeursInitiales[libelle] = configuration;
       this.setState(valeursInitiales);
       _setTitre(this.localeProps, configuration);
 
@@ -85,7 +97,7 @@ class _app extends React.Component {
       }
     }
 
-    axios.get('/defauts' + MILLEGRILLE_URL, {
+    axios.get('/defauts' + url, {
       headers,
       validateStatus: status=>{return status === 200 || status === 304}
     })
@@ -94,23 +106,31 @@ class _app extends React.Component {
       if(resp.status === 200) {
         // Sauvegarder la configuration
         const contenuPage = resp.data;
-        const configuration = {
-          contenuPage,
+        const contenuJson = {
+          contenu: contenuPage,
           lastModified: resp.headers['last-modified'],
         }
 
-        if(!locale) {
-          locale = contenuPage['default.locale'];
-        }
-
-        this.setState({configuration, locale});
-        localStorage.setItem(MILLEGRILLE_LIBELLE, JSON.stringify(configuration));
+        const dictUpdate = {};
+        dictUpdate[libelle] = contenuJson;
+        this.setState(dictUpdate);
+        localStorage.setItem(libelle, JSON.stringify(contenuJson));
       }
     })
     .catch(err=>{
-      console.error("Erreur acces config defaut /defauts/millegrille.json");
+      console.error("Erreur acces config defaut " + url);
       console.error(err);
     })
+  }
+
+  _milleGrille() {
+    if(this.state[MILLEGRILLE_LIBELLE] && this.state[MILLEGRILLE_LIBELLE].contenu)
+      return this.state[MILLEGRILLE_LIBELLE].contenu;
+  }
+
+  _configuration() {
+    if(this.state[NOEUDPUBLIC_LIBELLE] && this.state[NOEUDPUBLIC_LIBELLE].contenu)
+      return this.state[NOEUDPUBLIC_LIBELLE].contenu;
   }
 
 }
@@ -120,11 +140,14 @@ const App = withTranslation()(_app);
 class ToggleMenu extends React.Component {
 
   render() {
+    var configuration, configurationMilleGrille;
+
     // Preparer le menu a partir de millegrilles.json
     const menuElements = [];
-    if(this.props.configuration && this.props.configuration.contenuPage && this.props.configuration.contenuPage.menu) {
-      for(let idx in this.props.configuration.contenuPage.menu) {
-        let menuItem = this.props.configuration.contenuPage.menu[idx];
+    if(this.props.configuration && this.props.configuration.menu) {
+
+      for(let idx in this.props.configuration.menu) {
+        let menuItem = this.props.configuration.menu[idx];
         if(typeof menuItem === 'string') {
           menuElements.push(
             <Nav.Link key={menuItem} href={'/' + menuItem}>
@@ -158,8 +181,8 @@ class ToggleMenu extends React.Component {
     }
 
     var nomMilleGrille = (<Trans>application.nom</Trans>);
-    if(this.props.configuration && this.props.configuration.contenuPage.descriptif) {
-      nomMilleGrille = traduire(this.props.configuration.contenuPage, 'descriptif', this.props.language);
+    if(this.props.millegrille && this.props.millegrille.descriptif) {
+      nomMilleGrille = traduire(this.props.millegrille, 'descriptif', this.props.language);
     }
 
     let content = (
@@ -183,10 +206,10 @@ class ToggleMenu extends React.Component {
 
 // const ToggleMenu = withTranslation()(_toggleMenu);
 
-function _setTitre(localeProps, configuration) {
+function _setTitre(language, configuration) {
   const vitrineDescription = (<Translation>{t=>t('application.nom')}</Translation>);
   if(configuration) {
-    document.title = configuration.contenuPage.descriptif || vitrineDescription;
+    document.title = traduire(configuration, 'descriptif', language) || vitrineDescription;
   } else {
     document.title = vitrineDescription;
   }

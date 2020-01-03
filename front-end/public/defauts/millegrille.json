@@ -1,18 +1,5 @@
 {
-  "idmg": "abcd1234efgh5678ijkl9012mnop3456qrst7890",
+  "idmg": "33KRMhqcWCKvMHyY5xymMCUEbT53Kg1NqUb9AU6",
   "descriptif": "Sans Nom",
-  "descriptif_en": "No name",
-  "menu": [
-    "blogs",
-    "messages",
-    "albums",
-    {
-      "type": "autres",
-      "menu": [
-        "senseursPassifs",
-        "fichiers",
-        "podcasts"
-      ]
-    }
-  ]
+  "descriptif_en": "No name"
 }
