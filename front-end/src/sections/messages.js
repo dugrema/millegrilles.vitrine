@@ -41,7 +41,7 @@ export class MessagesVitrine extends SectionVitrine {
 
     if(this.state.contenu && this.state.contenu.messages) {
       const messages = this.state.contenu.messages;
-      if(messages) {
+      if(messages && messages.length > 0) {
         messagesElements = [];
 
         for(let idx in messages) {
@@ -86,6 +86,12 @@ export class MessagesVitrine extends SectionVitrine {
             </Row>
           );
         }
+      } else {
+        messagesElements = (
+          <Row key={1} className="message">
+            <Col><Trans>messages.aucun</Trans></Col>
+          </Row>
+        );
       }
     }
 

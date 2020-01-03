@@ -22,7 +22,8 @@
       "titrePage": "Blog"
     },
     "messages": {
-      "titrePage": "Messages"
+      "titrePage": "Messages",
+      "aucun": "Aucuns messages"
     },
     "podcasts": {
       "titrePage": "Podcasts"
