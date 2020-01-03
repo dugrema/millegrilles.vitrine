@@ -57,7 +57,7 @@ export class MessagesVitrine extends SectionVitrine {
           }
           if(message.texte) {
             texte = (
-              <p>
+              <p className="texte-message">
                 {traduire(message, 'texte', this.props.language)}
               </p>
             );

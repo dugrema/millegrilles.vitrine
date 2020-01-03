@@ -28,8 +28,8 @@ export class AlbumsVitrine extends SectionVitrine {
   _renderRecent() {
 
     var liste = null;
-    if(this.state.contenu && this.state.contenu.contenuPage) {
-      const recents = this.state.contenu.contenuPage.recent;
+    if(this.state.contenu) {
+      const recents = this.state.contenu.recent;
       liste = this._genererListeCarousel(recents);
     }
 
@@ -43,8 +43,8 @@ export class AlbumsVitrine extends SectionVitrine {
   _renderCollections() {
 
     var collectionsListe = null;
-    if(this.state.contenu && this.state.contenu.contenuPage) {
-      const collections = this.state.contenu.contenuPage.collections;
+    if(this.state.contenu) {
+      const collections = this.state.contenu.collections;
       collectionsListe = this._genererListeCartes(collections);
     }
 

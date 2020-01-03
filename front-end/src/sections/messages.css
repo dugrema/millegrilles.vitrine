@@ -11,9 +11,12 @@
 }
 
 .sujet-message {
-  font-size: large;
+  font-size: medium;
+  display: inline;
+  color: IndianRed;
+  padding-right: 1em;
 }
 
 .texte-message {
-
+  display: inline;
 }
