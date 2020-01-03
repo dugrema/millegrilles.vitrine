@@ -2,11 +2,12 @@
   "translation": {
     "application": {
       "nom": "Vitrine",
-      "pageNonTrouvee": "Page non trouvee"
+      "pageNonTrouvee": "Page non trouvée"
     },
     "menu": {
       "albums": "Albums",
       "messages": "Blog et messages",
+      "podcasts": "Podcasts",
       "fichiers": "Fichiers",
       "domaines": "Par domaine",
       "changerLangue": "English"

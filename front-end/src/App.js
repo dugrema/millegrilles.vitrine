@@ -188,8 +188,9 @@ class ToggleMenu extends React.Component {
         <Navbar.Toggle aria-controls="responsive-navbar-menu" />
         <Navbar.Collapse id="responsive-navbar-menu">
           <Nav className="mr-auto" activeKey={this.props.section} onSelect={this.changerSection}>
-            <Nav.Link href="/albums"><Trans>menu.albums</Trans></Nav.Link>
             <Nav.Link href="/messages"><Trans>menu.messages</Trans></Nav.Link>
+            <Nav.Link href="/podcasts"><Trans>menu.podcasts</Trans></Nav.Link>
+            <Nav.Link href="/albums"><Trans>menu.albums</Trans></Nav.Link>
             <Nav.Link href="/fichiers"><Trans>menu.fichiers</Trans></Nav.Link>
             <Translation>
               {

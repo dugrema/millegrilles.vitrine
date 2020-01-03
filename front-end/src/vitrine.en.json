@@ -7,9 +7,10 @@
     "menu": {
       "albums": "Albums",
       "messages": "Blog and Messages",
+      "podcasts": "Podcasts",
       "fichiers": "Files",
       "domaines": "By domain",
-      "changerLangue": "Francais"
+      "changerLangue": "Français"
     },
     "accueil": {
       "dateModifiee": "Last updated on {{date, MMMM DD, YYYY}} at {{date, h:mm a}}"

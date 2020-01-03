@@ -1,3 +1,35 @@
 {
-  
+  "messages": [
+    {
+      "uuid": "1234-abcd-1",
+      "titre": "Message du jour",
+      "titre_en": "Message of the day",
+      "texte": "Salut tout le monde",
+      "texte_en": "Hi everybody",
+      "modifie": 1577744420
+    },{
+      "uuid": "1234-abcd-2",
+      "titre": "Message #2",
+      "texte": "Un autre message",
+      "modifie": 1577744720
+    },{
+      "uuid": "1234-abcd-3",
+      "titre": "Message #3",
+      "texte": "Encore un message",
+      "modifie": 1577747420
+    },{
+      "uuid": "1234-abcd-4",
+      "titre": "Message #4",
+      "texte": "Message 4",
+      "modifie": 1577774420
+    },{
+      "uuid": "1234-abcd-5",
+      "titre": "Message #5",
+      "texte": "Message 5",
+      "modifie": 1577844420
+    }
+  ],
+  "blogposts": [
+
+  ]
 }
