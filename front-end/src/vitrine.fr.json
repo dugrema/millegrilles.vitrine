@@ -15,10 +15,14 @@
       "changerLangue": "English"
     },
     "accueil": {
-      "dateModifiee": "Dernière mise à jour le {{date, DD MMMM YYYY}} à {{date, HH:mm}}"
+      "dateModifiee": "{{date, MMM DD}}",
+      "heureModifiee": "{{date, HH:mm}}"
+    },
+    "blogs": {
+      "titrePage": "Blog"
     },
     "messages": {
-      "titrePage": "Blog et messages"
+      "titrePage": "Messages"
     },
     "podcasts": {
       "titrePage": "Podcasts"

@@ -27,3 +27,7 @@ TH {
 .nowrap{
   white-space: nowrap;
 }
+
+.page-header {
+  padding-top: 1em;
+}
