@@ -18,6 +18,9 @@
     "messages": {
       "titrePage": "Blog et messages"
     },
+    "podcasts": {
+      "titrePage": "Podcasts"
+    },
     "domaines": {
       "SenseursPassifs": "Senseurs Passifs"
     }

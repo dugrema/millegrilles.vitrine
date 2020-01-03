@@ -7,6 +7,7 @@ import axios from 'axios';
 import { AccueilVitrine } from './sections/accueil';
 import { AlbumsVitrine } from './sections/albums';
 import { MessagesVitrine } from './sections/messages';
+import { PodcastsVitrine } from './sections/podcasts';
 import { FichiersVitrine } from './sections/fichiers';
 import {listerDomaines} from './domaines/domainesSupportes';
 
@@ -75,6 +76,12 @@ class _app extends React.Component {
             </Route>
             <Route path="/messages">
               <MessagesVitrine
+                language={language}
+                configuration={this.state.configuration}
+                />
+            </Route>
+            <Route path="/podcasts">
+              <PodcastsVitrine
                 language={language}
                 configuration={this.state.configuration}
                 />
