@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+import { Trans } from 'react-i18next';
 
 export class SectionVitrine extends React.Component {
 
@@ -51,6 +52,30 @@ export class SectionVitrine extends React.Component {
       console.error(err);
     })
 
+  }
+
+  renderDateModifiee(dateModifieeEpoch) {
+    const anneeCourante = new Date().getFullYear();
+    const dateModifiee = new Date(dateModifieeEpoch * 1000);
+    let labelDate;
+    if(dateModifiee.getFullYear() === anneeCourante) {
+      labelDate = 'accueil.dateModifiee';
+    } else {
+      labelDate = 'accueil.dateAnneeModifiee';
+    }
+
+    var dateElement = (
+      <div className="date-message">
+        <div className="date-modifiee">
+          <Trans values={{date: dateModifiee}}>{labelDate}</Trans>
+        </div>
+        <div className="heure-modifiee">
+          <Trans values={{date: dateModifiee}}>accueil.heureModifiee</Trans>
+        </div>
+      </div>
+    )
+
+    return dateElement;
   }
 
 }

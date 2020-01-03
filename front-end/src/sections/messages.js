@@ -43,7 +43,6 @@ export class MessagesVitrine extends SectionVitrine {
       const messages = this.state.contenu.messages;
       if(messages && messages.length > 0) {
         messagesElements = [];
-        const anneeCourante = new Date().getFullYear();
 
         for(let idx in messages) {
           let message = messages[idx];
@@ -63,23 +62,7 @@ export class MessagesVitrine extends SectionVitrine {
             );
           }
           if(message.modifie) {
-            const dateModifiee = new Date(message.modifie * 1000);
-            let labelDate;
-            if(dateModifiee.getFullYear() === anneeCourante) {
-              labelDate = 'accueil.dateModifiee';
-            } else {
-              labelDate = 'accueil.dateAnneeModifiee';
-            }
-            dateElement = (
-              <div className="date-message">
-                <div className="date-modifiee">
-                  <Trans values={{date: dateModifiee}}>{labelDate}</Trans>
-                </div>
-                <div className="heure-modifiee">
-                  <Trans values={{date: dateModifiee}}>accueil.heureModifiee</Trans>
-                </div>
-              </div>
-            )
+            dateElement = this.renderDateModifiee(message.modifie);
           }
           messagesElements.push(
             <Row key={idx} className="message">

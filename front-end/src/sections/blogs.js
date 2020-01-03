@@ -42,7 +42,6 @@ export class BlogsVitrine extends SectionVitrine {
       const blogposts = this.state.contenu.blog;
       if(blogposts && blogposts.length > 0) {
         blogpostsElements = [];
-        const anneeCourante = new Date().getFullYear();
 
         for(let idx in blogposts) {
           let blogpost = blogposts[idx];
@@ -63,23 +62,7 @@ export class BlogsVitrine extends SectionVitrine {
             }
           }
           if(blogpost.modifie) {
-            const dateModifiee = new Date(blogpost.modifie * 1000);
-            let labelDate;
-            if(dateModifiee.getFullYear() === anneeCourante) {
-              labelDate = 'accueil.dateModifiee';
-            } else {
-              labelDate = 'accueil.dateAnneeModifiee';
-            }
-            dateElement = (
-              <div className="date-message">
-                <div className="date-modifiee">
-                  <Trans values={{date: dateModifiee}}>{labelDate}</Trans>
-                </div>
-                <div className="heure-modifiee">
-                  <Trans values={{date: dateModifiee}}>accueil.heureModifiee</Trans>
-                </div>
-              </div>
-            )
+            dateElement = this.renderDateModifiee(blogpost.modifie);
           }
           if(blogpost.thumbnail) {
             image = (

@@ -58,23 +58,7 @@ export class PodcastsVitrine extends SectionVitrine {
             texte = (<p>{podcast.texte}</p>)
           }
           if(podcast.modifie) {
-            const dateModifiee = new Date(podcast.modifie * 1000);
-            let labelDate;
-            if(dateModifiee.getFullYear() === anneeCourante) {
-              labelDate = 'accueil.dateModifiee';
-            } else {
-              labelDate = 'accueil.dateAnneeModifiee';
-            }
-            dateElement = (
-              <div className="date-message">
-                <div className="date-modifiee">
-                  <Trans values={{date: dateModifiee}}>{labelDate}</Trans>
-                </div>
-                <div className="heure-modifiee">
-                  <Trans values={{date: dateModifiee}}>accueil.heureModifiee</Trans>
-                </div>
-              </div>
-            )
+            dateElement = this.renderDateModifiee(podcast.modifie);
           }
           if(podcast.thumbnail) {
             image = (
