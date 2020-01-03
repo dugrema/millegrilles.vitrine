@@ -15,7 +15,8 @@
       "changerLangue": "English"
     },
     "accueil": {
-      "dateModifiee": "{{date, MMM DD}}",
+      "dateModifiee": "{{date, D MMM}}",
+      "dateAnneeModifiee": "{{date, D MMM YYYY}}",
       "heureModifiee": "{{date, HH:mm}}"
     },
     "blogs": {
