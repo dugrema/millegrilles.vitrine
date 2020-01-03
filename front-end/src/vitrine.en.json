@@ -6,10 +6,12 @@
     },
     "menu": {
       "albums": "Albums",
-      "messages": "Blog and Messages",
+      "messages": "Messages",
+      "blogs": "Blog",
       "podcasts": "Podcasts",
       "fichiers": "Files",
-      "domaines": "By domain",
+      "senseursPassifs": "Sensors",
+      "autres": "Others",
       "changerLangue": "Français"
     },
     "accueil": {
@@ -20,9 +22,6 @@
     },
     "podcasts": {
       "titrePage": "Podcasts"
-    },
-    "domaines": {
-      "SenseursPassifs": "Sensors"
     }
   }
 }

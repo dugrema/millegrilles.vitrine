@@ -2,7 +2,7 @@ import React from 'react';
 import {VitrineWebSocketHandler} from '../websocket';
 import {dateformatter, numberformatter} from '../formatters'
 
-import './SenseursPassifs.css';
+import './senseursPassifs.css';
 const nomDomaine = 'senseursPassifs';
 
 export class SenseursPassifsVitrine extends React.Component {

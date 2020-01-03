@@ -4,12 +4,7 @@ import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import axios from 'axios';
 
 // Importer sections et domaines
-import { AccueilVitrine } from './sections/accueil';
-import { AlbumsVitrine } from './sections/albums';
-import { MessagesVitrine } from './sections/messages';
-import { PodcastsVitrine } from './sections/podcasts';
-import { FichiersVitrine } from './sections/fichiers';
-import {listerDomaines} from './domaines/domainesSupportes';
+import { AfficherSection } from './sections/mapSections';
 
 import './i18n';
 import { Trans, Translation, withTranslation } from 'react-i18next';
@@ -61,39 +56,7 @@ class _app extends React.Component {
             section={this.state.section}
             />
 
-          <Switch>
-            <Route exact path="/">
-              <AccueilVitrine
-                language={language}
-                configuration={this.state.configuration}
-                />
-            </Route>
-            <Route path="/albums">
-              <AlbumsVitrine
-                language={language}
-                configuration={this.state.configuration}
-                />
-            </Route>
-            <Route path="/messages">
-              <MessagesVitrine
-                language={language}
-                configuration={this.state.configuration}
-                />
-            </Route>
-            <Route path="/podcasts">
-              <PodcastsVitrine
-                language={language}
-                configuration={this.state.configuration}
-                />
-            </Route>
-            <Route path="/fichiers">
-              <FichiersVitrine
-                language={language}
-                configuration={this.state.configuration}
-                />
-            </Route>
-            <Route render={() => <h1><Trans>application.pageNonTrouvee</Trans></h1>} />
-          </Switch>
+          <AfficherSection configuration={this.state.configuration} language={language} />
         </div>
       </Router>
     );
@@ -173,15 +136,41 @@ class ToggleMenu extends React.Component {
   // }
 
   render() {
-    let items = listerDomaines();
-    let liensDomaines = [];
-    for(var idx in items) {
-      let domaine = items[idx];
-      liensDomaines.push(
-        <NavDropdown.Item key={domaine} eventKey={domaine}>
-          <Trans>{'domaines.' + domaine}</Trans>
-        </NavDropdown.Item>
-      );
+    // Preparer le menu a partir de millegrilles.json
+    const menuElements = [];
+    if(this.props.configuration && this.props.configuration.contenuPage && this.props.configuration.contenuPage.menu) {
+      for(let idx in this.props.configuration.contenuPage.menu) {
+        let menuItem = this.props.configuration.contenuPage.menu[idx];
+        if(typeof menuItem === 'string') {
+          menuElements.push(
+            <Nav.Link key={menuItem} href={'/' + menuItem}>
+              <Trans>{'menu.' + menuItem}</Trans>
+            </Nav.Link>
+          )
+        } else if(menuItem.menu) {
+          // C'est un sous-menu
+          let sousMenus = [];
+          for(let idxSousMenu in menuItem.menu) {
+            let sousMenu = menuItem.menu[idxSousMenu];
+            sousMenus.push(
+              <NavDropdown.Item key={sousMenu} eventKey={sousMenu}>
+                <Trans>{'menu.' + sousMenu}</Trans>
+              </NavDropdown.Item>
+            );
+          }
+
+          menuElements.push(
+            <Translation>
+              {
+                t =>
+                <NavDropdown title={t('menu.' + menuItem.type)} id="collasible-nav-sections">
+                  {sousMenus}
+                </NavDropdown>
+              }
+            </Translation>
+          );
+        }
+      }
     }
 
     var nomMilleGrille = (<Trans>application.nom</Trans>);
@@ -195,18 +184,7 @@ class ToggleMenu extends React.Component {
         <Navbar.Toggle aria-controls="responsive-navbar-menu" />
         <Navbar.Collapse id="responsive-navbar-menu">
           <Nav className="mr-auto" activeKey={this.props.section} onSelect={this.changerSection}>
-            <Nav.Link href="/messages"><Trans>menu.messages</Trans></Nav.Link>
-            <Nav.Link href="/podcasts"><Trans>menu.podcasts</Trans></Nav.Link>
-            <Nav.Link href="/albums"><Trans>menu.albums</Trans></Nav.Link>
-            <Nav.Link href="/fichiers"><Trans>menu.fichiers</Trans></Nav.Link>
-            <Translation>
-              {
-                t =>
-                <NavDropdown title={t('menu.domaines')} id="collasible-nav-domaines">
-                  {liensDomaines}
-                </NavDropdown>
-              }
-            </Translation>
+            {menuElements}
           </Nav>
           <Nav className="justify-content-end">
             <Nav.Link eventKey={this.props.languageChangement} onSelect={this.props.changeLanguage}><Trans>menu.changerLangue</Trans></Nav.Link>
