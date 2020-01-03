@@ -55,7 +55,7 @@ export class PodcastsVitrine extends SectionVitrine {
             );
           }
           if(podcast.texte) {
-            texte = (<p>{podcast.texte}</p>)
+            texte = (<p>{traduire(podcast, 'texte', this.props.language)}</p>)
           }
           if(podcast.modifie) {
             dateElement = this.renderDateModifiee(podcast.modifie);
@@ -66,6 +66,7 @@ export class PodcastsVitrine extends SectionVitrine {
                 width={128}
                 className="align-self-start mr-3"
                 src={podcast.thumbnail}
+                srcset={podcast.image + ' 600w'}
                 alt={traduire(podcast, 'titre', this.props.language)}
                 />
             )
