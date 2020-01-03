@@ -16,7 +16,7 @@
     },
     "accueil": {
       "dateModifiee": "{{date, MMM D}}",
-      "dateAnneeModifiee": "{{date, MMM D YYYY}}",
+      "dateAnneeModifiee": "{{date, MMM D}}, {{date, YYYY}}",
       "heureModifiee": "{{date, h:mm a}}"
     },
     "blogs": {
