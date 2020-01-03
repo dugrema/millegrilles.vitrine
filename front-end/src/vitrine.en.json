@@ -27,7 +27,8 @@
       "aucun": "No messages"
     },
     "podcasts": {
-      "titrePage": "Podcasts"
+      "titrePage": "Podcasts",
+      "aucun": "No podcasts."
     }
   }
 }
