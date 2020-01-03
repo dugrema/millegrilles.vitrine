@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { AccueilVitrine } from './accueil';
 import { AlbumsVitrine } from './albums';
 import { MessagesVitrine } from './messages';
+import { BlogsVitrine } from './blogs';
 import { PodcastsVitrine } from './podcasts';
 import { FichiersVitrine } from './fichiers';
 import { SenseursPassifsVitrine } from './senseursPassifs';
@@ -36,6 +37,9 @@ export class AfficherSection extends React.Component {
         </Route>
         <Route path="/messages">
           <MessagesVitrine {...this.props}/>
+        </Route>
+        <Route path="/blogs">
+          <BlogsVitrine {...this.props}/>
         </Route>
         <Route path="/podcasts">
           <PodcastsVitrine {...this.props}/>
