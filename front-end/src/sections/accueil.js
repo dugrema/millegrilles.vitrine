@@ -26,13 +26,17 @@ export class AccueilVitrine extends SectionVitrine {
       this._renderJumbotron()
     ];
 
-    if(this.state.contenu && this.state.contenu.contenuPage) {
-      const contenuPage = this.state.contenu.contenuPage;
-      if(contenuPage.cartes) {
-        contenuPageAccueil.push(this._renderCartes(contenuPage.cartes));
-      }
-      if(contenuPage.media) {
-        contenuPageAccueil.push.apply(contenuPageAccueil, this._renderMedia(contenuPage.media));
+    const contenuPage = this.state.contenu;
+    if(contenuPage && contenuPage.portail) {
+      for(let idx in contenuPage.portail) {
+        const configPortlet = contenuPage.portail[idx];
+        const typePortlet = configPortlet.type;
+
+        if(typePortlet === 'deck') {
+          contenuPageAccueil.push(this._renderCartes(configPortlet.cartes));
+        } else if(typePortlet === 'blogs') {
+          // contenuPageAccueil.push.apply(contenuPageAccueil, this._renderMedia(contenuPage.media));
+        }
       }
     }
 
@@ -41,21 +45,16 @@ export class AccueilVitrine extends SectionVitrine {
 
   _renderJumbotron() {
 
-    var contenuConfiguration;
-    if(this.props.configuration) {
-      contenuConfiguration = this.props.configuration.contenuPage;
-    }
+    const configurationMilleGrille = this.props.millegrille;
+    const pageAccueil = this.state.contenu;
 
     var descriptif, messageBienvenue;
-    if(contenuConfiguration && contenuConfiguration.descriptif) {
-      descriptif = (<p>{traduire(contenuConfiguration, 'descriptif', this.props.language)}</p>);
+    if(configurationMilleGrille && configurationMilleGrille.descriptif) {
+      descriptif = (<p>{traduire(configurationMilleGrille, 'descriptif', this.props.language)}</p>);
     }
-    if(this.state.contenu && this.state.contenu.contenuPage) {
-      const contenuPage = this.state.contenu.contenuPage;
-      if(contenuPage.messageBienvenue) {
-        let texte = traduire(contenuPage, 'messageBienvenue', this.props.language);
-        messageBienvenue = (<p>{texte}</p>);
-      }
+    if(pageAccueil && pageAccueil.messageBienvenue) {
+      let texte = traduire(pageAccueil, 'messageBienvenue', this.props.language);
+      messageBienvenue = (<p>{texte}</p>);
     }
 
     return (
@@ -68,7 +67,7 @@ export class AccueilVitrine extends SectionVitrine {
               {messageBienvenue}
             </Col>
             <Col>
-              <Image src="/logo128.png" rounded/>
+              <Image src="/logo128.png"/>
             </Col>
           </Row>
         </Container>

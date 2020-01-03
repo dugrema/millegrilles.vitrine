@@ -20,7 +20,7 @@ export class SectionVitrine extends React.Component {
     const headers = {};
     if(contenuPageStr) {
       const contenu = JSON.parse(contenuPageStr);
-      this.setState({contenu});
+      this.setState({contenu: contenu.contenu});
 
       let lastModified = contenu.lastModified;
       if(lastModified) {
@@ -39,10 +39,10 @@ export class SectionVitrine extends React.Component {
         // Sauvegarder le contenu mis a jour localement
         const contenuPage = resp.data;
         const contenu = {
-          contenuPage,
+          contenu: contenuPage,
           lastModified: resp.headers['last-modified'],
         }
-        this.setState({contenu});
+        this.setState({contenu: contenuPage});
         localStorage.setItem(libelle, JSON.stringify(contenu));
       }
     })

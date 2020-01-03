@@ -47,13 +47,8 @@ class _app extends React.Component {
     const language = i18n.language;
     const languageChangement = language==='fr'?'en':'fr';
 
-    var configurationNoeud, configurationMilleGrille;
-    if(this.state[MILLEGRILLE_LIBELLE] && this.state[MILLEGRILLE_LIBELLE].contenu) {
-      configurationMilleGrille = this.state[MILLEGRILLE_LIBELLE].contenu;
-    }
-    if(this.state[NOEUDPUBLIC_LIBELLE] && this.state[NOEUDPUBLIC_LIBELLE].contenu) {
-      configurationNoeud = this.state[NOEUDPUBLIC_LIBELLE].contenu;
-    }
+    const configurationNoeud = this._configuration(),
+          configurationMilleGrille = this._milleGrille();
 
     return (
       <Router>
@@ -83,13 +78,13 @@ class _app extends React.Component {
   }
 
   _chargerFichierConfiguration(url, libelle) {
-    const headers = {}, valeursInitiales = {};
+    const headers = {};
     let contenuStr = localStorage.getItem(libelle);
     if(contenuStr) {
       const configuration = JSON.parse(contenuStr);
-      valeursInitiales[libelle] = configuration;
-      this.setState(valeursInitiales);
-      _setTitre(this.localeProps, configuration);
+      let maj = {};
+      maj[libelle] = configuration.contenu;
+      this.setState(maj);
 
       let lastModified = configuration.lastModified;
       if(lastModified) {
@@ -106,14 +101,14 @@ class _app extends React.Component {
       if(resp.status === 200) {
         // Sauvegarder la configuration
         const contenuPage = resp.data;
+        const maj = {};
+        maj[libelle] = contenuPage;
+        this.setState(maj);
+
         const contenuJson = {
           contenu: contenuPage,
           lastModified: resp.headers['last-modified'],
         }
-
-        const dictUpdate = {};
-        dictUpdate[libelle] = contenuJson;
-        this.setState(dictUpdate);
         localStorage.setItem(libelle, JSON.stringify(contenuJson));
       }
     })
@@ -124,13 +119,13 @@ class _app extends React.Component {
   }
 
   _milleGrille() {
-    if(this.state[MILLEGRILLE_LIBELLE] && this.state[MILLEGRILLE_LIBELLE].contenu)
-      return this.state[MILLEGRILLE_LIBELLE].contenu;
+    if(this.state[MILLEGRILLE_LIBELLE])
+      return this.state[MILLEGRILLE_LIBELLE];
   }
 
   _configuration() {
-    if(this.state[NOEUDPUBLIC_LIBELLE] && this.state[NOEUDPUBLIC_LIBELLE].contenu)
-      return this.state[NOEUDPUBLIC_LIBELLE].contenu;
+    if(this.state[NOEUDPUBLIC_LIBELLE])
+      return this.state[NOEUDPUBLIC_LIBELLE];
   }
 
 }
@@ -167,7 +162,7 @@ class ToggleMenu extends React.Component {
           }
 
           menuElements.push(
-            <Translation>
+            <Translation key={menuItem.type}>
               {
                 t =>
                 <NavDropdown title={t('menu.' + menuItem.type)} id="collasible-nav-sections">
@@ -203,8 +198,6 @@ class ToggleMenu extends React.Component {
     return content;
   }
 }
-
-// const ToggleMenu = withTranslation()(_toggleMenu);
 
 function _setTitre(language, configuration) {
   const vitrineDescription = (<Translation>{t=>t('application.nom')}</Translation>);

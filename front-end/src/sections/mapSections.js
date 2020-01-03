@@ -29,40 +29,22 @@ export class AfficherSection extends React.Component {
     return (
       <Switch>
         <Route exact path="/">
-          <AccueilVitrine
-            language={language}
-            configuration={this.props.configuration}
-            />
+          <AccueilVitrine {...this.props}/>
         </Route>
         <Route path="/albums">
-          <AlbumsVitrine
-            language={language}
-            configuration={this.props.configuration}
-            />
+          <AlbumsVitrine {...this.props}/>
         </Route>
         <Route path="/messages">
-          <MessagesVitrine
-            language={language}
-            configuration={this.props.configuration}
-            />
+          <MessagesVitrine {...this.props}/>
         </Route>
         <Route path="/podcasts">
-          <PodcastsVitrine
-            language={language}
-            configuration={this.props.configuration}
-            />
+          <PodcastsVitrine {...this.props}/>
         </Route>
         <Route path="/fichiers">
-          <FichiersVitrine
-            language={language}
-            configuration={this.props.configuration}
-            />
+          <FichiersVitrine {...this.props}/>
         </Route>
         <Route path="/files">
-          <FichiersVitrine
-            language={language}
-            configuration={this.props.configuration}
-            />
+          <FichiersVitrine {...this.props}/>
         </Route>
         <Route render={() => <h1><Trans>application.pageNonTrouvee</Trans></h1>} />
       </Switch>
