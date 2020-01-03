@@ -119,22 +119,6 @@ const App = withTranslation()(_app);
 
 class ToggleMenu extends React.Component {
 
-  // state = {
-  // }
-  //
-  // changerSection = event => {
-  //   // Changement de lange n'est pas un changement de section
-  //   if(event === 'fr' || event === 'en') return;
-  //
-  //   let section;
-  //   if(event.currentTarget) {
-  //     section = event.currentTarget.value;
-  //   } else {
-  //     section = event;
-  //   }
-  //   this.props.menuActions.changerSection(section);
-  // }
-
   render() {
     // Preparer le menu a partir de millegrilles.json
     const menuElements = [];
@@ -153,7 +137,7 @@ class ToggleMenu extends React.Component {
           for(let idxSousMenu in menuItem.menu) {
             let sousMenu = menuItem.menu[idxSousMenu];
             sousMenus.push(
-              <NavDropdown.Item key={sousMenu} eventKey={sousMenu}>
+              <NavDropdown.Item key={sousMenu} href={'/' + sousMenu}>
                 <Trans>{'menu.' + sousMenu}</Trans>
               </NavDropdown.Item>
             );
@@ -183,7 +167,7 @@ class ToggleMenu extends React.Component {
         <Navbar.Brand href='/'>{nomMilleGrille}</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-menu" />
         <Navbar.Collapse id="responsive-navbar-menu">
-          <Nav className="mr-auto" activeKey={this.props.section} onSelect={this.changerSection}>
+          <Nav className="mr-auto" activeKey={this.props.section}>
             {menuElements}
           </Nav>
           <Nav className="justify-content-end">
