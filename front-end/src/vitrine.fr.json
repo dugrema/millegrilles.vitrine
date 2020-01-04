@@ -2,7 +2,8 @@
   "translation": {
     "application": {
       "nom": "Vitrine",
-      "pageNonTrouvee": "Page non trouvée"
+      "pageNonTrouvee": "Page non trouvée",
+      "vitrineAdvert": "Supporte par Vitrine pour MilleGrilles"
     },
     "menu": {
       "albums": "Albums",

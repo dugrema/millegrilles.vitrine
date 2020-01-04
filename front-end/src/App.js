@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
+import { Nav, Navbar, NavDropdown, Container, Row, Col} from 'react-bootstrap';
 import axios from 'axios';
 
 // Importer sections et domaines
@@ -67,6 +67,8 @@ class _app extends React.Component {
             millegrille={configurationMilleGrille}
             configuration={configurationNoeud}
             language={language} />
+
+          <Footer />
         </div>
       </Router>
     );
@@ -197,6 +199,37 @@ class ToggleMenu extends React.Component {
 
     return content;
   }
+}
+
+class Footer extends React.Component {
+
+  render() {
+
+    return (
+      <Container fluid className="footer bg-danger">
+        <Row>
+          <Col md={3}>
+            <Row><h2>Col 1</h2></Row>
+          </Col>
+          <Col md={3}>
+            <Row><h2>Col 2</h2></Row>
+          </Col>
+          <Col md={3}>
+            <Row><h2>Col 3</h2></Row>
+          </Col>
+          <Col md={3}>
+            <Row><h2>Col 4</h2></Row>
+          </Col>
+        </Row>
+        <Row className="millegrille-footer">
+          <Col>
+            <Trans>application.vitrineAdvert</Trans>
+          </Col>
+        </Row>
+      </Container>
+    );
+  }
+
 }
 
 function _setTitre(language, configuration) {

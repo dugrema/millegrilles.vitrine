@@ -2,7 +2,8 @@
   "translation": {
     "application": {
       "nom": "Vitrine",
-      "pageNonTrouvee": "Page not found"
+      "pageNonTrouvee": "Page not found",
+      "vitrineAdvert": "Powered by Vitrine for MilleGrilles"
     },
     "menu": {
       "albums": "Albums",
