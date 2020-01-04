@@ -1,3 +1,52 @@
 {
-  
+  "recents": [
+    {
+      "path": "2019/12/21/10/24/123-432-fsdjl.dat",
+      "uuid": "abcd-1130",
+      "fuuid": "abcd-1230",
+      "nom": "Poutine!",
+      "texte": "Discussion sur la poutine, on a des invites distingues de Victoriaville et Drummondville",
+      "modifie": 1577742420
+    },{
+      "path": "2019/12/21/10/24/123-432-fsdjl.dat",
+      "uuid": "abcd-1131",
+      "fuuid": "abcd-1231",
+      "nom": "The race to exascale is on while Canada watches from the sidelines CBC News.pdf",
+      "mimetype": "application/pdf",
+      "modifie": 1577742420
+    }
+  ],
+  "collections": [
+    {
+      "nom": "Rapports",
+      "uuid": "abcd-2230",
+      "description": "Rapports divers en format PDF",
+      "modifie": 1577742420
+    },{
+      "nom": "Carousel",
+      "uuid": "abcd-2231",
+      "description": "Images du carousel, dans l'album",
+      "modifie": 1577742420
+    },{
+      "nom": "Guido Hofmann (unsplash)",
+      "uuid": "abcd-2232",
+      "modifie": 1577742420
+    },{
+      "nom": "Oliver Ash (unsplash)",
+      "uuid": "abcd-2233",
+      "modifie": 1577742420
+    },{
+      "nom": "Tessa Wilson (unsplash)",
+      "uuid": "abcd-2234",
+      "modifie": 1577742420
+    },{
+      "nom": "Mike Petrucci (unsplash)",
+      "uuid": "abcd-2235",
+      "modifie": 1577742420
+    },{
+      "nom": "Zac Wolff (unsplash)",
+      "uuid": "abcd-2236",
+      "modifie": 1577742420
+    }
+  ]
 }

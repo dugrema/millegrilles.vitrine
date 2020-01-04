@@ -1,0 +1,25 @@
+.date-fichier {
+  margin-bottom: 2em;
+}
+
+.heure-modifiee {
+  font-size: small;
+}
+
+.nom-fichier {
+  font-size: medium;
+  display: inline;
+  color: IndianRed;
+  padding-right: 1em;
+}
+
+.texte-fichier {
+  display: inline;
+}
+
+.nom-collection {
+  font-size: large;
+  display: block;
+  color: IndianRed;
+  padding-right: 1em;
+}

@@ -26,6 +26,13 @@
       "titrePage": "Messages",
       "aucun": "Aucuns messages"
     },
+    "fichiers": {
+      "titrePage": "Fichiers",
+      "aucun": "Aucuns fichiers",
+      "aucuneCollection": "Aucunes collections",
+      "recents": "Fichiers recents",
+      "collections": "Collections"
+    },
     "podcasts": {
       "titrePage": "Podcasts",
       "aucun": "Aucuns podcasts."
