@@ -1,7 +1,6 @@
 import React from 'react';
 import {SectionVitrine} from './sections';
-import {Jumbotron, Card, CardDeck, Button, Image, Media,
-        Container, Row, Col} from 'react-bootstrap';
+import {Container, Row, Col} from 'react-bootstrap';
 
 import { Trans } from 'react-i18next';
 import { traduire } from '../langutils.js';
@@ -54,7 +53,7 @@ export class FichiersVitrine extends SectionVitrine {
 
         for(let idx in fichiers) {
           let fichier = fichiers[idx];
-          let image, nom, texte, dateElement;
+          let nom, texte, dateElement;
           if(fichier.nom) {
             nom = (
               <h3 className="nom-fichier">
@@ -117,7 +116,7 @@ export class FichiersVitrine extends SectionVitrine {
 
         for(let idx in collections) {
           let collection = collections[idx];
-          let image, sujet, texte, dateElement;
+          let sujet, texte, dateElement;
           if(collection.nom) {
             sujet = (
               <h3 className="nom-collection">

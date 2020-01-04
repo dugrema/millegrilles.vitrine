@@ -1,7 +1,6 @@
 import React from 'react';
 import {SectionVitrine} from './sections';
-import {Jumbotron, Card, CardDeck, Button, Image, Media,
-        Container, Row, Col} from 'react-bootstrap';
+import {Container, Row, Col} from 'react-bootstrap';
 
 import { Trans } from 'react-i18next';
 import { traduire } from '../langutils.js';
@@ -20,8 +19,6 @@ export class PodcastsVitrine extends SectionVitrine {
   }
 
   render() {
-    const podcasts = [];
-
     return (
       <Container>
         <Row className="page-header">
@@ -42,7 +39,6 @@ export class PodcastsVitrine extends SectionVitrine {
       const podcasts = this.state.contenu.podcasts;
       if(podcasts && podcasts.length > 0) {
         podcastsElements = [];
-        const anneeCourante = new Date().getFullYear();
 
         for(let idx in podcasts) {
           let podcast = podcasts[idx];

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { Nav, Navbar, NavDropdown, Container, Row, Col} from 'react-bootstrap';
 import axios from 'axios';
 
@@ -14,7 +14,6 @@ import './App.css';
 
 const MILLEGRILLE_LIBELLE = 'millegrille.configuration', MILLEGRILLE_URL = '/millegrille.json';
 const NOEUDPUBLIC_LIBELLE = 'noeudPublic.configuration', NOEUDPUBLIC_URL = '/noeudPublic.json';
-const USER_LOCALE = 'user.locale';
 
 class _app extends React.Component {
 
@@ -143,8 +142,6 @@ const App = withTranslation()(_app);
 class ToggleMenu extends React.Component {
 
   render() {
-    var configuration, configurationMilleGrille;
-
     // Preparer le menu a partir de millegrilles.json
     const menuElements = [];
     if(this.props.configuration && this.props.configuration.menu) {

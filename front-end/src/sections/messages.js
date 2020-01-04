@@ -1,7 +1,6 @@
 import React from 'react';
 import {SectionVitrine} from './sections';
-import {Jumbotron, Card, CardDeck, Button, Image, Media,
-        Container, Row, Col} from 'react-bootstrap';
+import {Container, Row, Col} from 'react-bootstrap';
 
 import { Trans } from 'react-i18next';
 import { traduire } from '../langutils.js';
@@ -21,8 +20,6 @@ export class MessagesVitrine extends SectionVitrine {
   }
 
   render() {
-    const messages = [];
-
     return (
       <Container>
         <Row className="page-header">
@@ -46,7 +43,7 @@ export class MessagesVitrine extends SectionVitrine {
 
         for(let idx in messages) {
           let message = messages[idx];
-          let image, sujet, texte, dateElement;
+          let sujet, texte, dateElement;
           if(message.sujet) {
             sujet = (
               <h3 className="sujet-message">

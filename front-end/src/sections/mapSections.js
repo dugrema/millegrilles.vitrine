@@ -1,6 +1,6 @@
 import React from 'react';
 import { Trans } from 'react-i18next';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 
 import { AccueilVitrine } from './accueil';
 import { AlbumsVitrine } from './albums';
@@ -26,7 +26,6 @@ export function listerSections() {
 
 export class AfficherSection extends React.Component {
   render() {
-    const language = this.props.language;
     return (
       <Switch>
         <Route exact path="/">
