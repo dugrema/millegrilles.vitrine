@@ -66,7 +66,7 @@ export class PodcastsVitrine extends SectionVitrine {
                 width={128}
                 className="align-self-start mr-3"
                 src={podcast.thumbnail}
-                srcset={podcast.image + ' 600w'}
+                srcset={podcast.image + ' 400w'}
                 alt={traduire(podcast, 'titre', this.props.language)}
                 />
             )

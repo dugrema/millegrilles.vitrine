@@ -72,7 +72,10 @@ export class AlbumsVitrine extends SectionVitrine {
 
       listeRendered.push(
         <Card key={idx}>
-          <Card.Img variant="top" src={element.thumbnail} />
+          <picture>
+            <source className="d-block w-100" type={element.mimetype} srcset={element.image} media=" (min-width: 600px)"/>
+            <img className="d-block w-100" src={element.thumbnail} alt={descriptif}/>
+          </picture>
           {legende}
         </Card>
       );
@@ -98,7 +101,10 @@ export class AlbumsVitrine extends SectionVitrine {
 
       listeRendered.push(
         <Carousel.Item key={idx}>
-          <img className="d-block w-100" src={element.thumbnail} alt={descriptif}/>
+          <picture>
+            <source type={element.mimetype} srcset={element.image} media=" (min-width: 600px)"/>
+            <img className="d-block w-100" src={element.thumbnail} alt={descriptif}/>
+          </picture>
           {legende}
         </Carousel.Item>
       );

@@ -85,7 +85,7 @@ export class AccueilVitrine extends SectionVitrine {
       var bouton = null;
 
       if(carte.image) {
-        image = (<Card.Img variant="top" src={"/" + carte.image} />);
+        image = (<Card.Img variant="top" src={carte.thumbnail} srcset={carte.image + ' 400w'} />);
       }
       if(carte.titre) {
         titre = (<Card.Title>{traduire(carte, 'titre', this.props.language)}</Card.Title>);
@@ -130,6 +130,7 @@ export class AccueilVitrine extends SectionVitrine {
             width={128}
             className="align-self-start mr-3"
             src={medium.image}
+            srcset={medium.image + ' 400w'}
             alt={medium.titre}
             />);
       }
