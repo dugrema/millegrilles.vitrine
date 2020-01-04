@@ -3,7 +3,11 @@
     "application": {
       "nom": "Vitrine",
       "pageNonTrouvee": "Page non trouvée",
-      "vitrineAdvert": "Supporte par Vitrine pour MilleGrilles"
+      "vitrineAdvert": "Supporte par Vitrine pour MilleGrilles",
+      "courriel": "Courriel :",
+      "twitter": "Twitter :",
+      "millegrille_idmg": "idmg :",
+      "millegrilles": "MilleGrilles :"
     },
     "menu": {
       "albums": "Albums",

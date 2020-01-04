@@ -76,11 +76,11 @@ export class BlogsVitrine extends SectionVitrine {
           }
           blogpostsElements.push(
             <Row key={idx} className="blogpost">
-              <Col sm={2}>
+              <Col lg={2}>
                 {image}
                 {dateElement}
               </Col>
-              <Col sm={10}>
+              <Col lg={10}>
                 {sujet}
                 {texte}
               </Col>

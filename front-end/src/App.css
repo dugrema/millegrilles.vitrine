@@ -38,11 +38,11 @@ TH {
   padding: 1em;
   padding-bottom: 0.5em;
   min-height: 4em;
+  color: White;
 }
 
 .footer H2 {
   font-size: 1.25rem;
-  color: White;
   font-family: "Tahoma", sans-serif;
 }
 
@@ -55,6 +55,15 @@ TH {
   padding-top: 2em;
   text-align: center;
   font-size: 0.75rem;
-  color: White;
   font-family: "Tahoma", sans-serif;
+}
+
+.idmg {
+  font-size: small;
+  padding-top: 2px;
+  padding-left: 0.25em;
+}
+
+.millegrille {
+  padding-left: 0.25em;
 }

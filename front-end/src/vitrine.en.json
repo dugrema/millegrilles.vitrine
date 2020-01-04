@@ -3,7 +3,12 @@
     "application": {
       "nom": "Vitrine",
       "pageNonTrouvee": "Page not found",
-      "vitrineAdvert": "Powered by Vitrine for MilleGrilles"
+      "vitrineAdvert": "Powered by Vitrine for MilleGrilles",
+      "courriel": "Email:",
+      "twitter": "Twitter:",
+      "millegrille_idmg": "idmg:",
+      "millegrilles": "MilleGrilles:"
+
     },
     "menu": {
       "albums": "Albums",

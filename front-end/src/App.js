@@ -50,6 +50,12 @@ class _app extends React.Component {
     const configurationNoeud = this._configuration(),
           configurationMilleGrille = this._milleGrille();
 
+    const parametresCommuns = {
+      millegrille: configurationMilleGrille,
+      configuration: configurationNoeud,
+      language
+    };
+
     return (
       <Router>
         <div className="App">
@@ -68,7 +74,7 @@ class _app extends React.Component {
             configuration={configurationNoeud}
             language={language} />
 
-          <Footer />
+          <Footer {...parametresCommuns} />
         </div>
       </Router>
     );
@@ -204,6 +210,44 @@ class ToggleMenu extends React.Component {
 class Footer extends React.Component {
 
   render() {
+    var idmg, millegrille, courriel, twitter, contact = [];
+    if(this.props.millegrille) {
+      courriel = this.props.millegrille.courriel;
+      twitter = this.props.millegrille.twitter;
+      idmg = this.props.millegrille.idmg;
+      millegrille = this.props.millegrille.millegrille;
+    }
+
+    if(courriel) {
+      contact.push(
+        <Row key="courriel">
+          <Trans>application.courriel</Trans> {courriel}
+        </Row>
+      )
+    }
+    if(twitter) {
+      contact.push(
+        <Row key="twitter">
+          <Trans>application.twitter</Trans> {twitter}
+        </Row>
+      )
+    }
+    if(millegrille) {
+      contact.push(
+        <Row key="millegrille">
+          <Trans>application.millegrilles</Trans>
+          <span className="millegrille">{millegrille}</span>
+        </Row>
+      )
+    }
+    if(idmg) {
+      contact.push(
+        <Row key="idmg">
+          <Trans>application.millegrille_idmg</Trans>
+          <span className="idmg">{idmg}</span>
+        </Row>
+      )
+    }
 
     return (
       <Container fluid className="footer bg-danger">
@@ -214,11 +258,9 @@ class Footer extends React.Component {
           <Col md={3}>
             <Row><h2>Col 2</h2></Row>
           </Col>
-          <Col md={3}>
-            <Row><h2>Col 3</h2></Row>
-          </Col>
-          <Col md={3}>
-            <Row><h2>Col 4</h2></Row>
+          <Col md={6}>
+            <Row><h2>Contact</h2></Row>
+            {contact}
           </Col>
         </Row>
         <Row className="millegrille-footer">
