@@ -98,7 +98,7 @@ function RenderCarousel(props) {
       liste.push(
         <Carousel.Item key={idx}>
           <picture>
-            <source type={element.mimetype} srcSet={element.image} media=" (min-width: 600px)"/>
+            <source type={element.mimetype} srcSet={'/consignation/' + element.image} media=" (min-width: 600px)"/>
             <img className="d-block w-100" src={element.thumbnail} alt={descriptif}/>
           </picture>
           {legende}
@@ -131,10 +131,11 @@ function GenererListeCartes(props) {
         );
       }
 
+      var imagePath = '/consignation/' + (element.image || element.path);
       listeRendered.push(
         <Card key={element.uuid} onClick={props.selectionnerCollection} data-uuid={element.uuid}>
           <picture>
-            <source className="d-block w-100" type={element.mimetype} srcSet={element.image} media=" (min-width: 600px)"/>
+            <source className="d-block w-100" type={element.mimetype} srcSet={imagePath} media=" (min-width: 600px)"/>
             <img className="d-block w-100" src={element.thumbnail} alt={descriptif}/>
           </picture>
           {legende}
