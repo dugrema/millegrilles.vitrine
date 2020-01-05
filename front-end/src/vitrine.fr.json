@@ -40,7 +40,8 @@
     },
     "podcasts": {
       "titrePage": "Podcasts",
-      "aucun": "Aucuns podcasts."
+      "aucun": "Aucuns podcasts.",
+      "telecharger": "Télécharger"
     },
     "senseursPassifs": {
       "titrePage": "Senseurs Passifs",

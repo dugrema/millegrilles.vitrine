@@ -41,7 +41,8 @@
     },
     "podcasts": {
       "titrePage": "Podcasts",
-      "aucun": "No podcasts."
+      "aucun": "No podcasts.",
+      "telecharger": "Download"
     },
     "senseursPassifs": {
       "titrePage": "Sensors",

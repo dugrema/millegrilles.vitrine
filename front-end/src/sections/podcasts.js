@@ -1,10 +1,10 @@
 import React from 'react';
 import {SectionVitrine} from './sections';
-import {Container, Row, Col} from 'react-bootstrap';
+import {Container, Row, Col, Button} from 'react-bootstrap';
 
 import { Trans } from 'react-i18next';
 import { traduire } from '../langutils.js';
-import './blogs.css';
+import './podcasts.css';
 
 const PODCASTS_LIBELLE = 'page.podcasts', PODCASTS_URL = 'podcasts.json';
 
@@ -42,7 +42,7 @@ export class PodcastsVitrine extends SectionVitrine {
 
         for(let idx in podcasts) {
           let podcast = podcasts[idx];
-          let image, sujet, texte, dateElement, audio;
+          let image, sujet, texte, dateElement, audio, lien;
 
           if(podcast.path) {
             audio = (
@@ -58,6 +58,15 @@ export class PodcastsVitrine extends SectionVitrine {
                 {traduire(podcast, 'titre', this.props.language)}
               </h3>
             );
+          }
+          if(podcast.path && podcast.titre) {
+            lien = (
+              <p>
+                <Button variant="danger" href={"/" + podcast.path} download={podcast.titre}>
+                  <Trans>podcasts.telecharger</Trans>
+                </Button>
+              </p>
+            )
           }
           if(podcast.texte) {
             texte = (<p>{traduire(podcast, 'texte', this.props.language)}</p>)
@@ -85,6 +94,7 @@ export class PodcastsVitrine extends SectionVitrine {
                 {sujet}
                 {texte}
                 {audio}
+                {lien}
               </Col>
             </Row>
           );
