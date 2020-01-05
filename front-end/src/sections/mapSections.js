@@ -29,17 +29,33 @@ export class AfficherSection extends React.Component {
   render() {
     return (
       <Switch>
-        <Route exact path="/" component={AccueilVitrine}/>
-        <Route path="/albums"  component={AlbumsVitrine}/>
-        <Route path="/messages" component={MessagesVitrine}/>
-        <Route path="/blogs" component={BlogsVitrine}/>
-        <Route path="/podcasts" component={PodcastsVitrine}/>
-        <Route path="/fichiers" component={FichiersVitrine}/>
-        <Route path="/files" component={FichiersVitrine}/>
-        <Route path="/senseursPassifs" component={SenseursPassifsVitrine}/>
-        <Route render={() => {
-          return (<NotFound/>);
-        }}/>
+        <Route exact path="/">
+          <AccueilVitrine {...this.props}/>
+        </Route>
+        <Route path="/albums">
+          <AlbumsVitrine {...this.props}/>
+        </Route>
+        <Route path="/messages">
+          <MessagesVitrine {...this.props}/>
+        </Route>
+        <Route path="/blogs">
+          <BlogsVitrine {...this.props}/>
+        </Route>
+        <Route path="/podcasts">
+          <PodcastsVitrine {...this.props}/>
+        </Route>
+        <Route path="/fichiers">
+          <FichiersVitrine {...this.props}/>
+        </Route>
+        <Route path="/files">
+          <FichiersVitrine {...this.props}/>
+        </Route>
+        <Route path="/senseursPassifs">
+          <SenseursPassifsVitrine {...this.props}/>
+        </Route>
+        <Route status={404}>
+          <NotFound/>
+        </Route>
       </Switch>
     );
   }
