@@ -86,7 +86,9 @@ export class SenseursPassifsVitrine extends SectionVitrine {
           </Col>
           <Col lg={3}>
             <span className="label d-block d-lg-none"><Trans>senseursPassifs.dateLecture</Trans><br/></span>
-            <Trans values={{date: new Date(senseur.timestamp*1000)}}>senseursPassifs.dateLectureFormat</Trans>
+            <span className="date">
+              <Trans values={{date: new Date(senseur.timestamp*1000)}}>senseursPassifs.dateLectureFormat</Trans>
+            </span>
           </Col>
         </Row>
       );
