@@ -1,6 +1,6 @@
 import React from 'react';
-import {Card, CardColumns, Carousel} from 'react-bootstrap';
-import {SectionVitrine} from './sections';
+import {Card, CardColumns, Carousel, Button} from 'react-bootstrap';
+import {SectionVitrine, CollectionVitrine} from './sections';
 
 import './albums.css';
 
@@ -26,80 +26,56 @@ export class AlbumsVitrine extends SectionVitrine {
 
   render() {
 
-    var imagesRecentes = null;
-    if(this.state.contenu && this.state.contenu.recent) {
-      imagesRecentes = this.state.contenu.recent;
+    let page;
+    if(this.state.collectionCourante) {
+      page = (
+        <RenderCollection
+          uuid={this.state.collectionCourante}
+          retourPageAlbums={this.retourPageAlbums}/>);
+    } else {
+      page = (
+        <RenderPageAlbums
+          contenu={this.state.contenu}
+          selectionnerCollection={this.selectionnerCollection}/>);
     }
 
-    return (
-      <div>
-        <RenderCarousel images={imagesRecentes}/>
-        {this._renderCollections()}
-      </div>
-    );
+    return page;
   }
 
-  _renderRecent() {
-
-    var liste = null;
-    if(this.state.contenu) {
-      const recents = this.state.contenu.recent;
-      liste = this._genererListeCarousel(recents);
-    }
-
-    return (
-      <Carousel className="carousel" interval={5000}>
-        {liste}
-      </Carousel>
-    );
+  selectionnerCollection = event => {
+    let uuid = event.currentTarget.dataset.uuid;
+    console.debug("Selectionner collection " + uuid);
+    this.setState({collectionCourante: uuid});
   }
 
-  _renderCollections() {
-
-    var collectionsListe = null;
-    if(this.state.contenu) {
-      const collections = this.state.contenu.collections;
-      collectionsListe = this._genererListeCartes(collections);
-    }
-
-    return (
-      <CardColumns>
-        {collectionsListe}
-      </CardColumns>
-    );
-  }
-
-  _genererListeCartes(liste) {
-    const listeRendered = [];
-    for(let idx in liste) {
-      let element = liste[idx];
-      let descriptif = element.descriptif || element.legende;
-
-      var legende;
-      if(descriptif) {
-        legende = (
-          <Card.Body>
-            <Card.Text>{descriptif}</Card.Text>
-          </Card.Body>
-        );
-      }
-
-      listeRendered.push(
-        <Card key={idx}>
-          <picture>
-            <source className="d-block w-100" type={element.mimetype} srcSet={element.image} media=" (min-width: 600px)"/>
-            <img className="d-block w-100" src={element.thumbnail} alt={descriptif}/>
-          </picture>
-          {legende}
-        </Card>
-      );
-    }
-
-    return listeRendered;
+  retourPageAlbums = event => {
+    this.setState({collectionCourante: null});
   }
 
 }
 
+function RenderPageAlbums(props) {
+  var imagesRecentes, collections;
+  if(props.contenu) {
+    if(props.contenu.recent) {
+      imagesRecentes = props.contenu.recent;
+    }
+    if(props.contenu.collections) {
+      collections = props.contenu.collections;
+    }
+  }
+
+  return (
+    <div>
+      <RenderCarousel images={imagesRecentes}/>
+      <GenererListeCartes
+        images={collections}
+        selectionnerCollection={props.selectionnerCollection} />
+    </div>
+  );
+}
+
+// Affiche un carousel en fonction d'une liste d'images
 function RenderCarousel(props) {
   var liste = null;
   if(props.images) {
@@ -135,4 +111,61 @@ function RenderCarousel(props) {
       {liste}
     </Carousel>
   );
+}
+
+// Genere des colonnes d'images en fonction d'une liste
+function GenererListeCartes(props) {
+  const listeRendered = [];
+  if(props.images) {
+    for(let idx in props.images) {
+      let element = props.images[idx];
+      let descriptif = element.descriptif || element.legende;
+
+      var legende;
+      if(descriptif) {
+        legende = (
+          <Card.Body>
+            <Card.Text>{descriptif}</Card.Text>
+          </Card.Body>
+        );
+      }
+
+      listeRendered.push(
+        <Card key={element.uuid} onClick={props.selectionnerCollection} data-uuid={element.uuid}>
+          <picture>
+            <source className="d-block w-100" type={element.mimetype} srcSet={element.image} media=" (min-width: 600px)"/>
+            <img className="d-block w-100" src={element.thumbnail} alt={descriptif}/>
+          </picture>
+          {legende}
+        </Card>
+      );
+    }
+  }
+
+  if(listeRendered.length > 0) {
+    return (
+      <CardColumns>
+        {listeRendered}
+      </CardColumns>
+    )
+  }
+
+  return null;
+}
+
+class RenderCollection extends CollectionVitrine {
+
+  getUuid() {
+    return this.props.uuid;
+  }
+
+  render() {
+    return (
+      <p>
+        Collection {this.props.uuid}
+        <Button onClick={this.props.retourPageAlbums}>Retour</Button>
+      </p>
+    )
+  }
+
 }
