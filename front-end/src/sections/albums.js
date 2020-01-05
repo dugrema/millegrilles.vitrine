@@ -131,12 +131,21 @@ function GenererListeCartes(props) {
         );
       }
 
-      var imagePath = '/consignation/' + (element.image || element.path);
+      var listeImages = [];
+      if(element.mimetype && (element.image || element.path)) {
+        var imagePath = '/consignation/' + (element.image || element.path);
+        listeImages.push(
+          <source className="d-block w-100" type={element.mimetype} srcSet={imagePath} media=" (min-width: 600px)"/>
+        );
+      }
+      listeImages.push(
+        <img className="d-block w-100" src={element.thumbnail} alt={descriptif}/>
+      );
+      
       listeRendered.push(
         <Card key={element.uuid} onClick={props.selectionnerCollection} data-uuid={element.uuid}>
           <picture>
-            <source className="d-block w-100" type={element.mimetype} srcSet={imagePath} media=" (min-width: 600px)"/>
-            <img className="d-block w-100" src={element.thumbnail} alt={descriptif}/>
+            {listeImages}
           </picture>
           {legende}
         </Card>
