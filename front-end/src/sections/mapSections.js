@@ -1,6 +1,6 @@
 import React from 'react';
 import { Trans } from 'react-i18next';
-import { Route, Switch, Status } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import {Container, Row, Col} from 'react-bootstrap';
 
 import { AccueilVitrine } from './accueil';

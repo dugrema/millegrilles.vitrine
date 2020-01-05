@@ -1,9 +1,7 @@
 import React from 'react';
 import {SectionVitrine} from './sections';
-import {Jumbotron, Card, CardDeck, Button, Image, Media,
+import {Jumbotron, Card, CardDeck, Button, Image, 
         Container, Row, Col} from 'react-bootstrap';
-
-import { Trans } from 'react-i18next';
 
 import { traduire } from '../langutils.js';
 
