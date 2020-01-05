@@ -37,7 +37,7 @@ export class AlbumsVitrine extends SectionVitrine {
       page = (
         <RenderPageAlbums
           contenu={this.state.contenu}
-          selectionnerCollection={this.selectionnerCollection}/>);
+          selectionner={this.selectionnerCollection}/>);
     }
 
     return page;
@@ -71,7 +71,7 @@ function RenderPageAlbums(props) {
       <RenderCarousel images={imagesRecentes}/>
       <GenererListeCartes
         images={collections}
-        selectionnerCollection={props.selectionnerCollection} />
+        selectionner={props.selectionner} />
     </div>
   );
 }
@@ -135,15 +135,15 @@ function GenererListeCartes(props) {
       if(element.mimetype && (element.image || element.path)) {
         var imagePath = '/consignation/' + (element.image || element.path);
         listeImages.push(
-          <source className="d-block w-100" type={element.mimetype} srcSet={imagePath} media=" (min-width: 600px)"/>
+          <source key={element.uuid + 'source'} className="d-block w-100" type={element.mimetype} srcSet={imagePath} media=" (min-width: 600px)"/>
         );
       }
       listeImages.push(
-        <img className="d-block w-100" src={element.thumbnail} alt={descriptif}/>
+        <img key={element.uuid + 'img'} className="d-block w-100" src={element.thumbnail} alt={descriptif}/>
       );
-      
+
       listeRendered.push(
-        <Card key={element.uuid} onClick={props.selectionnerCollection} data-uuid={element.uuid}>
+        <Card key={element.uuid} onClick={props.selectionner} data-uuid={element.uuid} data-path={element.path}>
           <picture>
             {listeImages}
           </picture>
@@ -175,7 +175,7 @@ class RenderCollection extends CollectionVitrine {
     if(this.state.contenu) {
       nomCollection = this.state.contenu.nom;
       images = this._preparerImages();
-      description = this.state.contenu.descriptif;
+      description = this.state.contenu.descriptif || this.state.contenu.commentaires;
     }
 
     return (
@@ -188,11 +188,11 @@ class RenderCollection extends CollectionVitrine {
         </Row>
         <Row>
           <Col>
+            <p>{description}</p>
             <Button onClick={this.props.retourPageAlbums}>Retour</Button>
           </Col>
         </Row>
-        <Row><Col>{description}</Col></Row>
-        <Row><Col><GenererListeCartes images={images}/></Col></Row>
+        <Row><Col><GenererListeCartes images={images} selectionner={this._afficherImage}/></Col></Row>
       </Container>
     )
   }
@@ -207,6 +207,12 @@ class RenderCollection extends CollectionVitrine {
       }
     }
     return images;
+  }
+
+  _afficherImage = event => {
+    let path = event.currentTarget.dataset.path;
+    console.debug("Afficher image " + path);
+    window.location.href = '/consignation/' + path;
   }
 
 }
