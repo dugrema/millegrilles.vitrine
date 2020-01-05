@@ -42,6 +42,15 @@
     "podcasts": {
       "titrePage": "Podcasts",
       "aucun": "No podcasts."
+    },
+    "senseursPassifs": {
+      "titrePage": "Sensors",
+      "location": "Location",
+      "batterie": "Battery",
+      "dateLecture": "Date",
+      "temperature": "Temperature",
+      "humidite": "Humidity",
+      "pression": "Pressure"
     }
   }
 }

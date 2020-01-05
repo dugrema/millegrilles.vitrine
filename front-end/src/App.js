@@ -249,13 +249,7 @@ class Footer extends React.Component {
     return (
       <Container fluid className="footer bg-danger">
         <Row>
-          <Col md={3}>
-            <Row><h2>Col 1</h2></Row>
-          </Col>
-          <Col md={3}>
-            <Row><h2>Col 2</h2></Row>
-          </Col>
-          <Col md={6}>
+          <Col>
             <Row><h2>Contact</h2></Row>
             {contact}
           </Col>

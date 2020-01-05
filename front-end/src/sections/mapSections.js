@@ -1,6 +1,7 @@
 import React from 'react';
 import { Trans } from 'react-i18next';
 import { Route, Switch } from 'react-router-dom';
+import {Container, Row, Col} from 'react-bootstrap';
 
 import { AccueilVitrine } from './accueil';
 import { AlbumsVitrine } from './albums';
@@ -49,7 +50,19 @@ export class AfficherSection extends React.Component {
         <Route path="/files">
           <FichiersVitrine {...this.props}/>
         </Route>
-        <Route render={() => <h1><Trans>application.pageNonTrouvee</Trans></h1>} />
+        <Route path="/senseursPassifs">
+          <SenseursPassifsVitrine {...this.props}/>
+        </Route>
+        <Route render={() => (
+          <Container>
+            <Row className="page-header">
+              <Col>
+                <h2><Trans>application.pageNonTrouvee</Trans></h2>
+                <hr/>
+              </Col>
+            </Row>
+          </Container>
+        )} />
       </Switch>
     );
   }

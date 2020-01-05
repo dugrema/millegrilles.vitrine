@@ -1,0 +1,102 @@
+{
+  "noeuds": [
+    {
+      "_mg-libelle": "noeud.individuel",
+      "noeud": "cuisine",
+      "_mg-derniere-modification": 1578182211,
+      "dict_senseurs": {
+          "996f0560f35811e9a9a7b827eb9064af": {
+              "noeud": "cuisine",
+              "uuid_senseur": "996f0560f35811e9a9a7b827eb9064af",
+              "bat_mv": 3319,
+              "bat_reserve": 100,
+              "humidite": 76.7,
+              "senseurs": [
+                  {
+                      "humidite": 93.6,
+                      "temperature": 2.4,
+                      "type": "th"
+                  },
+                  {
+                      "pression": null,
+                      "temperature": null,
+                      "type": "tp"
+                  },
+                  {
+                      "alerte": 0,
+                      "millivolt": 3319,
+                      "reserve": 100,
+                      "type": "batterie"
+                  }
+              ],
+              "temperature": 4.1,
+              "timestamp": 1578182211,
+              "location": "Patio",
+              "mesh_address": "0o4",
+              "affichage": {
+                  "th": {
+                      "humidite": 93.6,
+                      "temperature": 2.4,
+                      "pression": 101.5,
+                      "timestamp": 1578182211,
+                      "location": "Patio"
+                  }
+              }
+          },
+          "f7f6bfecf42011e98b58b827ebd2b2d1": {
+              "noeud": "cuisine",
+              "uuid_senseur": "f7f6bfecf42011e98b58b827ebd2b2d1",
+              "humidite": 46.5,
+              "senseurs": [
+                  {
+                      "humidite": 44.2,
+                      "temperature": 20.5,
+                      "type": "am2302"
+                  }
+              ],
+              "temperature": 20.2,
+              "timestamp": 1578182211,
+              "location": "Cuisine",
+              "affichage": {
+                  "am2302": {
+                      "humidite": 44.2,
+                      "temperature": 20.5,
+                      "timestamp": 1578182211,
+                      "location": "Cuisine"
+                  }
+              }
+          }
+      }
+  },
+  {
+      "_mg-libelle": "noeud.individuel",
+      "noeud": "garage",
+      "_mg-derniere-modification": 1578182211,
+      "dict_senseurs": {
+          "f14951f2f43211e99259b827eb53ee51": {
+              "noeud": "garage",
+              "uuid_senseur": "f14951f2f43211e99259b827eb53ee51",
+              "humidite": 56.3,
+              "senseurs": [
+                  {
+                      "humidite": 63.4,
+                      "temperature": 5.2,
+                      "type": "am2302"
+                  }
+              ],
+              "temperature": 11.1,
+              "timestamp": 1578182211,
+              "location": "Garage",
+              "affichage": {
+                  "am2302": {
+                      "humidite": 63.4,
+                      "temperature": 5.2,
+                      "timestamp": 1578182211,
+                      "location": "Garage"
+                  }
+              }
+          }
+      }
+    }
+  ]
+}
