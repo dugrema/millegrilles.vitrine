@@ -84,8 +84,22 @@ export class AccueilVitrine extends SectionVitrine {
       var texte = null;
       var bouton = null;
 
-      if(carte.image) {
-        image = (<Card.Img variant="top" src={carte.thumbnail} srcSet={carte.image + ' 400w'} />);
+      if(carte.image || carte.thumbnail) {
+        let imagesDef = [];
+        if(carte.mimetype && carte.image) {
+          imagesDef.push(
+            <source key='highdef' type={carte.mimetype} srcSet={'/consignation/' + carte.image} media=" (min-width: 600px)"/>
+          );
+        }
+        if(carte.thumbnail) {
+          imagesDef.push(
+            <Card.Img key='thumbnail' variant="top" src={carte.thumbnail}/>
+          );
+        }
+
+        image = (
+          <picture>{imagesDef}</picture>
+        );
       }
       if(carte.titre) {
         titre = (<Card.Title>{traduire(carte, 'titre', this.props.language)}</Card.Title>);
@@ -115,53 +129,5 @@ export class AccueilVitrine extends SectionVitrine {
     );
 
     return cardDeck;
-  }
-
-  _renderMedia(media) {
-    const mediaList = [];
-
-    for(let idx in media) {
-      let medium = media[idx];
-
-      var image, titre, texte, footer;
-      if(medium.image) {
-        image = (
-          <img
-            width={128}
-            className="align-self-start mr-3"
-            src={medium.image}
-            srcset={medium.image + ' 400w'}
-            alt={medium.titre}
-            />);
-      }
-      if(medium.titre) {
-        titre = (<h3>{traduire(medium, 'titre', this.props.language)}</h3>)
-      }
-      if(medium.texte) {
-        texte = [];
-        let paragraphes = traduire(medium, 'texte', this.props.language);
-        for(let idxPara in paragraphes) {
-          let paragraphe = paragraphes[idxPara];
-          texte.push(<p key={idxPara}>{paragraphe}</p>)
-        }
-      }
-      if(medium.modifie) {
-        const dateModifiee = new Date(medium.modifie * 1000);
-        footer = (<p className="mediaFooter"><Trans values={{date: dateModifiee}}>accueil.dateModifiee</Trans></p>)
-      }
-
-      mediaList.push(
-        <Media key={idx} className="blogpost">
-          {image}
-          <Media.Body>
-            {titre}
-            {texte}
-            {footer}
-          </Media.Body>
-        </Media>
-      );
-    }
-
-    return mediaList;
   }
 }
