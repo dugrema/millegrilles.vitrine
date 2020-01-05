@@ -10,6 +10,14 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Tahoma", sans-serif}
   color: #61dafb;
 }
 
+A, A:visited {
+  color: IndianRed;
+}
+
+A.btn, A.btn:visited {
+  color: White;
+}
+
 TABLE {
   border: 1pt solid black;
 }

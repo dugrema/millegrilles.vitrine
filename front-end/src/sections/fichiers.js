@@ -55,9 +55,12 @@ export class FichiersVitrine extends SectionVitrine {
           let fichier = fichiers[idx];
           let nom, texte, dateElement;
           if(fichier.nom) {
+            const nomFichier = traduire(fichier, 'nom', this.props.language);
             nom = (
               <h3 className="nom-fichier">
-                {traduire(fichier, 'nom', this.props.language)}
+                <a href={'/' + fichier.path} download={nomFichier}>
+                  {nomFichier}
+                </a>
               </h3>
             );
           }

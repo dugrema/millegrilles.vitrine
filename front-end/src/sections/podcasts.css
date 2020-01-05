@@ -5,3 +5,7 @@
 .podcast {
   padding-bottom: 2em;
 }
+
+A, A:visited {
+  color: White;
+}
