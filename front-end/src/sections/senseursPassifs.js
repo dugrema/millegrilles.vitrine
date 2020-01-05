@@ -3,7 +3,6 @@ import {SectionVitrine} from './sections';
 import {Container, Row, Col} from 'react-bootstrap';
 
 import { Trans } from 'react-i18next';
-import { traduire } from '../langutils.js';
 
 import './senseursPassifs.css';
 
@@ -172,30 +171,30 @@ export class SenseursPassifsVitrine extends SectionVitrine {
 
 }
 
-function getBatterieIcon(documentSenseur) {
-  if(!documentSenseur) return null;
-
-  var batterieIcon = null;
-  if(documentSenseur.bat_reserve > 100) {
-    batterieIcon = (<i className="fa fa-bug"/>);
-  } else if(documentSenseur.bat_reserve === 100) {
-    batterieIcon = (<i className="fa fa-bolt"/>);
-  } else if(documentSenseur.bat_reserve < 100 && documentSenseur.bat_reserve > 80) {
-    batterieIcon = (<i className="fa fa-battery-full"/>);
-  } else if(documentSenseur.bat_reserve > 66) {
-    batterieIcon = (<i className="fa fa-battery-three-quarters"/>);
-  } else if(documentSenseur.bat_reserve > 33) {
-    batterieIcon = (<i className="fa fa-battery-half"/>);
-  } else if(documentSenseur.bat_reserve > 5) {
-    batterieIcon = (<i className="fa fa-battery-quarter"/>);
-  } else if(documentSenseur.bat_reserve > 0) {
-    batterieIcon = (<i className="fa fa-battery-empty"/>);
-  } else {
-    batterieIcon = (<i className="fa fa-bug"/>);
-  }
-
-  return batterieIcon;
-}
+// function getBatterieIcon(documentSenseur) {
+//   if(!documentSenseur) return null;
+//
+//   var batterieIcon = null;
+//   if(documentSenseur.bat_reserve > 100) {
+//     batterieIcon = (<i className="fa fa-bug"/>);
+//   } else if(documentSenseur.bat_reserve === 100) {
+//     batterieIcon = (<i className="fa fa-bolt"/>);
+//   } else if(documentSenseur.bat_reserve < 100 && documentSenseur.bat_reserve > 80) {
+//     batterieIcon = (<i className="fa fa-battery-full"/>);
+//   } else if(documentSenseur.bat_reserve > 66) {
+//     batterieIcon = (<i className="fa fa-battery-three-quarters"/>);
+//   } else if(documentSenseur.bat_reserve > 33) {
+//     batterieIcon = (<i className="fa fa-battery-half"/>);
+//   } else if(documentSenseur.bat_reserve > 5) {
+//     batterieIcon = (<i className="fa fa-battery-quarter"/>);
+//   } else if(documentSenseur.bat_reserve > 0) {
+//     batterieIcon = (<i className="fa fa-battery-empty"/>);
+//   } else {
+//     batterieIcon = (<i className="fa fa-bug"/>);
+//   }
+//
+//   return batterieIcon;
+// }
 
 // function formatterLecture(documentSenseur) {
 //   let temperature = null, humidite = null, pression = null, timestamp = null;
