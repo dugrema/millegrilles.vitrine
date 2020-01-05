@@ -42,7 +42,16 @@ export class PodcastsVitrine extends SectionVitrine {
 
         for(let idx in podcasts) {
           let podcast = podcasts[idx];
-          let image, sujet, texte, dateElement;
+          let image, sujet, texte, dateElement, audio;
+
+          if(podcast.path) {
+            audio = (
+              <audio controls>
+                <source src={'/' + podcast.path} type={podcast.mimetype}/>
+                <Trans>Your browser does not support the audio element.</Trans>
+              </audio>
+            )
+          }
           if(podcast.titre) {
             sujet = (
               <h3 className="titre-podcast">
@@ -62,7 +71,6 @@ export class PodcastsVitrine extends SectionVitrine {
                 width={128}
                 className="align-self-start mr-3"
                 src={podcast.thumbnail}
-                srcSet={podcast.image + ' 400w'}
                 alt={traduire(podcast, 'titre', this.props.language)}
                 />
             )
@@ -76,6 +84,7 @@ export class PodcastsVitrine extends SectionVitrine {
               <Col sm={10}>
                 {sujet}
                 {texte}
+                {audio}
               </Col>
             </Row>
           );
