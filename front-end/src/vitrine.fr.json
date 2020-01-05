@@ -50,7 +50,11 @@
       "temperature": "Température",
       "temperatureAbbrev": "Tempér.",
       "humidite": "Humidité",
-      "pression": "Pression"
+      "pression": "Pression",
+      "dateLectureFormat": "{{date, YYYY/MM/DD H:m:s}}",
+      "temperatureFormat": "{{temperature, 1}}°C",
+      "humiditeFormat": "{{humidite, 0}}%",
+      "pressionFormat": "{{pression, 1}} kPa"
     }
   }
 }

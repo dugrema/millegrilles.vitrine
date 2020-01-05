@@ -49,8 +49,13 @@
       "batterie": "Battery",
       "dateLecture": "Date",
       "temperature": "Temperature",
+      "temperatureAbbrev": "Temp.",
       "humidite": "Humidity",
-      "pression": "Pressure"
+      "pression": "Pressure",
+      "dateLectureFormat": "{{date, YYYY/MM/DD h:m:s a}}",
+      "temperatureFormat": "{{temperature, 1}}°C",
+      "humiditeFormat": "{{humidite, 0}}%",
+      "pressionFormat": "{{pression, 1}} kPa"
     }
   }
 }

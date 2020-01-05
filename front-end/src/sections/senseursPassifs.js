@@ -86,7 +86,7 @@ export class SenseursPassifsVitrine extends SectionVitrine {
           </Col>
           <Col lg={3}>
             <span className="label d-block d-lg-none"><Trans>senseursPassifs.dateLecture</Trans><br/></span>
-            {senseur['timestamp']}
+            <Trans values={{date: new Date(senseur.timestamp*1000)}}>senseursPassifs.dateLectureFormat</Trans>
           </Col>
         </Row>
       );
@@ -103,18 +103,19 @@ export class SenseursPassifsVitrine extends SectionVitrine {
             </Col>
             <Col lg={1} className="temperature">
               <span className="label d-block d-lg-none"><Trans>senseursPassifs.temperature</Trans><br/></span>
-              {senseur.temperature}
+              <Trans values={{temperature: appareil.temperature}}>senseursPassifs.temperatureFormat</Trans>
             </Col>
             <Col lg={1} className="humidite">
               <span className="label d-block d-lg-none"><Trans>senseursPassifs.humidite</Trans><br/></span>
-              {senseur.humidite}
+              <Trans values={{humidite: appareil.humidite}}>senseursPassifs.humiditeFormat</Trans>
             </Col>
             <Col lg={2} className="pression">
               <span className="label d-block d-lg-none"><Trans>senseursPassifs.pression</Trans><br/></span>
-              {senseur.pression}
+              <Trans values={{pression: appareil.pression}}>senseursPassifs.pressionFormat</Trans>
             </Col>
             <Col lg={4} className="date">
-              {appareil['timestamp']}
+              <span className="label d-block d-lg-none"><Trans>senseursPassifs.dateLecture</Trans><br/></span>
+              <Trans values={{date: new Date(appareil.timestamp*1000)}}>senseursPassifs.dateLectureFormat</Trans>
             </Col>
           </Row>
         );

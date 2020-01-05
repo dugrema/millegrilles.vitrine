@@ -12,6 +12,8 @@ const resources = {fr, en};
 function formatterValeur(value, format, lng) {
   if(value instanceof Date) {
     return moment(value).locale(lng).format(format);
+  } else if(!isNaN(value) && !isNaN(format)) {
+    return Number(value).toFixed(format);
   }
 
   return value;
