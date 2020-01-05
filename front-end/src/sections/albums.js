@@ -8,6 +8,14 @@ const ALBUMS_LIBELLE = 'page.albums', ALBUMS_URL = 'albums.json';
 
 export class AlbumsVitrine extends SectionVitrine {
 
+  constructor() {
+    super();
+    const state = {
+      collectionCourante: null,
+    }
+    this.setState(state);
+  }
+
   getDocumentLibelle() {
     return ALBUMS_LIBELLE;
   }
@@ -17,9 +25,15 @@ export class AlbumsVitrine extends SectionVitrine {
   }
 
   render() {
+
+    var imagesRecentes = null;
+    if(this.state.contenu && this.state.contenu.recent) {
+      imagesRecentes = this.state.contenu.recent;
+    }
+
     return (
       <div>
-        {this._renderRecent()}
+        <RenderCarousel images={imagesRecentes}/>
         {this._renderCollections()}
       </div>
     );
@@ -84,10 +98,15 @@ export class AlbumsVitrine extends SectionVitrine {
     return listeRendered;
   }
 
-  _genererListeCarousel(liste) {
-    const listeRendered = [];
-    for(let idx in liste) {
-      let element = liste[idx];
+}
+
+function RenderCarousel(props) {
+  var liste = null;
+  if(props.images) {
+    liste = [];
+    const listeImages = props.images;
+    for(let idx in listeImages) {
+      let element = listeImages[idx];
       let descriptif = element.descriptif || element.legende;
 
       var legende;
@@ -99,7 +118,7 @@ export class AlbumsVitrine extends SectionVitrine {
         );
       }
 
-      listeRendered.push(
+      liste.push(
         <Carousel.Item key={idx}>
           <picture>
             <source type={element.mimetype} srcSet={element.image} media=" (min-width: 600px)"/>
@@ -109,7 +128,11 @@ export class AlbumsVitrine extends SectionVitrine {
         </Carousel.Item>
       );
     }
-
-    return listeRendered;
   }
+
+  return (
+    <Carousel className="carousel" interval={5000}>
+      {liste}
+    </Carousel>
+  );
 }

@@ -1,0 +1,38 @@
+{
+    "_mg-libelle": "collection",
+    "uuid": "da02b5e8-9a45-496c-b906-4895d5624405",
+    "documents": {
+        "e85311e9-784c-4e42-9d2a-b85d8c8d34a5": {
+            "_mg-libelle": "fichier",
+            "uuid": "e85311e9-784c-4e42-9d2a-b85d8c8d34a5",
+            "securite": "1.public",
+            "commentaires": "Mon commentaire.",
+            "nom": "guido-hofmann-G7BDFhrV00E-unsplash.jpg",
+            "date_version": 1575815229,
+            "fuuid": "07bc4760-19c6-11ea-bc12-39a69f97a46f",
+            "path": "2019/12/08/14/21/07bc4760-19c6-11ea-bc12-39a69f97a46f.jpg",
+            "mimetype": "image/jpeg",
+            "taille": 4630620,
+            "sha256": "451fa16a0562eb045005707340d03a5dad6946015905cdc063df2d15f3d25cd2",
+            "thumbnail": ""
+        }
+    },
+    "etiquettes": [
+      "album",
+      "Guido Hofmann",
+      "unsplash"
+    ],
+    "supprime": false,
+    "commentaires": "Une collection d'images de Guido Hofmann.",
+    "securite": "1.public",
+    "nom": "Guido Hofmann (unsplash)",
+    "_mg-creation": 1577285255,
+    "_mg-derniere-modification": 1577285255,
+    "figees": [
+        {
+            "date": 1575815248,
+            "uuid": "dce6af16-19c6-11ea-9c15-02420a00003b",
+            "torrent_hashstring": "95f288b2e0f11c3e37f3f77f511a405cd4b332bf"
+        }
+    ]
+}
