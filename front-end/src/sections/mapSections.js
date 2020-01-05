@@ -1,6 +1,6 @@
 import React from 'react';
 import { Trans } from 'react-i18next';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, Status } from 'react-router-dom';
 import {Container, Row, Col} from 'react-bootstrap';
 
 import { AccueilVitrine } from './accueil';
@@ -29,41 +29,31 @@ export class AfficherSection extends React.Component {
   render() {
     return (
       <Switch>
-        <Route exact path="/">
-          <AccueilVitrine {...this.props}/>
-        </Route>
-        <Route path="/albums">
-          <AlbumsVitrine {...this.props}/>
-        </Route>
-        <Route path="/messages">
-          <MessagesVitrine {...this.props}/>
-        </Route>
-        <Route path="/blogs">
-          <BlogsVitrine {...this.props}/>
-        </Route>
-        <Route path="/podcasts">
-          <PodcastsVitrine {...this.props}/>
-        </Route>
-        <Route path="/fichiers">
-          <FichiersVitrine {...this.props}/>
-        </Route>
-        <Route path="/files">
-          <FichiersVitrine {...this.props}/>
-        </Route>
-        <Route path="/senseursPassifs">
-          <SenseursPassifsVitrine {...this.props}/>
-        </Route>
-        <Route render={() => (
-          <Container>
-            <Row className="page-header">
-              <Col>
-                <h2><Trans>application.pageNonTrouvee</Trans></h2>
-                <hr/>
-              </Col>
-            </Row>
-          </Container>
-        )} />
+        <Route exact path="/" component={AccueilVitrine}/>
+        <Route path="/albums"  component={AlbumsVitrine}/>
+        <Route path="/messages" component={MessagesVitrine}/>
+        <Route path="/blogs" component={BlogsVitrine}/>
+        <Route path="/podcasts" component={PodcastsVitrine}/>
+        <Route path="/fichiers" component={FichiersVitrine}/>
+        <Route path="/files" component={FichiersVitrine}/>
+        <Route path="/senseursPassifs" component={SenseursPassifsVitrine}/>
+        <Route render={() => {
+          return (<NotFound/>);
+        }}/>
       </Switch>
     );
   }
+}
+
+function NotFound(props) {
+  return (
+    <Container>
+      <Row className="page-header">
+        <Col>
+          <h2><Trans>application.pageNonTrouvee</Trans></h2>
+          <hr/>
+        </Col>
+      </Row>
+    </Container>
+  )
 }
