@@ -82,6 +82,10 @@ export class SectionVitrine extends React.Component {
 
 export class CollectionVitrine extends React.Component {
 
+  state = {
+    contenu: null,
+  };
+
   componentDidMount() {
     this._chargerCollection(this.getUuid());
   }
@@ -90,10 +94,11 @@ export class CollectionVitrine extends React.Component {
   // libelle: Nom dans localStorage (e.g. page.accueil)
   // url: URL relatif sur le serveur (e.g. /defaut/accueil.json)
   _chargerCollection(libelle) {
-    let contenu = sessionStorage.getItem(libelle);
+    let contenuPageStr = sessionStorage.getItem(libelle);
 
     const headers = {};
-    if(contenu) {
+    if(contenuPageStr) {
+      const contenu = JSON.parse(contenuPageStr);
       this.setState({contenu: contenu.contenu});
 
       let lastModified = contenu.lastModified;
@@ -117,7 +122,7 @@ export class CollectionVitrine extends React.Component {
           lastModified: resp.headers['last-modified'],
         }
         this.setState({contenu: contenuPage});
-        sessionStorage.setItem(libelle, contenu);
+        sessionStorage.setItem(libelle, JSON.stringify(contenu));
       }
     })
     .catch(err=>{

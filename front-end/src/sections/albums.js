@@ -1,5 +1,6 @@
 import React from 'react';
-import {Card, CardColumns, Carousel, Button} from 'react-bootstrap';
+import {Card, CardColumns, Carousel, Button,
+        Container, Row, Col} from 'react-bootstrap';
 import {SectionVitrine, CollectionVitrine} from './sections';
 
 import './albums.css';
@@ -119,7 +120,7 @@ function GenererListeCartes(props) {
   if(props.images) {
     for(let idx in props.images) {
       let element = props.images[idx];
-      let descriptif = element.descriptif || element.legende;
+      let descriptif = element.descriptif || element.legende || element.commentaires || element.nom;
 
       var legende;
       if(descriptif) {
@@ -160,12 +161,42 @@ class RenderCollection extends CollectionVitrine {
   }
 
   render() {
+    var nomCollection, images, description;
+    if(this.state.contenu) {
+      nomCollection = this.state.contenu.nom;
+      images = this._preparerImages();
+      description = this.state.contenu.descriptif;
+    }
+
     return (
-      <p>
-        Collection {this.props.uuid}
-        <Button onClick={this.props.retourPageAlbums}>Retour</Button>
-      </p>
+      <Container>
+        <Row className="page-header">
+          <Col>
+            <h2>{nomCollection}</h2>
+            <hr/>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Button onClick={this.props.retourPageAlbums}>Retour</Button>
+          </Col>
+        </Row>
+        <Row><Col>{description}</Col></Row>
+        <Row><Col><GenererListeCartes images={images}/></Col></Row>
+      </Container>
     )
+  }
+
+  _preparerImages() {
+    const images = [];
+    if(this.state.contenu && this.state.contenu.documents) {
+      const documents = this.state.contenu.documents;
+      for(let uuidImage in documents) {
+        let image = documents[uuidImage];
+        images.push(image);
+      }
+    }
+    return images;
   }
 
 }
