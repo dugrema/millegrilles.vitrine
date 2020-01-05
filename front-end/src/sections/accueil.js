@@ -9,7 +9,7 @@ import { traduire } from '../langutils.js';
 
 import './accueil.css';
 
-const ACCUEIL_LIBELLE = 'page.accueil', ACCUEIL_URL = '/accueil.json';
+const ACCUEIL_LIBELLE = 'page.accueil', ACCUEIL_URL = 'accueil.json';
 
 export class AccueilVitrine extends SectionVitrine {
 
@@ -85,7 +85,7 @@ export class AccueilVitrine extends SectionVitrine {
       var bouton = null;
 
       if(carte.image) {
-        image = (<Card.Img variant="top" src={carte.thumbnail} srcset={carte.image + ' 400w'} />);
+        image = (<Card.Img variant="top" src={carte.thumbnail} srcSet={carte.image + ' 400w'} />);
       }
       if(carte.titre) {
         titre = (<Card.Title>{traduire(carte, 'titre', this.props.language)}</Card.Title>);

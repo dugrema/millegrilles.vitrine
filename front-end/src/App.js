@@ -12,8 +12,8 @@ import { traduire } from './langutils.js';
 
 import './App.css';
 
-const MILLEGRILLE_LIBELLE = 'millegrille.configuration', MILLEGRILLE_URL = '/millegrille.json';
-const NOEUDPUBLIC_LIBELLE = 'noeudPublic.configuration', NOEUDPUBLIC_URL = '/noeudPublic.json';
+const MILLEGRILLE_LIBELLE = 'millegrille.configuration', MILLEGRILLE_URL = 'millegrille.json';
+const NOEUDPUBLIC_LIBELLE = 'noeudPublic.configuration', NOEUDPUBLIC_URL = 'noeudPublic.json';
 
 class _app extends React.Component {
 
@@ -99,7 +99,7 @@ class _app extends React.Component {
       }
     }
 
-    axios.get('/defauts' + url, {
+    axios.get('/data/' + url, {
       headers,
       validateStatus: status=>{return status === 200 || status === 304}
     })

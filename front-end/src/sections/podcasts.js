@@ -6,7 +6,7 @@ import { Trans } from 'react-i18next';
 import { traduire } from '../langutils.js';
 import './blogs.css';
 
-const PODCASTS_LIBELLE = 'page.podcasts', PODCASTS_URL = '/podcasts.json';
+const PODCASTS_LIBELLE = 'page.podcasts', PODCASTS_URL = 'podcasts.json';
 
 export class PodcastsVitrine extends SectionVitrine {
 
@@ -62,7 +62,7 @@ export class PodcastsVitrine extends SectionVitrine {
                 width={128}
                 className="align-self-start mr-3"
                 src={podcast.thumbnail}
-                srcset={podcast.image + ' 400w'}
+                srcSet={podcast.image + ' 400w'}
                 alt={traduire(podcast, 'titre', this.props.language)}
                 />
             )

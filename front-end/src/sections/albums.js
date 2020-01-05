@@ -4,7 +4,7 @@ import {SectionVitrine} from './sections';
 
 import './albums.css';
 
-const ALBUMS_LIBELLE = 'page.albums', ALBUMS_URL = '/albums.json';
+const ALBUMS_LIBELLE = 'page.albums', ALBUMS_URL = 'albums.json';
 
 export class AlbumsVitrine extends SectionVitrine {
 
@@ -73,7 +73,7 @@ export class AlbumsVitrine extends SectionVitrine {
       listeRendered.push(
         <Card key={idx}>
           <picture>
-            <source className="d-block w-100" type={element.mimetype} srcset={element.image} media=" (min-width: 600px)"/>
+            <source className="d-block w-100" type={element.mimetype} srcSet={element.image} media=" (min-width: 600px)"/>
             <img className="d-block w-100" src={element.thumbnail} alt={descriptif}/>
           </picture>
           {legende}
@@ -102,7 +102,7 @@ export class AlbumsVitrine extends SectionVitrine {
       listeRendered.push(
         <Carousel.Item key={idx}>
           <picture>
-            <source type={element.mimetype} srcset={element.image} media=" (min-width: 600px)"/>
+            <source type={element.mimetype} srcSet={element.image} media=" (min-width: 600px)"/>
             <img className="d-block w-100" src={element.thumbnail} alt={descriptif}/>
           </picture>
           {legende}

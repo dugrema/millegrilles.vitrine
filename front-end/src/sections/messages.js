@@ -7,7 +7,7 @@ import { traduire } from '../langutils.js';
 
 import './messages.css';
 
-const MESSAGES_LIBELLE = 'page.messages', MESSAGES_URL = '/messages.json';
+const MESSAGES_LIBELLE = 'page.messages', MESSAGES_URL = 'messages.json';
 
 export class MessagesVitrine extends SectionVitrine {
 

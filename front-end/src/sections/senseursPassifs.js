@@ -7,7 +7,7 @@ import { traduire } from '../langutils.js';
 
 import './senseursPassifs.css';
 
-const SENSEURSPASSIFS_LIBELLE = 'page.senseursPassifs', SENSEURSPASSIFS_URL = '/senseursPassifs.json';
+const SENSEURSPASSIFS_LIBELLE = 'page.senseursPassifs', SENSEURSPASSIFS_URL = 'senseursPassifs.json';
 
 export class SenseursPassifsVitrine extends SectionVitrine {
 

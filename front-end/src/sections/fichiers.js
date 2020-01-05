@@ -7,7 +7,7 @@ import { traduire } from '../langutils.js';
 
 import './fichiers.css';
 
-const FICHIERS_LIBELLE = 'page.fichiers', FICHIERS_URL = '/fichiers.json';
+const FICHIERS_LIBELLE = 'page.fichiers', FICHIERS_URL = 'fichiers.json';
 
 export class FichiersVitrine extends SectionVitrine {
 

@@ -6,7 +6,7 @@ import { Trans } from 'react-i18next';
 import { traduire } from '../langutils.js';
 import './blogs.css';
 
-const BLOGS_LIBELLE = 'page.blogs', BLOGS_URL = '/blogs.json';
+const BLOGS_LIBELLE = 'page.blogs', BLOGS_URL = 'blogs.json';
 
 export class BlogsVitrine extends SectionVitrine {
 

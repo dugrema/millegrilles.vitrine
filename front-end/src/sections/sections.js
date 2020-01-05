@@ -30,7 +30,7 @@ export class SectionVitrine extends React.Component {
     }
 
     // Tenter de charger une version mise a jour a partir du serveur
-    axios.get('/defauts' + url, {
+    axios.get('/data/' + url, {
       headers,
       validateStatus: status=>{return status === 200 || status === 304}
     })
