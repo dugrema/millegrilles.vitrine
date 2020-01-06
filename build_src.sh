@@ -36,6 +36,8 @@ package_build() {
   # Sauvegarder information de version
   makeManifest
   npm run-script build
+  # Effacer repertoires avec donnees test
+  rm -rf build/consignation build/data
   tar -zcf ../$BUILD_FILE build
 }
 
