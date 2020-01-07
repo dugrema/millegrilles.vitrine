@@ -1,6 +1,6 @@
 import React from 'react';
 import {SectionVitrine} from './sections';
-import {Jumbotron, Card, CardDeck, Button, Image, 
+import {Jumbotron, Card, CardDeck, Button, Image,
         Container, Row, Col} from 'react-bootstrap';
 
 import { traduire } from '../langutils.js';
@@ -47,8 +47,8 @@ export class AccueilVitrine extends SectionVitrine {
     const pageAccueil = this.state.contenu;
 
     var descriptif, messageBienvenue;
-    if(configurationMilleGrille && configurationMilleGrille.descriptif) {
-      descriptif = (<p>{traduire(configurationMilleGrille, 'descriptif', this.props.language)}</p>);
+    if(configurationMilleGrille && configurationMilleGrille.nomMilleGrille) {
+      descriptif = (<p>{traduire(configurationMilleGrille, 'nomMilleGrille', this.props.language)}</p>);
     }
     if(pageAccueil && pageAccueil.messageBienvenue) {
       let texte = traduire(pageAccueil, 'messageBienvenue', this.props.language);
