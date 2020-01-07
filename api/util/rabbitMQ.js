@@ -4,6 +4,8 @@ var fs = require('fs');
 var uuidv4 = require('uuid/v4');
 var pki = require('./pki.js');
 
+const NOM_EXCHANGE = 'millegrilles.public';
+
 class RabbitMQWrapper {
 
   constructor() {
@@ -84,7 +86,7 @@ class RabbitMQWrapper {
         // Permet de repondre si un autre composant demande notre certificat
         this.routingKeyCertificat = 'pki.requete.' + fingerprint;
         console.debug("Enregistrer routing key: " + fingerprint)
-        this.channel.bindQueue(this.reply_q.queue, 'millegrilles.noeuds', this.routingKeyCertificat);
+        this.channel.bindQueue(this.reply_q.queue, NOM_EXCHANGE, this.routingKeyCertificat);
 
         // console.debug("Certificat transmis");
       }).catch(err => {
@@ -226,10 +228,8 @@ class RabbitMQWrapper {
     // Calculer secondes UTC (getTime retourne millisecondes locales)
     let dateUTC = (new Date().getTime()/1000) + new Date().getTimezoneOffset()*60;
     let tempsLecture = Math.trunc(dateUTC);
-    let sourceSystem = 'coupdoeil/' + 'dev2.maple.mdugre.info' + "@" + pki.getCommonName();
     let infoTransaction = {
       'domaine': domaine,
-      // 'source-systeme': sourceSystem,
       'idmg': this.idmg,
       'uuid-transaction': uuidv4(),
       'estampille': tempsLecture,
@@ -262,7 +262,7 @@ class RabbitMQWrapper {
     try {
       // console.log("Message a transmettre: " + routingKey + " = " + jsonMessage);
       this.channel.publish(
-        'millegrilles.noeuds',
+        NOM_EXCHANGE,
         routingKey,
          new Buffer(jsonMessage),
          {
@@ -323,7 +323,7 @@ class RabbitMQWrapper {
 
       // Faire la publication
       this.channel.publish(
-        'millegrilles.noeuds',
+        NOM_EXCHANGE,
         routingKey,
         Buffer.from(jsonMessage),
         {
@@ -353,7 +353,7 @@ class RabbitMQWrapper {
   _publish(routingKey, jsonMessage) {
     // Faire la publication
     let promise = this.channel.publish(
-      'millegrilles.noeuds',
+      NOM_EXCHANGE,
       routingKey,
       Buffer.from(jsonMessage),
       (err, ok) => {
@@ -427,7 +427,7 @@ class RoutingKeyManager {
     for(var routingKey_idx in routingKeys) {
       let routingKeyName = routingKeys[routingKey_idx];
       // Ajouter la routing key
-      this.mq.channel.bindQueue(this.mq.reply_q.queue, 'millegrilles.noeuds', routingKeyName);
+      this.mq.channel.bindQueue(this.mq.reply_q.queue, NOM_EXCHANGE, routingKeyName);
 
       var socket_dict = this.registeredRoutingKeysForSockets[routingKeyName];
       if(!socket_dict) {
@@ -450,7 +450,7 @@ class RoutingKeyManager {
 
       // Ajouter la routing key
       try {
-        this.mq.channel.bindQueue(this.mq.reply_q.queue, 'millegrilles.noeuds', routingKeyName);
+        this.mq.channel.bindQueue(this.mq.reply_q.queue, NOM_EXCHANGE, routingKeyName);
       } catch (err) {
         console.warn("Erreur enregistrement namespace sur routing key " + routingKeyName);
       }
@@ -461,13 +461,13 @@ class RoutingKeyManager {
     // Permet de re-enregistrer les routingKeys apres une re-connexion a MQ
     if(this.registeredRoutingKeysForNamespaces) {
       for(var routingKey in this.registeredRoutingKeysForNamespaces) {
-        this.mq.channel.bindQueue(this.mq.reply_q.queue, 'millegrilles.noeuds', routingKey);
+        this.mq.channel.bindQueue(this.mq.reply_q.queue, NOM_EXCHANGE, routingKey);
       }
     }
 
     if(this.registeredRoutingKeysForSockets) {
       for(var routingKey in this.registeredRoutingKeysForSockets) {
-        this.mq.channel.bindQueue(this.mq.reply_q.queue, 'millegrilles.noeuds', routingKey);
+        this.mq.channel.bindQueue(this.mq.reply_q.queue, NOM_EXCHANGE, routingKey);
       }
     }
   }
@@ -479,7 +479,7 @@ class RoutingKeyManager {
     for(var routingKey_idx in routingKeys) {
       let routingKeyName = routingKeys[routingKey_idx];
       // Retirer la routing key
-      this.mq.channel.unbindQueue(this.mq.reply_q.queue, 'millegrilles.noeuds', routingKeyName);
+      this.mq.channel.unbindQueue(this.mq.reply_q.queue, NOM_EXCHANGE, routingKeyName);
     }
   }
 

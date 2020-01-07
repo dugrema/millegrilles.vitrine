@@ -1,5 +1,12 @@
 // WebSocket api pour l'application React Vitrine
 const rabbitMQ = require('../util/rabbitMQ');
+const os = require('os');
+const fs = require('fs');
+const path = require('path');
+
+// Constantes
+const FICHE_PUBLIQUE = 'document.millegrilles_domaines_Annuaire.fiche.publique';
+
 
 class WebSocketVitrineApp {
 
@@ -33,7 +40,10 @@ class GestionnaireDomaines {
   constructor() {
     this.domaines = {
       senseursPassifs: new SenseursPassifsDomaine(),
+      annuaire: new AnnuaireDomaine(),
     }
+
+    this.pathData = process.env.DATA_FOLDER;
 
     this.initialiser = this.initialiser.bind(this);
   }
@@ -43,7 +53,45 @@ class GestionnaireDomaines {
 
     for(let domaine in this.domaines) {
       console.debug("Initialiser domaine " + domaine);
-      this.domaines[domaine].initialiser(server, modeErreur);
+      this.domaines[domaine].initialiser(server, this.pathData, modeErreur);
+    }
+  }
+
+}
+
+class AnnuaireDomaine {
+
+  constructor() {
+    this.wssConnexion = null;
+
+    this.dateChargement = null;
+    this.timerChargement = null;
+    this.pathData = null;
+
+    this.routingKeys = {
+      'document.millegrilles_domaines_Annuaire.fiche.publique': true,
+    };
+
+    this.initialiser = this.initialiser.bind(this);
+  }
+
+  initialiser(server, pathData, modeErreur) {
+    // this._enregistrerEvenements(server);
+    rabbitMQ.routingKeyManager.addRoutingKeyForNamespace(this, Object.keys(this.routingKeys));
+    this.pathData = pathData;
+  }
+
+  emit(cle, message) {
+    // Emet un message MQ
+    // this.wssConnexion.emit(cle, message);
+
+    // Faire l'entretien du document local
+    if(message.routingKey === FICHE_PUBLIQUE) {
+      let senseur = message.message;
+      maj_fichier_data(
+        path.join(this.pathData, 'millegrille.json'),
+        JSON.stringify(message.message)
+      );
     }
   }
 
@@ -201,6 +249,22 @@ class SenseursPassifsDomaine {
     console.debug(message.content.toString('utf-8'));
   }
 
+}
+
+// Met a jour un fichier dans le repertoire data de la MilleGrille
+function maj_fichier_data(pathFichier, contenu) {
+  let pathRepertoire = path.dirname(pathFichier);
+  console.debug(pathRepertoire);
+  fs.mkdir(pathRepertoire, { recursive: true }, (err)=>{
+    if(err) {
+      console.error("Erreur reception fichier " + pathFichier);
+      return;
+    }
+
+    const writeStream = fs.createWriteStream(pathFichier, {flag: 'w', mode: 0o644});
+    writeStream.write(contenu);
+    writeStream.end();
+  });
 }
 
 module.exports = {WebSocketVitrineApp}
