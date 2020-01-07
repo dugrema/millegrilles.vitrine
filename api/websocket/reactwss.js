@@ -7,7 +7,6 @@ const path = require('path');
 // Constantes
 const FICHE_PUBLIQUE = 'document.millegrilles_domaines_Annuaire.fiche.publique';
 
-
 class WebSocketVitrineApp {
 
   constructor(server) {
@@ -79,21 +78,69 @@ class AnnuaireDomaine {
     // this._enregistrerEvenements(server);
     rabbitMQ.routingKeyManager.addRoutingKeyForNamespace(this, Object.keys(this.routingKeys));
     this.pathData = pathData;
+    if(!modeErreur) {
+      this.requeteDocuments();
+    } else {
+      // On va attendre avant de charger les documents. Le system est probablement
+      // en initialisation/reboot.
+      console.warn("SenseursPassifs: Attente avant du chargement des documents (60s)");
+      this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, 60000);
+    }
   }
 
   emit(cle, message) {
     // Emet un message MQ
     // this.wssConnexion.emit(cle, message);
+    console.debug("Recu message " + cle);
 
     // Faire l'entretien du document local
     if(message.routingKey === FICHE_PUBLIQUE) {
-      let senseur = message.message;
       maj_fichier_data(
         path.join(this.pathData, 'millegrille.json'),
         JSON.stringify(message.message)
       );
     }
   }
+
+  requeteDocuments() {
+    // Effectuer les requetes et conserver localement les resultats
+    var routingRequeteInitiale = 'requete.millegrilles.domaines.Annuaire.fichePublique';
+    if(!this.timerChargement) {
+      this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, 30000);  // Ressayer dans 30 secondes
+    }
+    rabbitMQ.transmettreRequete(routingRequeteInitiale, {})
+    .then(reponse=>{
+      if(this.timerChargement) {
+        clearTimeout(this.timerChargement);
+        this.timerChargement = null;
+      }
+
+      // Extraire l'element resultats de la reponse (fiche publique)
+      let messageContent = reponse.content.toString('utf-8');
+      let jsonMessage = JSON.parse(messageContent);
+      const resultats = jsonMessage.resultats;
+      console.debug("Reponse millegrille.json, sauvegarde sous " + this.pathData);
+
+      maj_fichier_data(
+        path.join(this.pathData, 'millegrille.json'),
+        JSON.stringify(resultats)
+      );
+
+    })
+    .catch(err=>{
+      console.info("Erreur chargement, on va ressayer plus tard");
+    })
+  }
+
+  rechargerDocuments() {
+    console.info("Tentative de rechargement des documents");
+    if(this.timerChargement) {
+      clearTimeout(this.timerChargement);
+      this.timerChargement = null;
+    }
+    this.requeteDocuments();
+  }
+
 
 }
 
@@ -117,7 +164,7 @@ class SenseursPassifsDomaine {
     this.initialiser = this.initialiser.bind(this);
   }
 
-  initialiser(server, modeErreur) {
+  initialiser(server, pathData, modeErreur) {
     this._enregistrerEvenements(server);
     rabbitMQ.routingKeyManager.addRoutingKeyForNamespace(this, Object.keys(this.routingKeys));
     if(!modeErreur) {
@@ -253,8 +300,8 @@ class SenseursPassifsDomaine {
 
 // Met a jour un fichier dans le repertoire data de la MilleGrille
 function maj_fichier_data(pathFichier, contenu) {
+  console.debug("Maj fichier data " + pathFichier);
   let pathRepertoire = path.dirname(pathFichier);
-  console.debug(pathRepertoire);
   fs.mkdir(pathRepertoire, { recursive: true }, (err)=>{
     if(err) {
       console.error("Erreur reception fichier " + pathFichier);

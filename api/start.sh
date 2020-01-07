@@ -13,6 +13,6 @@ export MG_MQ_URL=amqps://mg-dev3.local:5673/$MG_IDMG
 
 export PORT=3004
 
-export DATA_FOLDER=/home/mathieu/mgdev/millegrilles/bKKwtXC68HR4TPDzet6zLVq2wPJfc9RiiYLuva/mounts/nginx/data
+export DATA_FOLDER=/home/mathieu/git/MilleGrilles.vitrine/api/public/data
 
 npm start
