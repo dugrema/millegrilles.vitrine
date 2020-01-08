@@ -6,9 +6,14 @@ import { Trans } from 'react-i18next';
 import { traduire } from '../langutils.js';
 import './podcasts.css';
 
-const PODCASTS_LIBELLE = 'page.podcasts', PODCASTS_URL = 'podcasts.json';
+const NOM_SECTION = 'podcasts';
+const PODCASTS_LIBELLE = 'page.' + NOM_SECTION, PODCASTS_URL = NOM_SECTION + '.json';
 
 export class PodcastsVitrine extends SectionVitrine {
+
+  getNomSection() {
+    return NOM_SECTION;
+  }
 
   getDocumentLibelle() {
     return PODCASTS_LIBELLE;

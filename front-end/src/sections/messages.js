@@ -7,9 +7,14 @@ import { traduire } from '../langutils.js';
 
 import './messages.css';
 
-const MESSAGES_LIBELLE = 'page.messages', MESSAGES_URL = 'messages.json';
+const NOM_SECTION = 'messages';
+const MESSAGES_LIBELLE = 'page.' + NOM_SECTION, MESSAGES_URL = NOM_SECTION + '.json';
 
 export class MessagesVitrine extends SectionVitrine {
+
+  getNomSection() {
+    return NOM_SECTION;
+  }
 
   getDocumentLibelle() {
     return MESSAGES_LIBELLE;

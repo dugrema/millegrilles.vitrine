@@ -6,9 +6,14 @@ import { Trans } from 'react-i18next';
 
 import './senseursPassifs.css';
 
-const SENSEURSPASSIFS_LIBELLE = 'page.senseursPassifs', SENSEURSPASSIFS_URL = 'senseursPassifs.json';
+const NOM_SECTION = 'senseursPassifs';
+const SENSEURSPASSIFS_LIBELLE = 'page.' + NOM_SECTION, SENSEURSPASSIFS_URL = NOM_SECTION + '.json';
 
 export class SenseursPassifsVitrine extends SectionVitrine {
+
+  getNomSection() {
+    return NOM_SECTION;
+  }
 
   getDocumentLibelle() {
     return SENSEURSPASSIFS_LIBELLE;

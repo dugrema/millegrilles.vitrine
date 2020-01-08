@@ -7,9 +7,14 @@ import { traduire } from '../langutils.js';
 
 import './fichiers.css';
 
-const FICHIERS_LIBELLE = 'page.fichiers', FICHIERS_URL = 'fichiers.json';
+const NOM_SECTION = 'fichiers';
+const FICHIERS_LIBELLE = 'page.' + NOM_SECTION, FICHIERS_URL = NOM_SECTION + '.json';
 
 export class FichiersVitrine extends SectionVitrine {
+
+  getNomSection() {
+    return NOM_SECTION;
+  }
 
   getDocumentLibelle() {
     return FICHIERS_LIBELLE;

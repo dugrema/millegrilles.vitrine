@@ -7,7 +7,7 @@ import { traduire } from '../langutils.js';
 
 import './accueil.css';
 
-const NOM_SECTION = 'accueil'
+const NOM_SECTION = 'accueil';
 const ACCUEIL_LIBELLE = 'page.' + NOM_SECTION, ACCUEIL_URL = NOM_SECTION + '.json';
 
 export class AccueilVitrine extends SectionVitrine {

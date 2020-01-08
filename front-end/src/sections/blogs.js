@@ -6,9 +6,14 @@ import { Trans } from 'react-i18next';
 import { traduire } from '../langutils.js';
 import './blogs.css';
 
-const BLOGS_LIBELLE = 'page.blogs', BLOGS_URL = 'blogs.json';
+const NOM_SECTION = 'blogs';
+const BLOGS_LIBELLE = 'page.' + NOM_SECTION, BLOGS_URL = NOM_SECTION + '.json';
 
 export class BlogsVitrine extends SectionVitrine {
+
+  getNomSection() {
+    return NOM_SECTION;
+  }
 
   getDocumentLibelle() {
     return BLOGS_LIBELLE;

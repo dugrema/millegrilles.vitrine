@@ -5,7 +5,8 @@ import {SectionVitrine, CollectionVitrine} from './sections';
 
 import './albums.css';
 
-const ALBUMS_LIBELLE = 'page.albums', ALBUMS_URL = 'albums.json';
+const NOM_SECTION = 'albums';
+const ALBUMS_LIBELLE = 'page.' + NOM_SECTION, ALBUMS_URL = NOM_SECTION + '.json';
 
 export class AlbumsVitrine extends SectionVitrine {
 
@@ -15,6 +16,10 @@ export class AlbumsVitrine extends SectionVitrine {
       collectionCourante: null,
     }
     this.setState(state);
+  }
+
+  getNomSection() {
+    return NOM_SECTION;
   }
 
   getDocumentLibelle() {
