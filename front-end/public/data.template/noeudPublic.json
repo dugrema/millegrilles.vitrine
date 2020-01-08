@@ -1,8 +1,5 @@
 {
   "url": "https://localhost:3005",
-  "consignation": {
-    "path": "/var/opt/millegrilles/33KRMhqcWCKvMHyY5xymMCUEbT53Kg1NqUb9AU6/mounts/consignation"
-  },
   "menu": [
     "blogs",
     "messages",

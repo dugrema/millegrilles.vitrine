@@ -15,4 +15,6 @@ export PORT=3004
 
 export DATA_FOLDER=/home/mathieu/git/MilleGrilles.vitrine/api/public/data
 
+export WEB_URL=https://mg-dev3.maple.maceroc.com
+
 npm start
