@@ -170,7 +170,7 @@ class AccueilSection {
     this.pathData = null;
 
     this.routingKeys = {
-      'document.millegrilles_domaines_Annuaire.fiche.publique': true,
+      // 'document.millegrilles_domaines_Annuaire.fiche.publique': true,
     };
 
     this.initialiser = this.initialiser.bind(this);
@@ -207,32 +207,32 @@ class AccueilSection {
 
   requeteDocuments() {
     // Effectuer les requetes et conserver localement les resultats
-    var routingRequeteInitiale = 'requete.millegrilles.domaines.Annuaire.fichePublique';
-    if(!this.timerChargement) {
-      this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, 30000);  // Ressayer dans 30 secondes
-    }
-    rabbitMQ.transmettreRequete(routingRequeteInitiale, {})
-    .then(reponse=>{
-      if(this.timerChargement) {
-        clearTimeout(this.timerChargement);
-        this.timerChargement = null;
-      }
-
-      // Extraire l'element resultats de la reponse (fiche publique)
-      let messageContent = reponse.content.toString('utf-8');
-      let jsonMessage = JSON.parse(messageContent);
-      const resultats = jsonMessage.resultats;
-      console.debug("Reponse millegrille.json, sauvegarde sous " + this.pathData);
-
-      maj_fichier_data(
-        path.join(this.pathData, 'millegrille.json'),
-        JSON.stringify(resultats)
-      );
-
-    })
-    .catch(err=>{
-      console.info("Erreur chargement, on va ressayer plus tard");
-    })
+    // var routingRequeteInitiale = 'requete.millegrilles.domaines.Annuaire.fichePublique';
+    // if(!this.timerChargement) {
+    //   this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, 30000);  // Ressayer dans 30 secondes
+    // }
+    // rabbitMQ.transmettreRequete(routingRequeteInitiale, {})
+    // .then(reponse=>{
+    //   if(this.timerChargement) {
+    //     clearTimeout(this.timerChargement);
+    //     this.timerChargement = null;
+    //   }
+    //
+    //   // Extraire l'element resultats de la reponse (fiche publique)
+    //   let messageContent = reponse.content.toString('utf-8');
+    //   let jsonMessage = JSON.parse(messageContent);
+    //   const resultats = jsonMessage.resultats;
+    //   console.debug("Reponse millegrille.json, sauvegarde sous " + this.pathData);
+    //
+    //   maj_fichier_data(
+    //     path.join(this.pathData, 'millegrille.json'),
+    //     JSON.stringify(resultats)
+    //   );
+    //
+    // })
+    // .catch(err=>{
+    //   console.info("Erreur chargement, on va ressayer plus tard");
+    // })
   }
 
   rechargerDocuments() {
