@@ -409,7 +409,7 @@ class RoutingKeyManager {
     // Dictionnaire de routing keys
     //   cle: string (routing key sur RabbitMQ)
     //   valeur: dict de socket ids / socket
-    this.registeredRoutingKeysForSockets = {};
+    // this.registeredRoutingKeysForSockets = {};
     this.registeredRoutingKeysForNamespaces = {};
   }
 
@@ -419,34 +419,15 @@ class RoutingKeyManager {
     // console.log(this.websocketsManager);
   }
 
-  addRoutingKeysForSocket(socket, routingKeys) {
-    const socketId = socket.id;
-    // console.debug("Ajouter routingKeys au socket " + socketId);
-    // console.debug(routingKeys);
-
-    for(var routingKey_idx in routingKeys) {
-      let routingKeyName = routingKeys[routingKey_idx];
-      // Ajouter la routing key
-      this.mq.channel.bindQueue(this.mq.reply_q.queue, NOM_EXCHANGE, routingKeyName);
-
-      var socket_dict = this.registeredRoutingKeysForSockets[routingKeyName];
-      if(!socket_dict) {
-        socket_dict = {};
-        this.registeredRoutingKeysForSockets[routingKeyName] = socket_dict;
-      }
-      socket_dict[socketId] = {'registered': (new Date()).getTime()};
-    }
-  }
-
   addRoutingKeyForNamespace(namespace, routingKeys) {
     for(var routingKey_idx in routingKeys) {
       let routingKeyName = routingKeys[routingKey_idx];
-      var socket_list = this.registeredRoutingKeysForNamespaces[routingKeyName];
-      if(!socket_list) {
-        socket_list = [];
-        this.registeredRoutingKeysForNamespaces[routingKeyName] = socket_list;
+      var namespace_list = this.registeredRoutingKeysForNamespaces[routingKeyName];
+      if(!namespace_list) {
+        namespace_list = [];
+        this.registeredRoutingKeysForNamespaces[routingKeyName] = namespace_list;
       }
-      socket_list.push(namespace);
+      namespace_list.push(namespace);
 
       // Ajouter la routing key
       try {
@@ -464,23 +445,6 @@ class RoutingKeyManager {
         this.mq.channel.bindQueue(this.mq.reply_q.queue, NOM_EXCHANGE, routingKey);
       }
     }
-
-    if(this.registeredRoutingKeysForSockets) {
-      for(var routingKey in this.registeredRoutingKeysForSockets) {
-        this.mq.channel.bindQueue(this.mq.reply_q.queue, NOM_EXCHANGE, routingKey);
-      }
-    }
-  }
-
-  removeRoutingKeysForSocket(socket, routingKeys) {
-    // console.debug("Enlever routingKeys du socket " + socket.id);
-    // console.debug(routingKeys);
-
-    for(var routingKey_idx in routingKeys) {
-      let routingKeyName = routingKeys[routingKey_idx];
-      // Retirer la routing key
-      this.mq.channel.unbindQueue(this.mq.reply_q.queue, NOM_EXCHANGE, routingKeyName);
-    }
   }
 
   emitMessage(routingKey, message) {
@@ -496,26 +460,6 @@ class RoutingKeyManager {
       namespace.emit('mq_message', {routingKey, message: json_message});
     }
 
-    // Transmet un message aux subscribers appropries
-    var dictSockets = this.registeredRoutingKeysForSockets[routingKey];
-    if(dictSockets && this.websocketsManager) {
-
-      let cleanupSockets = [];
-      for(var socketId in dictSockets) {
-        let socket = this.websocketsManager.authenticated_sockets[socketId];
-        if(socket) {
-          // console.debug("Transmission message " + routingKey + " vers " + socket.id);
-          socket.emit('mq_message', {routingKey: routingKey, message: json_message});
-        } else {
-          console.warn("Message not sent to socket " + socketId + ", socket gone.");
-          cleanupSockets.push(socketId);
-        }
-      }
-
-      for(var socketId in cleanupSockets) {
-        delete dictSockets[cleanupSockets[socketId]];
-      }
-    }
   }
 
   clean() {

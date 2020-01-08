@@ -2,9 +2,8 @@
 import openSocket from 'socket.io-client';
 
 export class VitrineWebSocketHandler {
-  constructor(domaine, messageCallback) {
+  constructor(domaine) {
     this.domaine = domaine;
-    this.messageCallback = messageCallback;
 
     this.socket = null;
 

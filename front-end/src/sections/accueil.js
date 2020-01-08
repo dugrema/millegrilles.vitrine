@@ -7,9 +7,14 @@ import { traduire } from '../langutils.js';
 
 import './accueil.css';
 
-const ACCUEIL_LIBELLE = 'page.accueil', ACCUEIL_URL = 'accueil.json';
+const NOM_SECTION = 'accueil'
+const ACCUEIL_LIBELLE = 'page.' + NOM_SECTION, ACCUEIL_URL = NOM_SECTION + '.json';
 
 export class AccueilVitrine extends SectionVitrine {
+
+  getNomSection() {
+    return NOM_SECTION;
+  }
 
   getDocumentLibelle() {
     return ACCUEIL_LIBELLE;

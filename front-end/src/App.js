@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { Nav, Navbar, NavDropdown, Container, Row, Col} from 'react-bootstrap';
 import axios from 'axios';
+import { VitrineWebSocketHandler } from './websocket'
 
 // Importer sections et domaines
 import { AfficherSection } from './sections/mapSections';
@@ -27,6 +28,51 @@ class _app extends React.Component {
   componentDidMount() {
     // Charger la configuration de la MilleGrille
     this._chargerConfiguration();
+
+    // Connecter via websocket
+    this.webSocketHandler = new VitrineWebSocketHandler('global');
+    this.webSocketHandler.connecter();
+
+    // Enregistrer callback pour maj de la fiche publique
+    this.majConfigurationMilleGrille = this.majConfigurationMilleGrille.bind(this);
+    this.webSocketHandler.enregistrerCallback(MILLEGRILLE_LIBELLE, this.majConfigurationMilleGrille);
+
+    // Enregistrer callback pour maj configuration du noeud public
+    this.majConfigurationNoeudPublic = this.majConfigurationNoeudPublic.bind(this);
+    this.webSocketHandler.enregistrerCallback(NOEUDPUBLIC_LIBELLE, this.majConfigurationNoeudPublic);
+
+  }
+
+  componentWillUnmount() {
+    this.webSocketHandler.deconnecter();
+  }
+
+  majConfigurationMilleGrille(enveloppe, lastModified) {
+    console.debug("MAJ Configuration MilleGrille");
+    console.debug(enveloppe);
+
+    const configuration = {};
+    configuration[MILLEGRILLE_LIBELLE] = enveloppe.message;
+    this.setState(configuration);
+    const contenuJson = {
+      contenu: enveloppe.message,
+      lastModified: lastModified,
+    }
+    localStorage.setItem(MILLEGRILLE_LIBELLE, JSON.stringify(contenuJson));
+  }
+
+  majConfigurationNoeudPublic(enveloppe, lastModified) {
+    console.debug("MAJ Configuration noeud public");
+    console.debug(enveloppe);
+
+    const configuration = {};
+    configuration[NOEUDPUBLIC_LIBELLE] = enveloppe.message;
+    this.setState(configuration);
+    const contenuJson = {
+      contenu: enveloppe.message,
+      lastModified: lastModified,
+    }
+    localStorage.setItem(NOEUDPUBLIC_LIBELLE, JSON.stringify(contenuJson));
   }
 
   componentDidUpdate() {

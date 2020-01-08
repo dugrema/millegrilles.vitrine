@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import { Trans } from 'react-i18next';
+import { VitrineWebSocketHandler } from '../websocket'
 
 export class SectionVitrine extends React.Component {
 
@@ -10,6 +11,25 @@ export class SectionVitrine extends React.Component {
 
   componentDidMount() {
     this._chargerPage(this.getDocumentLibelle(), this.getDocumentUrl());
+    this.webSocketHandler = new VitrineWebSocketHandler(this.getNomSection());
+    this.webSocketHandler.connecter();
+    //
+    // // this.props.webSocketHandler.chargerDomaine(nomDomaine, reponse=>this.setDocuments(reponse));
+    //
+    this.webSocketHandler.enregistrerCallback('contenu', this.mettreAJourContenu);
+    this.webSocketHandler.enregistrerCallback('milleGrille', this.recoitMilleGrille);
+    // this.webSocketHandler.enregistrerCallback('documents', this.documentsMq);
+    //
+    // this.intervalleCalculExpiration = setInterval(this.calculerExpirations, 15000);
+  }
+
+  componentWillUnmount() {
+    this.webSocketHandler.deconnecter();
+    //
+    // // Nettoyage interval calcul expiration senseurs
+    // clearInterval(this.intervalleCalculExpiration);
+    // this.intervalleCalculExpiration = null;
+    // super.componentWillUnmount();
   }
 
   // Charge le fichier json qui s'occupe du contenu de cette page
@@ -39,12 +59,7 @@ export class SectionVitrine extends React.Component {
       if(resp.status === 200) {
         // Sauvegarder le contenu mis a jour localement
         const contenuPage = resp.data;
-        const contenu = {
-          contenu: contenuPage,
-          lastModified: resp.headers['last-modified'],
-        }
-        this.setState({contenu: contenuPage});
-        localStorage.setItem(libelle, JSON.stringify(contenu));
+        this.mettreAJourContenu(contenuPage, resp.headers['last-modified'])
       }
     })
     .catch(err=>{
@@ -52,6 +67,16 @@ export class SectionVitrine extends React.Component {
       console.error(err);
     })
 
+  }
+
+  mettreAJourContenu(contenuPage, lastModified) {
+    const libelle = 'page.' + this.getNomSection();
+    const contenu = {
+      contenu: contenuPage,
+      lastModified: lastModified,
+    }
+    this.setState({contenu: contenuPage});
+    localStorage.setItem(libelle, JSON.stringify(contenu));
   }
 
   renderDateModifiee(dateModifieeEpoch) {
