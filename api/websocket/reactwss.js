@@ -6,6 +6,7 @@ const path = require('path');
 
 // Constantes
 const FICHE_PUBLIQUE = 'document.millegrilles_domaines_Annuaire.fiche.publique';
+const CONFIGURATION_NOEUD_PUBLIC = 'noeuds.source.millegrilles_domaines_Parametres.documents.configuration.noeudPublic';
 
 class WebSocketVitrineApp {
 
@@ -44,6 +45,7 @@ class GestionnaireDomaines {
     }
 
     this.pathData = process.env.DATA_FOLDER;
+    this.webUrl = process.env.WEB_URL;
 
     this.initialiser = this.initialiser.bind(this);
   }
@@ -53,7 +55,9 @@ class GestionnaireDomaines {
 
     for(let domaine in this.domaines) {
       console.debug("Initialiser domaine " + domaine);
-      this.domaines[domaine].initialiser(server, this.pathData, modeErreur);
+      this.domaines[domaine].initialiser(
+        server, {pathData: this.pathData, webUrl: this.web_url}, modeErreur
+      );
     }
   }
 
@@ -69,24 +73,25 @@ class VitrineGlobal {
     this.timerChargement = null;
     this.pathData = null;
 
-    this.routingKeys = {
-      'document.millegrilles_domaines_Annuaire.fiche.publique': true,
-    };
+    this.routingKeys = {};
+    this.routingKeys[FICHE_PUBLIQUE] = true;
+    this.routingKeys[CONFIGURATION_NOEUD_PUBLIC] = true;
 
     this.initialiser = this.initialiser.bind(this);
   }
 
-  initialiser(server, pathData, modeErreur) {
+  initialiser(server, opts, modeErreur) {
     // this._enregistrerEvenements(server);
     rabbitMQ.routingKeyManager.addRoutingKeyForNamespace(this, Object.keys(this.routingKeys));
-    this.pathData = pathData;
+    this.pathData = opts.pathData;
+    this.webUrl = opts.webUrl;
     this._enregistrerEvenements(server); // Enregistrer wss namespace
     if(!modeErreur) {
       this.requeteDocuments();
     } else {
       // On va attendre avant de charger les documents. Le system est probablement
       // en initialisation/reboot.
-      console.warn("SenseursPassifs: Attente avant du chargement des documents (60s)");
+      console.warn("VitrineGlobal: Attente avant du chargement des documents (60s)");
       this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, 60000);
     }
   }
@@ -102,16 +107,27 @@ class VitrineGlobal {
         path.join(this.pathData, 'millegrille.json'),
         JSON.stringify(message.message)
       );
+    } else if(message.routingKey === CONFIGURATION_NOEUD_PUBLIC) {
+      // Verifier que le message est bien pour cette instance de Vitrine avec le WEB_URL
+      if(message.message.web_url === this.web_url) {
+        this.wssConnexion.emit('noeudPublic.configuration', message);
+        maj_fichier_data(
+          path.join(this.pathData, 'noeudPublic.json'),
+          JSON.stringify(message.message)
+        );
+      }
     }
   }
 
   requeteDocuments() {
     // Effectuer les requetes et conserver localement les resultats
-    var routingRequeteInitiale = 'requete.millegrilles.domaines.Annuaire.fichePublique';
     if(!this.timerChargement) {
       this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, 30000);  // Ressayer dans 30 secondes
     }
-    rabbitMQ.transmettreRequete(routingRequeteInitiale, {})
+
+    // Document milleGrille
+    var routingRequeteMilleGrilleInitiale = 'requete.millegrilles.domaines.Annuaire.fichePublique';
+    rabbitMQ.transmettreRequete(routingRequeteMilleGrilleInitiale, {})
     .then(reponse=>{
       if(this.timerChargement) {
         clearTimeout(this.timerChargement);
@@ -126,6 +142,31 @@ class VitrineGlobal {
 
       maj_fichier_data(
         path.join(this.pathData, 'millegrille.json'),
+        JSON.stringify(resultats)
+      );
+
+    })
+    .catch(err=>{
+      console.info("Erreur chargement, on va ressayer plus tard");
+    })
+
+    // Requete noeud public
+    var routingRequeteNoeudInitiale = 'requete.millegrilles.domaines.Parametres.noeudPublic';
+    rabbitMQ.transmettreRequete(routingRequeteNoeudInitiale, {web_url: this.web_url})
+    .then(reponse=>{
+      if(this.timerChargement) {
+        clearTimeout(this.timerChargement);
+        this.timerChargement = null;
+      }
+
+      // Extraire l'element resultats de la reponse (fiche publique)
+      let messageContent = reponse.content.toString('utf-8');
+      let jsonMessage = JSON.parse(messageContent);
+      const resultats = jsonMessage.resultats[0];
+      console.debug("Reponse noeudPublic.json, sauvegarde sous " + this.pathData);
+
+      maj_fichier_data(
+        path.join(this.pathData, 'noeudPublic.json'),
         JSON.stringify(resultats)
       );
 
@@ -176,10 +217,10 @@ class AccueilSection {
     this.initialiser = this.initialiser.bind(this);
   }
 
-  initialiser(server, pathData, modeErreur) {
+  initialiser(server, opts, modeErreur) {
     // this._enregistrerEvenements(server);
     rabbitMQ.routingKeyManager.addRoutingKeyForNamespace(this, Object.keys(this.routingKeys));
-    this.pathData = pathData;
+    this.pathData = opts.pathData;
     this._enregistrerEvenements(server); // Enregistrer wss namespace
     if(!modeErreur) {
       this.requeteDocuments();
@@ -280,7 +321,7 @@ class SenseursPassifsDomaine {
     this.initialiser = this.initialiser.bind(this);
   }
 
-  initialiser(server, pathData, modeErreur) {
+  initialiser(server, opts, modeErreur) {
     this._enregistrerEvenements(server);
     rabbitMQ.routingKeyManager.addRoutingKeyForNamespace(this, Object.keys(this.routingKeys));
     if(!modeErreur) {
