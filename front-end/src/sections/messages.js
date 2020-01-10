@@ -41,8 +41,8 @@ export class MessagesVitrine extends SectionVitrine {
   _renderMessages() {
     var messagesElements;
 
-    if(this.state.contenu && this.state.contenu.messages) {
-      const messages = this.state.contenu.messages;
+    if(this.state.contenu && this.state.contenu.annonces) {
+      const messages = this.state.contenu.annonces;
       if(messages && messages.length > 0) {
         messagesElements = [];
 
@@ -63,8 +63,8 @@ export class MessagesVitrine extends SectionVitrine {
               </p>
             );
           }
-          if(message.modifie) {
-            dateElement = this.renderDateModifiee(message.modifie);
+          if(message['_mg-creation']) {
+            dateElement = this.renderDateModifiee(message['_mg-creation']);
           }
           messagesElements.push(
             <Row key={idx} className="message">
@@ -89,4 +89,5 @@ export class MessagesVitrine extends SectionVitrine {
 
     return messagesElements;
   }
+
 }

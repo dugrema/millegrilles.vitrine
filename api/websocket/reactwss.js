@@ -3,6 +3,8 @@ const rabbitMQ = require('../util/rabbitMQ');
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
+const { SectionMessagesSockets } = require('./MessageSockets');
+const { maj_fichier_data } = require('./traitementFichiersData');
 
 // Constantes
 const FICHE_PUBLIQUE = 'document.millegrilles_domaines_Annuaire.fiche.publique';
@@ -42,6 +44,7 @@ class GestionnaireDomaines {
       vitrineGlobal: new VitrineGlobal(),
       senseursPassifs: new SenseursPassifsDomaine(),
       accueil: new AccueilSection(),
+      messages: new SectionMessagesSockets(),
     }
 
     this.pathData = process.env.DATA_FOLDER;
@@ -453,22 +456,6 @@ class SenseursPassifsDomaine {
     console.debug(message.content.toString('utf-8'));
   }
 
-}
-
-// Met a jour un fichier dans le repertoire data de la MilleGrille
-function maj_fichier_data(pathFichier, contenu) {
-  console.debug("Maj fichier data " + pathFichier);
-  let pathRepertoire = path.dirname(pathFichier);
-  fs.mkdir(pathRepertoire, { recursive: true }, (err)=>{
-    if(err) {
-      console.error("Erreur reception fichier " + pathFichier);
-      return;
-    }
-
-    const writeStream = fs.createWriteStream(pathFichier, {flag: 'w', mode: 0o644});
-    writeStream.write(contenu);
-    writeStream.end();
-  });
 }
 
 module.exports = {WebSocketVitrineApp}

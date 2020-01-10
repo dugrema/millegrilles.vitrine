@@ -13,23 +13,12 @@ export class SectionVitrine extends React.Component {
     this._chargerPage(this.getDocumentLibelle(), this.getDocumentUrl());
     this.webSocketHandler = new VitrineWebSocketHandler(this.getNomSection());
     this.webSocketHandler.connecter();
-    //
-    // // this.props.webSocketHandler.chargerDomaine(nomDomaine, reponse=>this.setDocuments(reponse));
-    //
+
     this.webSocketHandler.enregistrerCallback('contenu', this.mettreAJourContenu);
-    this.webSocketHandler.enregistrerCallback('milleGrille', this.recoitMilleGrille);
-    // this.webSocketHandler.enregistrerCallback('documents', this.documentsMq);
-    //
-    // this.intervalleCalculExpiration = setInterval(this.calculerExpirations, 15000);
   }
 
   componentWillUnmount() {
     this.webSocketHandler.deconnecter();
-    //
-    // // Nettoyage interval calcul expiration senseurs
-    // clearInterval(this.intervalleCalculExpiration);
-    // this.intervalleCalculExpiration = null;
-    // super.componentWillUnmount();
   }
 
   // Charge le fichier json qui s'occupe du contenu de cette page
@@ -69,7 +58,7 @@ export class SectionVitrine extends React.Component {
 
   }
 
-  mettreAJourContenu(contenuPage, lastModified) {
+  mettreAJourContenu = (contenuPage, lastModified) => {
     const libelle = 'page.' + this.getNomSection();
     const contenu = {
       contenu: contenuPage,
