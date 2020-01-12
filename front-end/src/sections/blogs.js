@@ -9,6 +9,8 @@ import './blogs.css';
 const NOM_SECTION = 'blogs';
 const BLOGS_LIBELLE = 'page.' + NOM_SECTION, BLOGS_URL = NOM_SECTION + '.json';
 
+const PREFIX_DATA_URL = 'data:image/jpeg;base64,';
+
 export class BlogsVitrine extends SectionVitrine {
 
   getNomSection() {
@@ -71,7 +73,7 @@ export class BlogsVitrine extends SectionVitrine {
               <img
                 width={128}
                 className="align-self-start mr-3"
-                src={blogpost.thumbnail}
+                src={PREFIX_DATA_URL + blogpost.thumbnail}
                 alt={traduire(blogpost, 'titre', this.props.language)}
                 />
             )
