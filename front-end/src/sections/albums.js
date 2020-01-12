@@ -2,11 +2,13 @@ import React from 'react';
 import {Card, CardColumns, Carousel, Button,
         Container, Row, Col} from 'react-bootstrap';
 import {SectionVitrine, CollectionVitrine} from './sections';
-
+import {pathConsignation} from '../pathUtils';
 import './albums.css';
 
 const NOM_SECTION = 'albums';
 const ALBUMS_LIBELLE = 'page.' + NOM_SECTION, ALBUMS_URL = NOM_SECTION + '.json';
+
+const PREFIX_DATA_URL = 'data:image/png;base64,';
 
 export class AlbumsVitrine extends SectionVitrine {
 
@@ -89,7 +91,7 @@ function RenderCarousel(props) {
     const listeImages = props.images;
     for(let idx in listeImages) {
       let element = listeImages[idx];
-      let descriptif = element.descriptif || element.legende;
+      let descriptif = element.nom;
 
       var legende;
       if(descriptif) {
@@ -100,11 +102,20 @@ function RenderCarousel(props) {
         );
       }
 
+      var pathImage, mimetypeImage;
+      if(element.fuuid_preview) {
+        pathImage = '/consignation/' + pathConsignation(element.fuuid_preview, {extension: element.extension});
+        mimetypeImage = element.mimetype;
+      } else {
+        pathImage = '/consignation/' + pathConsignation(element.fuuid, {extension: element.extension});
+        mimetypeImage = element.preview_mimetype;
+      }
+
       liste.push(
         <Carousel.Item key={idx}>
           <picture>
-            <source type={element.mimetype} srcSet={'/consignation/' + element.image} media=" (min-width: 600px)"/>
-            <img className="d-block w-100" src={element.thumbnail} alt={descriptif}/>
+            <source type={mimetypeImage} srcSet={pathImage} media=" (min-width: 600px)"/>
+            <img className="d-block w-100" src={PREFIX_DATA_URL + element.thumbnail} alt={descriptif}/>
           </picture>
           {legende}
         </Carousel.Item>

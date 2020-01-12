@@ -253,7 +253,7 @@ class ToggleMenu extends React.Component {
 class Footer extends React.Component {
 
   render() {
-    var idmg, millegrille, courriel, twitter, contact = [];
+    var idmg, millegrille, courriel, twitter, facebook, facebookGroupe, contact = [];
     if(this.props.millegrille) {
       idmg = this.props.millegrille.idmg;
 
@@ -262,20 +262,28 @@ class Footer extends React.Component {
         courriel = usager.courriel;
         twitter = usager.twitter;
         millegrille = usager.millegrille;
+        facebook = usager.facebook;
+        facebookGroupe = usager.facebookGroupe;
       }
     }
 
     if(courriel) {
       contact.push(
         <Row key="courriel">
-          <Trans>application.courriel</Trans> {courriel}
+          <Trans>application.courriel</Trans>
+          <span className="valeur">
+            <a href={'mailto:' + courriel}>
+              {courriel}
+            </a>
+          </span>
         </Row>
       )
     }
     if(twitter) {
       contact.push(
         <Row key="twitter">
-          <Trans>application.twitter</Trans> {twitter}
+          <Trans>application.twitter</Trans>
+          <span className="valeur">{twitter}</span>
         </Row>
       )
     }
@@ -283,13 +291,25 @@ class Footer extends React.Component {
       contact.push(
         <Row key="millegrille">
           <Trans>application.millegrilles</Trans>
-          <span className="millegrille">{millegrille}</span>
+          <span className="valeur">{millegrille}</span>
+        </Row>
+      )
+    }
+    if(facebookGroupe) {
+      contact.push(
+        <Row key="facebookGroupe">
+          <Trans>application.facebookGroupe</Trans>
+          <span className="valeur">
+            <a href={facebookGroupe}>
+              {facebookGroupe}
+            </a>
+          </span>
         </Row>
       )
     }
     if(idmg) {
       contact.push(
-        <Row key="idmg">
+        <Row key="valeur idmg">
           <Trans>application.millegrille_idmg</Trans>
           <span className="idmg">{idmg}</span>
         </Row>
