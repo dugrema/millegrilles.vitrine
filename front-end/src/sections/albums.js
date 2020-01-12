@@ -1,8 +1,10 @@
 import React from 'react';
 import {Card, CardColumns, Carousel, Button,
         Container, Row, Col} from 'react-bootstrap';
+import { Trans } from 'react-i18next';
 import {SectionVitrine, CollectionVitrine} from './sections';
 import {pathConsignation} from '../pathUtils';
+import { traduire } from '../langutils.js';
 import './albums.css';
 
 const NOM_SECTION = 'albums';
@@ -38,6 +40,7 @@ export class AlbumsVitrine extends SectionVitrine {
     if(this.state.collectionCourante) {
       page = (
         <RenderCollection
+          language={this.props.language}
           uuid={this.state.collectionCourante}
           retourPageAlbums={this.retourPageAlbums}/>);
     } else {
@@ -196,7 +199,7 @@ class RenderCollection extends CollectionVitrine {
   render() {
     var nomCollection, images, description;
     if(this.state.contenu) {
-      nomCollection = this.state.contenu.nom;
+      nomCollection = traduire(this.state.contenu, 'nom', this.props.language);
       images = this._preparerImages();
       description = this.state.contenu.descriptif || this.state.contenu.commentaires;
     }
@@ -212,7 +215,7 @@ class RenderCollection extends CollectionVitrine {
         <Row>
           <Col>
             <p>{description}</p>
-            <Button onClick={this.props.retourPageAlbums}>Retour</Button>
+            <Button onClick={this.props.retourPageAlbums}><Trans>albums.retour</Trans></Button>
           </Col>
         </Row>
         <Row><Col><GenererListeCartes images={images} selectionner={this._afficherImage}/></Col></Row>

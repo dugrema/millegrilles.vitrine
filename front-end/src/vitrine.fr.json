@@ -45,6 +45,9 @@
       "aucun": "Aucuns podcasts.",
       "telecharger": "Télécharger"
     },
+    "albums": {
+      "retour": "Retour"
+    },
     "senseursPassifs": {
       "titrePage": "Senseurs Passifs",
       "location": "Location",
