@@ -1,6 +1,7 @@
 import React from 'react';
 import {SectionVitrine} from './sections';
 import {Container, Row, Col} from 'react-bootstrap';
+import {pathConsignation} from '../pathUtils';
 
 import { Trans } from 'react-i18next';
 import { traduire } from '../langutils.js';
@@ -61,9 +62,10 @@ export class FichiersVitrine extends SectionVitrine {
           let nom, texte, dateElement;
           if(fichier.nom) {
             const nomFichier = traduire(fichier, 'nom', this.props.language);
+            var pathFichier = pathConsignation(fichier.fuuid, {extension: fichier.extension})
             nom = (
               <h3 className="nom-fichier">
-                <a href={'/consignation/' + fichier.path} download={nomFichier}>
+                <a href={'/consignation/' + pathFichier} download={nomFichier}>
                   {nomFichier}
                 </a>
               </h3>
