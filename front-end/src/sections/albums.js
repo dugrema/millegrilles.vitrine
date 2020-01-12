@@ -148,18 +148,25 @@ function GenererListeCartes(props) {
       }
 
       var listeImages = [];
-      if(element.mimetype && (element.image || element.path)) {
-        var imagePath = '/consignation/' + (element.image || element.path);
+      if(element.fuuid_preview) {
+        var imagePath = '/consignation/' + pathConsignation(element.fuuid_preview, {extension: 'jpg'});
         listeImages.push(
-          <source key={element.uuid + 'source'} className="d-block w-100" type={element.mimetype} srcSet={imagePath} media=" (min-width: 600px)"/>
+          <source key={element.uuid + 'source'}
+            className="d-block w-100"
+            type={element.fuuid_mimetype}
+            srcSet={imagePath}
+            media=" (min-width: 600px)" />
         );
       }
       listeImages.push(
-        <img key={element.uuid + 'img'} className="d-block w-100" src={element.thumbnail} alt={descriptif}/>
+        <img key={element.uuid + 'img'} className="d-block w-100" src={PREFIX_DATA_URL + element.thumbnail} alt={descriptif}/>
       );
 
       listeRendered.push(
-        <Card key={element.uuid} onClick={props.selectionner} data-uuid={element.uuid} data-path={element.path}>
+        <Card key={element.uuid} onClick={props.selectionner}
+          data-uuid={element.uuid}
+          data-fuuid={element.fuuid}
+          data-extension={element.extension}>
           <picture>
             {listeImages}
           </picture>
@@ -226,9 +233,10 @@ class RenderCollection extends CollectionVitrine {
   }
 
   _afficherImage = event => {
-    let path = event.currentTarget.dataset.path;
-    console.debug("Afficher image " + path);
-    window.location.href = '/consignation/' + path;
+    let fuuid = event.currentTarget.dataset.fuuid;
+    let extension = event.currentTarget.dataset.extension;
+    var imagePath = pathConsignation(fuuid, {extension});
+    window.location.href = '/consignation/' + imagePath;
   }
 
 }
