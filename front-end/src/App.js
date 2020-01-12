@@ -232,7 +232,7 @@ class ToggleMenu extends React.Component {
     }
 
     let content = (
-      <Navbar collapseOnSelect expand="md" bg="danger" variant="dark" fixed="top">
+      <Navbar collapseOnSelect expand="md" bg="info" variant="dark" fixed="top">
         <Navbar.Brand href='/'>{nomMilleGrille}</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-menu" />
         <Navbar.Collapse id="responsive-navbar-menu">
@@ -317,7 +317,7 @@ class Footer extends React.Component {
     }
 
     return (
-      <Container fluid className="footer bg-danger">
+      <Container fluid className="footer bg-info">
         <Row>
           <Col>
             <Row><h2>Contact</h2></Row>

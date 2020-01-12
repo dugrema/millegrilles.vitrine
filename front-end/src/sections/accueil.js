@@ -2,13 +2,15 @@ import React from 'react';
 import {SectionVitrine} from './sections';
 import {Jumbotron, Card, CardDeck, Button, Image,
         Container, Row, Col} from 'react-bootstrap';
-
+import {pathConsignation} from '../pathUtils';
 import { traduire } from '../langutils.js';
 
 import './accueil.css';
 
 const NOM_SECTION = 'accueil';
 const ACCUEIL_LIBELLE = 'page.' + NOM_SECTION, ACCUEIL_URL = NOM_SECTION + '.json';
+
+const PREFIX_DATA_URL = 'data:image/jpeg;base64,';
 
 export class AccueilVitrine extends SectionVitrine {
 
@@ -51,13 +53,17 @@ export class AccueilVitrine extends SectionVitrine {
     const configurationMilleGrille = this.props.millegrille;
     const pageAccueil = this.state.contenu;
 
-    var descriptif, messageBienvenue;
+    var descriptif, messageBienvenue, image;
     if(configurationMilleGrille && configurationMilleGrille.nomMilleGrille) {
       descriptif = (<p>{traduire(configurationMilleGrille, 'nomMilleGrille', this.props.language)}</p>);
     }
     if(pageAccueil && pageAccueil.messageBienvenue) {
       let texte = traduire(pageAccueil, 'messageBienvenue', this.props.language);
       messageBienvenue = (<p>{texte}</p>);
+
+      if(pageAccueil.thumbnail) {
+        image = (<img src={PREFIX_DATA_URL + pageAccueil.thumbnail}/>);
+      }
     }
 
     return (
@@ -70,7 +76,7 @@ export class AccueilVitrine extends SectionVitrine {
               {messageBienvenue}
             </Col>
             <Col>
-              <Image src="/logo128.png"/>
+              {image}
             </Col>
           </Row>
         </Container>
@@ -96,7 +102,7 @@ export class AccueilVitrine extends SectionVitrine {
         }
         if(carte.thumbnail) {
           imagesDef.push(
-            <Card.Img key='thumbnail' variant="top" src={carte.thumbnail}/>
+            <Card.Img key='thumbnail' variant="top" src={PREFIX_DATA_URL + carte.thumbnail}/>
           );
         }
 

@@ -8,7 +8,7 @@ import './albums.css';
 const NOM_SECTION = 'albums';
 const ALBUMS_LIBELLE = 'page.' + NOM_SECTION, ALBUMS_URL = NOM_SECTION + '.json';
 
-const PREFIX_DATA_URL = 'data:image/png;base64,';
+const PREFIX_DATA_URL = 'data:image/jpeg;base64,';
 
 export class AlbumsVitrine extends SectionVitrine {
 

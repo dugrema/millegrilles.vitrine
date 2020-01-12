@@ -1,18 +1,7 @@
 {
-  "short_name": "Vitrine",
-  "name": "Vitrine de MilleGrilles",
-  "icons": [
-    {
-      "src": "favicon.ico",
-      "sizes": "48x48",
-      "type": "image/x-icon"
-    },
-    {
-      "src": "logo128.png",
-      "type": "image/png",
-      "sizes": "128x128"
-    }
-  ],
+  "short_name": "SaveOurLake",
+  "name": "Save Our Lake",
+  "icons": [],
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
