@@ -1,6 +1,16 @@
 {
   "recents": [
     {
+      "uuid": "b1e722f8-f560-48ef-b091-5340bcc8039d",
+      "fuuid": "75ef8c70-370c-11ea-9091-31fb7f950671",
+      "nom": "Save Our Lake Presentation.pptx",
+      "nom_fr": "Presentation Sauvons notre lac.pptx",
+      "texte": "Bilingual presentation that formed part of the Dec. 2, 2019 Russell Twp Council meeting",
+      "texte_fr": "Présentation bilingue qui a fait partie de la rencontre du conseil de ville de Russell le 2 décembre 2019",
+      "mimetype": "application/powerpoint",
+      "extension": "pptx",
+      "modifie": 1579033843
+    },{
       "uuid": "d4cb377e-305b-41cb-8b35-8112f5cbf0c4",
       "fuuid": "d381f030-3577-11ea-83ec-378497df6299",
       "nom": "saveourlake-withsupport_en.doc",
