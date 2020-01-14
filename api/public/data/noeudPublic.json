@@ -1,1 +1,12 @@
-{"_id":"5e167f42b82ebcec78e1afed","_mg-creation":1578532674,"_mg-derniere-modification":1578532819,"_mg-libelle":"configuration.noeudPublic","menu":["messages","fichiers","podcasts","albums"],"url_web":"https://localhost"}
+{
+	"_id": "5e167f42b82ebcec78e1afed",
+	"_mg-creation": 1578532674,
+	"_mg-derniere-modification": 1578532819,
+	"_mg-libelle": "configuration.noeudPublic",
+	"menu": ["blogs", "albums", "fichiers"],
+	"url_web": "https://localhost",
+  "consignation": {
+    "flat": true,
+    "base_url": "https://millegrilles.s3.amazonaws.com/saveourlake/"
+  }
+}
