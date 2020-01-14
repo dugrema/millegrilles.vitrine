@@ -88,10 +88,7 @@ export class AccueilVitrine extends SectionVitrine {
     const listeCartes = [];
     for(let idx in cartes) {
       const carte = cartes[idx];
-      var image = null;
-      var titre = null;
-      var texte = null;
-      var bouton = null;
+      var image, titre, texte, bouton, liens;
 
       if(carte.image || carte.thumbnail) {
         let imagesDef = [];
@@ -120,12 +117,32 @@ export class AccueilVitrine extends SectionVitrine {
       if(carte.bouton) {
         bouton = (<Button variant="primary">{traduire(carte.bouton, 'texte', this.props.language)}</Button>);
       }
+      if(carte.liens) {
+        let listeLiens = [];
+        for(let idx in carte.liens) {
+          var lien = carte.liens[idx];
+          let href = null;
+          if(lien.url) {
+            href = (<span>: <a href={lien.url}>{lien.url}</a></span>)
+          }
+          listeLiens.push(
+            <li key={idx}>
+              {traduire(lien, 'texte', this.props.language)} {href}
+            </li>
+          )
+        }
+
+        liens = (
+          <ul className="liste-accueil">{listeLiens}</ul>
+        )
+      }
       listeCartes.push(
         <Card key={idx}>
           {image}
           <Card.Body>
             {titre}
             {texte}
+            {liens}
             {bouton}
           </Card.Body>
         </Card>

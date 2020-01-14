@@ -5,3 +5,11 @@
 .mediaFooter {
   font-size: small;
 }
+
+.liste-accueil {
+  padding-left: 0.2em;
+}
+
+.liste-accueil li {
+  padding-bottom: 0.4em;
+}
