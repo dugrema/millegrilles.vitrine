@@ -62,10 +62,11 @@ export class FichiersVitrine extends SectionVitrine {
           let nom, texte, dateElement;
           if(fichier.nom) {
             const nomFichier = traduire(fichier, 'nom', this.props.language);
-            var pathFichier = pathConsignation(fichier.fuuid, {extension: fichier.extension})
+            var pathFichier = pathConsignation(
+              fichier.fuuid, {extension: fichier.extension}, this.props.configuration.consignation);
             nom = (
               <h3 className="nom-fichier">
-                <a href={'/consignation/' + pathFichier} download={nomFichier}>
+                <a href={pathFichier} download={nomFichier}>
                   {nomFichier}
                 </a>
               </h3>

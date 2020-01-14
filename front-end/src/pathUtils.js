@@ -34,28 +34,38 @@ const uuidToDate = new UUIDToDate();
 
 // Retourne le path du fichier
 // Type est un dict {mimetype, extension} ou une des deux valeurs doit etre fournie
-function pathConsignation(fichierUuid, type) {
-  let pathFichier = _formatterPath(fichierUuid, type);
+function pathConsignation(fichierUuid, type, opts) {
+  let pathFichier = _formatterPath(fichierUuid, type, opts);
   return pathFichier;
 }
 
-function _formatterPath(fichierUuid, type) {
-  // Extrait la date du fileUuid, formatte le path en fonction de cette date.
-  let timestamp = uuidToDate.extract(fichierUuid.replace('/', ''));
+function _formatterPath(fichierUuid, type, opts) {
   // console.debug("uuid: " + fichierUuid + ". Timestamp " + timestamp);
 
   let extension = type.extension;
+  let flat = opts && opts.flat;
 
-  let year = timestamp.getUTCFullYear();
-  let month = timestamp.getUTCMonth() + 1; if(month < 10) month = '0'+month;
-  let day = timestamp.getUTCDate(); if(day < 10) day = '0'+day;
-  let hour = timestamp.getUTCHours(); if(hour < 10) hour = '0'+hour;
-  let minute = timestamp.getUTCMinutes(); if(minute < 10) minute = '0'+minute;
-  let fuuide =
-    path.join(""+year, ""+month, ""+day, ""+hour, ""+minute,
-      fichierUuid + '.' + extension);
+  var pathFichier;
+  if(flat) {
+    pathFichier = path.join(fichierUuid + '.' + extension);
+  } else {
+    // Extrait la date du fileUuid, formatte le path en fonction de cette date.
+    let timestamp = uuidToDate.extract(fichierUuid.replace('/', ''));
 
-  return fuuide;
+    let year = timestamp.getUTCFullYear();
+    let month = timestamp.getUTCMonth() + 1; if(month < 10) month = '0'+month;
+    let day = timestamp.getUTCDate(); if(day < 10) day = '0'+day;
+    let hour = timestamp.getUTCHours(); if(hour < 10) hour = '0'+hour;
+    let minute = timestamp.getUTCMinutes(); if(minute < 10) minute = '0'+minute;
+    pathFichier = path.join(""+year, ""+month, ""+day, ""+hour, ""+minute,
+        fichierUuid + '.' + extension);
+  }
+
+  if(opts && opts.base_url) {
+    pathFichier = opts.base_url + pathFichier;
+  }
+
+  return pathFichier;
 }
 
 export {pathConsignation};

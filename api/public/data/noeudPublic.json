@@ -4,5 +4,9 @@
 	"_mg-derniere-modification": 1578532819,
 	"_mg-libelle": "configuration.noeudPublic",
 	"menu": ["blogs", "albums", "fichiers"],
-	"url_web": "https://localhost"
+	"url_web": "https://localhost",
+	"consignation": {
+		"flat": true,
+		"base_url": "https://millegrilles.s3.amazonaws.com/saveourlake/"
+	}
 }

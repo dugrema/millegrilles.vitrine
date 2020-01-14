@@ -40,12 +40,14 @@ export class AlbumsVitrine extends SectionVitrine {
     if(this.state.collectionCourante) {
       page = (
         <RenderCollection
+          configuration={this.props.configuration}
           language={this.props.language}
           uuid={this.state.collectionCourante}
           retourPageAlbums={this.retourPageAlbums}/>);
     } else {
       page = (
         <RenderPageAlbums
+          configuration={this.props.configuration}
           contenu={this.state.contenu}
           selectionner={this.selectionnerCollection}/>);
     }
@@ -78,8 +80,11 @@ function RenderPageAlbums(props) {
 
   return (
     <div>
-      <RenderCarousel images={imagesRecentes}/>
+      <RenderCarousel
+        configuration={props.configuration}
+        images={imagesRecentes}/>
       <GenererListeCartes
+        configuration={props.configuration}
         images={collections}
         selectionner={props.selectionner} />
     </div>
@@ -107,10 +112,10 @@ function RenderCarousel(props) {
 
       var pathImage, mimetypeImage;
       if(element.fuuid_preview) {
-        pathImage = '/consignation/' + pathConsignation(element.fuuid_preview, {extension: element.extension});
+        pathImage = pathConsignation(element.fuuid_preview, {extension: element.extension}, props.configuration.consignation);
         mimetypeImage = element.mimetype;
       } else {
-        pathImage = '/consignation/' + pathConsignation(element.fuuid, {extension: element.extension});
+        pathImage = pathConsignation(element.fuuid, {extension: element.extension}, props.configuration.consignation);
         mimetypeImage = element.preview_mimetype;
       }
 
@@ -152,7 +157,7 @@ function GenererListeCartes(props) {
 
       var listeImages = [];
       if(element.fuuid_preview) {
-        var imagePath = '/consignation/' + pathConsignation(element.fuuid_preview, {extension: 'jpg'});
+        var imagePath = pathConsignation(element.fuuid_preview, {extension: 'jpg'}, props.configuration.consignation);
         listeImages.push(
           <source key={element.uuid + 'source'}
             className="d-block w-100"
@@ -218,7 +223,14 @@ class RenderCollection extends CollectionVitrine {
             <Button onClick={this.props.retourPageAlbums}><Trans>albums.retour</Trans></Button>
           </Col>
         </Row>
-        <Row><Col><GenererListeCartes images={images} selectionner={this._afficherImage}/></Col></Row>
+        <Row>
+          <Col>
+            <GenererListeCartes
+              configuration={this.props.configuration}
+              images={images}
+              selectionner={this._afficherImage}/>
+          </Col>
+        </Row>
       </Container>
     )
   }
@@ -238,8 +250,8 @@ class RenderCollection extends CollectionVitrine {
   _afficherImage = event => {
     let fuuid = event.currentTarget.dataset.fuuid;
     let extension = event.currentTarget.dataset.extension;
-    var imagePath = pathConsignation(fuuid, {extension});
-    window.location.href = '/consignation/' + imagePath;
+    var imagePath = pathConsignation(fuuid, {extension}, this.props.configuration.consignation);
+    window.location.href = imagePath;
   }
 
 }
