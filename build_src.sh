@@ -37,7 +37,7 @@ package_build() {
   makeManifest
   npm run-script build
   # Effacer repertoires avec donnees test
-  rm -rf build/consignation build/data
+  rm -rf build/data* build/consignation*
   tar -zcf ../$BUILD_FILE build
 }
 
