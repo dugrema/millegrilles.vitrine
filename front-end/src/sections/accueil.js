@@ -92,7 +92,7 @@ export class AccueilVitrine extends SectionVitrine {
 
       if(carte.image || carte.thumbnail) {
         let imagesDef = [];
-        if(carte.mimetype_preview && carte.fuuid_preview) {
+        if(carte.mimetype_preview && carte.fuuid_preview && this.props.configuration) {
           var imagePath = pathConsignation(carte.fuuid_preview, {extension: 'jpg'}, this.props.configuration.consignation);
           imagesDef.push(
             <source key='highdef' type={carte.mimetype_preview} srcSet={imagePath} media=" (min-width: 600px)"/>
