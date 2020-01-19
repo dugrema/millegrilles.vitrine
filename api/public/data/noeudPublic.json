@@ -6,6 +6,10 @@
 	"menu": ["blogs", "albums", "fichiers"],
 	"url_web": "https://localhost",
   "consignation": {
+    "flat": false,
+    "base_url": "/consignation/"
+  },
+	"consignation_old": {
     "flat": true,
     "base_url": "https://millegrilles.s3.amazonaws.com/saveourlake/"
   }
