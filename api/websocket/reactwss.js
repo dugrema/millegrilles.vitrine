@@ -4,12 +4,13 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path');
 const { SectionMessagesSockets } = require('./MessageSockets');
-const { maj_fichier_data } = require('./traitementFichiersData');
+const { maj_fichier_data, maj_collection } = require('./traitementFichiersData');
 
 // Constantes
 const FICHE_PUBLIQUE = 'document.millegrilles_domaines_Annuaire.fiche.publique';
 const CONFIGURATION_NOEUD_PUBLIC = 'noeuds.source.millegrilles_domaines_Parametres.documents.configuration.noeudPublic';
 const PUBLICATION_COLLECTIONS = 'commande.WEB_URL.publierCollection';
+var COMMANDE_PUBLIER;  // Va etre rempli a l'initialisation
 
 class WebSocketVitrineApp {
 
@@ -89,8 +90,8 @@ class VitrineGlobal {
     this.webUrl = opts.webUrl || process.env.WEB_URL;
 
     let webUrlFormatte = this.webUrl.replace(/\./g, '_');
-    let commandePublier = PUBLICATION_COLLECTIONS.replace('WEB_URL', webUrlFormatte);
-    this.routingKeys[commandePublier] = true;
+    COMMANDE_PUBLIER = PUBLICATION_COLLECTIONS.replace('WEB_URL', webUrlFormatte);
+    this.routingKeys[COMMANDE_PUBLIER] = true;
 
     // this._enregistrerEvenements(server);
     rabbitMQ.routingKeyManager.addRoutingKeyForNamespace(this, Object.keys(this.routingKeys));
@@ -106,8 +107,8 @@ class VitrineGlobal {
   }
 
   emit(cle, message) {
-    // Emet un message MQ
-    console.debug("Section VitrineGlobal Recu message " + cle);
+    // Recoit un message MQ
+    console.debug("Section VitrineGlobal Recu message " + message.routingKey);
 
     // Faire l'entretien du document local
     if(message.routingKey === FICHE_PUBLIQUE) {
@@ -125,6 +126,13 @@ class VitrineGlobal {
           JSON.stringify(message.message)
         );
       }
+    } else if(message.routingKey === COMMANDE_PUBLIER) {
+      console.debug("Recu collection")
+      maj_collection(
+        path.join(this.pathData, 'collections'),
+        message.message.uuid_source_figee,
+        JSON.stringify(message.message)
+      );
     }
   }
 

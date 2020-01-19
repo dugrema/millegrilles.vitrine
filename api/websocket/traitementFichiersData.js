@@ -18,4 +18,21 @@ function maj_fichier_data(pathFichier, contenu) {
   });
 }
 
-module.exports = {maj_fichier_data}
+// Met a jour un fichier dans le repertoire data de la MilleGrille
+function maj_collection(pathRepertoire, uuidCollection, contenu) {
+  console.debug("Maj collection data sous " + pathRepertoire);
+  var pathFichier = path.join(pathRepertoire, uuidCollection + '.json');
+
+  fs.mkdir(pathRepertoire, { recursive: true }, (err)=>{
+    if(err) {
+      console.error("Erreur reception collection " + uuidCollection);
+      return;
+    }
+
+    const writeStream = fs.createWriteStream(pathFichier, {flag: 'w', mode: 0o644});
+    writeStream.write(contenu);
+    writeStream.end();
+  });
+}
+
+module.exports = {maj_fichier_data, maj_collection}
