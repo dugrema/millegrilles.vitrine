@@ -13,8 +13,8 @@ export MG_MQ_URL=amqps://mg-dev3.local:5673/$MG_IDMG
 
 export PORT=3004
 
-# export DATA_FOLDER=/home/mathieu/git/MilleGrilles.vitrine/api/public/data
-export DATA_FOLDER=/var/opt/millegrilles/bKKwtXC68HR4TPDzet6zLVq2wPJfc9RiiYLuva/mounts/consignation/local
+export DATA_FOLDER=/home/mathieu/git/MilleGrilles.vitrine/api/public/data
+# export DATA_FOLDER=/var/opt/millegrilles/bKKwtXC68HR4TPDzet6zLVq2wPJfc9RiiYLuva/mounts/consignation
 
 export WEB_URL=https://mg-dev3.maple.maceroc.com
 
