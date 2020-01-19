@@ -9,6 +9,7 @@ const { maj_fichier_data } = require('./traitementFichiersData');
 // Constantes
 const FICHE_PUBLIQUE = 'document.millegrilles_domaines_Annuaire.fiche.publique';
 const CONFIGURATION_NOEUD_PUBLIC = 'noeuds.source.millegrilles_domaines_Parametres.documents.configuration.noeudPublic';
+const PUBLICATION_COLLECTIONS = 'commande.WEB_URL.publierCollection';
 
 class WebSocketVitrineApp {
 
@@ -84,10 +85,15 @@ class VitrineGlobal {
   }
 
   initialiser(server, opts, modeErreur) {
+    this.pathData = opts.pathData;
+    this.webUrl = opts.webUrl || process.env.WEB_URL;
+
+    let webUrlFormatte = this.webUrl.replace(/\./g, '_');
+    let commandePublier = PUBLICATION_COLLECTIONS.replace('WEB_URL', webUrlFormatte);
+    this.routingKeys[commandePublier] = true;
+
     // this._enregistrerEvenements(server);
     rabbitMQ.routingKeyManager.addRoutingKeyForNamespace(this, Object.keys(this.routingKeys));
-    this.pathData = opts.pathData;
-    this.webUrl = opts.webUrl;
     this._enregistrerEvenements(server); // Enregistrer wss namespace
     if(!modeErreur) {
       this.requeteDocuments();
