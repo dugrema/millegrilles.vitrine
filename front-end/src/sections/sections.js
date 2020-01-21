@@ -126,7 +126,7 @@ export class CollectionVitrine extends React.Component {
     }
 
     // Tenter de charger une version mise a jour a partir du serveur
-    axios.get('/data/collections/' + this.props.uuid + '.json', {
+    axios.get('/data/collections/' + this.getUuid() + '.json', {
       headers,
       validateStatus: status=>{return status === 200 || status === 304}
     })
