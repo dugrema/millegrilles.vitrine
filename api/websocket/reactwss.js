@@ -9,6 +9,8 @@ const { maj_fichier_data, maj_collection } = require('./traitementFichiersData')
 // Constantes
 const FICHE_PUBLIQUE = 'document.millegrilles_domaines_Annuaire.fiche.publique';
 const CONFIGURATION_NOEUD_PUBLIC = 'noeuds.source.millegrilles_domaines_Parametres.documents.configuration.noeudPublic';
+const DOCUMENT_VITRINE_FICHIERS = 'noeuds.source.millegrilles_domaines_Parametres.documents.vitrineFichiers';
+const DOCUMENT_VITRINE_ALBUMS = 'noeuds.source.millegrilles_domaines_Parametres.documents.vitrineAlbums';
 const PUBLICATION_COLLECTIONS = 'commande.WEB_URL.publierCollection';
 var COMMANDE_PUBLIER;  // Va etre rempli a l'initialisation
 
@@ -133,7 +135,20 @@ class VitrineGlobal {
         message.message.uuid_source_figee,
         JSON.stringify(message.message)
       );
+    } else if(message.routingKey === DOCUMENT_VITRINE_FICHIERS) {
+      console.debug("Recu maj fichiers")
+      maj_fichier_data(
+        path.join(this.pathData, 'fichiers.json'),
+        JSON.stringify(message.message)
+      );
+    } else if(message.routingKey === DOCUMENT_VITRINE_ALBUMS) {
+      console.debug("Recu maj albums")
+      maj_fichier_data(
+        path.join(this.pathData, 'albums.json'),
+        JSON.stringify(message.message)
+      );
     }
+
   }
 
   requeteDocuments() {
@@ -205,17 +220,16 @@ class VitrineGlobal {
       let messageContent = reponse.content.toString('utf-8');
       let jsonMessage = JSON.parse(messageContent);
       const resultats = jsonMessage.resultats[0];
-      console.debug("Reponse GrosFichiers sauvegarde sous " + this.pathData);
+      // console.debug("Reponse GrosFichiers sauvegarde sous " + this.pathData);
 
-      console.debug("JSON Message");
-      console.debug(jsonMessage);
-      console.debug("Resultats");
-      console.debug(jsonMessage.resultats);
+      // console.debug("JSON Message");
+      // console.debug(jsonMessage);
+      // console.debug("Resultats");
+      // console.debug(jsonMessage.resultats);
 
+      const collections = {};
       for(let idx in jsonMessage.resultats) {
         let documentFichier = jsonMessage.resultats[idx];
-        console.debug("Document fichier");
-        console.debug(documentFichier);
 
         let mgLibelle = documentFichier['_mg-libelle'];
         var nomFichier = null;
@@ -233,8 +247,38 @@ class VitrineGlobal {
           );
         }
 
+        if(documentFichier.collections) {
+          for(let uuid_collection_figee in documentFichier.collections) {
+            collections[uuid_collection_figee] = true;
+          }
+        }
+
       }
 
+      // Retourner la liste de collections a charger
+      return Object.keys(collections);
+
+    })
+    .then(collections => {
+      var routingRequeteCollection = 'requete.millegrilles.domaines.GrosFichiers.collectionFigee';
+      for(let idx in collections) {
+        let uuid_collection = collections[idx];
+        // Charger la plus recente version figee de la collection
+        var requete = {uuid: uuid_collection};
+        rabbitMQ.transmettreRequete(routingRequeteCollection, requete)
+        .then(reponse=>{
+          console.debug("Reponse fichier collection figee");
+          let messageContent = reponse.content.toString('utf-8');
+          let jsonMessage = JSON.parse(messageContent);
+          // console.debug(jsonMessage.resultats);
+          maj_collection(
+            path.join(this.pathData, 'collections'),
+            jsonMessage.resultats.uuid_source_figee,
+            JSON.stringify(jsonMessage.resultats)
+          );
+
+        });
+      }
     })
     .catch(err=>{
       console.info("Erreur chargement, on va ressayer plus tard");
