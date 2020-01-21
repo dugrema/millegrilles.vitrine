@@ -1,6 +1,6 @@
 import React from 'react';
 import {SectionVitrine} from './sections';
-import {Container, Row, Col} from 'react-bootstrap';
+import {Container, Row, Col, Button, ListGroup} from 'react-bootstrap';
 import {pathConsignation} from '../pathUtils';
 
 import { Trans } from 'react-i18next';
@@ -87,11 +87,11 @@ export class FichiersVitrine extends SectionVitrine {
             var pathFichier = pathConsignation(
               fuuid, {extension}, this.props.configuration.consignation);
             nom = (
-              <h3 className="nom-fichier">
-                <a href={pathFichier} download={nomFichier}>
+              <Button variant="link" href={pathFichier} download={nomFichier}>
+                <h3 className="nom-fichier">
                   {nomFichier}
-                </a>
-              </h3>
+                </h3>
+              </Button>
             );
           }
           if(fichier.commentaires) {
@@ -167,9 +167,11 @@ export class FichiersVitrine extends SectionVitrine {
           let sujet, texte, dateElement;
           if(collection.nom) {
             sujet = (
-              <h3 className="nom-collection">
-                {traduire(collection, 'nom', this.props.language)}
-              </h3>
+              <Button variant="link" onClick={this._selectionnerCollection} value={collection.uuid_collection_figee}>
+                <h3 className="nom-collection">
+                  {traduire(collection, 'nom', this.props.language)}
+                </h3>
+              </Button>
             );
           }
           if(collection.commentaires) {
@@ -180,26 +182,37 @@ export class FichiersVitrine extends SectionVitrine {
             );
           }
           collectionsElements.push(
-            <Row key={collection.uuid} className="collection">
-              <Col sm={12}>
-                {sujet}
-                {texte}
-              </Col>
-            </Row>
+            <ListGroup.Item key={collection.uuid}>
+              {sujet}
+              {texte}
+            </ListGroup.Item>
           );
         });
 
       }
     }
 
+    let resultat;
     if(!collectionsElements) {
-      collectionsElements = (
+      resultat = (
         <Row key={2} className="message">
           <Col><Trans>fichiers.aucuneCollection</Trans></Col>
         </Row>
       );
+    } else {
+      resultat = (
+        <ListGroup variant="flush">
+          {collectionsElements}
+        </ListGroup>
+      )
     }
 
-    return collectionsElements;
+    return resultat;
+  }
+
+  _selectionnerCollection = event => {
+    let uuidCollectionCourante = event.currentTarget.value;
+    console.debug(uuidCollectionCourante)
+    this.setState({uuidCollectionCourante});
   }
 }
