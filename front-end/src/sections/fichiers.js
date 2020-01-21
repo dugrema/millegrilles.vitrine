@@ -43,27 +43,49 @@ export class FichiersVitrine extends SectionVitrine {
   _renderFichiersRecents() {
     var fichiersElements;
 
-    if(this.state.contenu && this.state.contenu.recents) {
-      const fichiers = this.state.contenu.recents;
-      if(fichiers && fichiers.length > 0) {
+    if(this.state.contenu && this.state.contenu.top) {
+      const fichiers = this.state.contenu.top;
+
+      // console.debug("Fichiers");
+      // console.debug(fichiers);
+
+      if(fichiers && Object.values(fichiers).length > 0) {
         fichiersElements = [];
 
         // Ajouter entete pour les fichiers recents
         fichiersElements.push(
           <Row key={1}>
             <Col>
-              <h4><Trans>fichiers.recents</Trans></h4>
+              <h4><Trans>fichiers.top</Trans></h4>
             </Col>
           </Row>
         )
 
-        for(let idx in fichiers) {
-          let fichier = fichiers[idx];
+        // Trier les fichiers par date descendante et afficher
+        new Array().concat(Object.values(fichiers))
+        .sort((a,b) => {
+          if(a.date_version === b.date_version) return 0;
+          if(!a.date_version) return 1;
+          if(!b.date_version) return -1;
+          return b.date_version - a.date_version
+        })
+        .forEach(fichier=>{
           let nom, texte, dateElement;
           if(fichier.nom) {
             const nomFichier = traduire(fichier, 'nom', this.props.language);
+
+            // Exception pour les videos, on prend le 480p
+            let fuuid, extension;
+            if(fichier.fuuidVideo480p) {
+              fuuid = fichier.fuuidVideo480p;
+              extension = 'mp4';
+            } else{
+              fuuid = fichier.fuuid;
+              extension = fichier.extension;
+            }
+
             var pathFichier = pathConsignation(
-              fichier.fuuid, {extension: fichier.extension}, this.props.configuration.consignation);
+              fuuid, {extension}, this.props.configuration.consignation);
             nom = (
               <h3 className="nom-fichier">
                 <a href={pathFichier} download={nomFichier}>
@@ -72,15 +94,15 @@ export class FichiersVitrine extends SectionVitrine {
               </h3>
             );
           }
-          if(fichier.texte) {
+          if(fichier.commentaires) {
             texte = (
               <p className="texte-fichier">
-                {traduire(fichier, 'texte', this.props.language)}
+                {traduire(fichier, 'commentaires', this.props.language)}
               </p>
             );
           }
-          if(fichier.modifie) {
-            dateElement = this.renderDateModifiee(fichier.modifie);
+          if(fichier.date_version) {
+            dateElement = this.renderDateModifiee(fichier.date_version);
           }
           fichiersElements.push(
             <Row key={fichier.fuuid} className="fichier">
@@ -93,7 +115,7 @@ export class FichiersVitrine extends SectionVitrine {
               </Col>
             </Row>
           );
-        }
+        })
       }
     }
 
@@ -112,8 +134,24 @@ export class FichiersVitrine extends SectionVitrine {
     var collectionsElements;
 
     if(this.state.contenu && this.state.contenu.collections) {
-      const collections = this.state.contenu.collections;
-      if(collections && collections.length > 0) {
+      var collections = this.state.contenu.collections;
+
+      var collectionsModifiees = [];
+      for(let uuid_collection in this.state.contenu.collections) {
+        let collection = Object.assign({}, this.state.contenu.collections[uuid_collection]);  // Cloner
+        collection['uuid_collection_figee'] = uuid_collection;
+        collectionsModifiees.push(collection);
+      }
+
+      // Trier nouvelle collection
+      collectionsModifiees.sort((a,b)=>{
+        return a.nom.localeCompare(b.nom)
+      })
+
+      // console.debug("Collections")
+      // console.debug(collectionsModifiees)
+
+      if(collectionsModifiees.length > 0) {
         collectionsElements = [];
 
         // Ajouter entete pour les fichiers recents
@@ -125,8 +163,7 @@ export class FichiersVitrine extends SectionVitrine {
           </Row>
         )
 
-        for(let idx in collections) {
-          let collection = collections[idx];
+        collectionsModifiees.forEach(collection => {
           let sujet, texte, dateElement;
           if(collection.nom) {
             sujet = (
@@ -135,28 +172,23 @@ export class FichiersVitrine extends SectionVitrine {
               </h3>
             );
           }
-          if(collection.description) {
+          if(collection.commentaires) {
             texte = (
               <p className="texte-collection">
-                {traduire(collection, 'description', this.props.language)}
+                {traduire(collection, 'commentaires', this.props.language)}
               </p>
             );
           }
-          if(collection.modifie) {
-            dateElement = this.renderDateModifiee(collection.modifie);
-          }
           collectionsElements.push(
             <Row key={collection.uuid} className="collection">
-              <Col sm={2}>
-                {dateElement}
-              </Col>
-              <Col sm={10}>
+              <Col sm={12}>
                 {sujet}
                 {texte}
               </Col>
             </Row>
           );
-        }
+        });
+
       }
     }
 

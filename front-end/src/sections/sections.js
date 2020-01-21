@@ -59,10 +59,10 @@ export class SectionVitrine extends React.Component {
   }
 
   mettreAJourContenu = (contenuPage, lastModified) => {
-    console.debug("MAJ contenu")
+    // console.debug("MAJ contenu")
     let contenuExtrait = contenuPage.message || contenuPage;
 
-    console.debug(contenuPage)
+    // console.debug(contenuPage)
     const libelle = 'page.' + this.getNomSection();
     const contenu = {
       contenu: contenuExtrait,
