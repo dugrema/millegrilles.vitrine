@@ -38,7 +38,8 @@
       "aucun": "No files",
       "aucuneCollection": "No collections",
       "top": "Featured files",
-      "collections": "Collections"
+      "collections": "Collections",
+      "collectionTitre": "Collection {{nom}}"
     },
     "podcasts": {
       "titrePage": "Podcasts",

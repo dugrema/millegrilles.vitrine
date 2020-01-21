@@ -45,6 +45,13 @@ export class FichiersVitrine extends SectionVitrine {
 
       contenu = (
         <div>
+          <Row className="page-header">
+            <Col>
+              <h2><Trans>fichiers.titrePage</Trans></h2>
+              <hr/>
+            </Col>
+          </Row>
+
           <RenderFichiers
             fichiers={fichiers}
             renderDateModifiee={this.renderDateModifiee}
@@ -57,12 +64,6 @@ export class FichiersVitrine extends SectionVitrine {
 
     return (
       <Container>
-        <Row className="page-header">
-          <Col>
-            <h2><Trans>fichiers.titrePage</Trans></h2>
-            <hr/>
-          </Col>
-        </Row>
         {contenu}
       </Container>
     );
@@ -174,8 +175,15 @@ class AfficherCollection extends CollectionVitrine {
     }
     return (
       <div>
-        <h2>Collection {nom}</h2>
+        <Row className="page-header">
+          <Col>
+            <h2><Trans values={{nom}}>fichiers.collectionTitre</Trans></h2>
+            <hr/>
+          </Col>
+        </Row>
+
         <Button onClick={this.props.retourPrincipale}>Back</Button>
+
         <RenderFichiers
           fichiers={fichiers}
           {...this.props} />
@@ -196,15 +204,6 @@ function RenderFichiers(props) {
 
     if(fichiers && Object.values(fichiers).length > 0) {
       fichiersElements = [];
-
-      // Ajouter entete pour les fichiers recents
-      fichiersElements.push(
-        <Row key={1}>
-          <Col>
-            <h4><Trans>fichiers.top</Trans></h4>
-          </Col>
-        </Row>
-      )
 
       // Trier les fichiers par date descendante et afficher
       new Array().concat(Object.values(fichiers))

@@ -38,7 +38,8 @@
       "aucun": "Aucuns fichiers",
       "aucuneCollection": "Aucunes collections",
       "top": "Fichiers utiles",
-      "collections": "Collections"
+      "collections": "Collections",
+      "collectionTitre": "Collection {{nom}}"
     },
     "podcasts": {
       "titrePage": "Podcasts",
