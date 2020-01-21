@@ -191,7 +191,56 @@ class VitrineGlobal {
     .catch(err=>{
       console.info("Erreur chargement, on va ressayer plus tard");
     })
+
+    // Requete documents sections
+    var routingRequeteGrosFichiers = 'requete.millegrilles.domaines.GrosFichiers.fichiersVitrine';
+    rabbitMQ.transmettreRequete(routingRequeteGrosFichiers, {})
+    .then(reponse=>{
+      if(this.timerChargement) {
+        clearTimeout(this.timerChargement);
+        this.timerChargement = null;
+      }
+
+      // Extraire l'element resultats de la reponse (fiche publique)
+      let messageContent = reponse.content.toString('utf-8');
+      let jsonMessage = JSON.parse(messageContent);
+      const resultats = jsonMessage.resultats[0];
+      console.debug("Reponse GrosFichiers sauvegarde sous " + this.pathData);
+
+      console.debug("JSON Message");
+      console.debug(jsonMessage);
+      console.debug("Resultats");
+      console.debug(jsonMessage.resultats);
+
+      for(let idx in jsonMessage.resultats) {
+        let documentFichier = jsonMessage.resultats[idx];
+        console.debug("Document fichier");
+        console.debug(documentFichier);
+
+        let mgLibelle = documentFichier['_mg-libelle'];
+        var nomFichier = null;
+        if(mgLibelle === 'vitrine.fichiers') {
+          nomFichier = 'fichiers.json';
+        } else if(mgLibelle === 'vitrine.albums') {
+          nomFichier = 'albums.json';
+        }
+
+        console.debug("Sauvergarde fichier " + nomFichier + " pour " + mgLibelle);
+        if(nomFichier) {
+          maj_fichier_data(
+            path.join(this.pathData, nomFichier),
+            JSON.stringify(documentFichier)
+          );
+        }
+
+      }
+
+    })
+    .catch(err=>{
+      console.info("Erreur chargement, on va ressayer plus tard");
+    })
   }
+
 
   rechargerDocuments() {
     console.info("Tentative de rechargement des documents");

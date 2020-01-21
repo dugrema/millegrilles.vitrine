@@ -56,7 +56,7 @@ export class AlbumsVitrine extends SectionVitrine {
   }
 
   selectionnerCollection = event => {
-    let uuid = event.currentTarget.dataset.uuid;
+    let uuid = event.currentTarget.dataset.uuid_source_figee || event.currentTarget.dataset.uuid;
     console.debug("Selectionner collection " + uuid);
     this.setState({collectionCourante: uuid});
   }
@@ -70,8 +70,8 @@ export class AlbumsVitrine extends SectionVitrine {
 function RenderPageAlbums(props) {
   var imagesRecentes, collections;
   if(props.contenu) {
-    if(props.contenu.recent) {
-      imagesRecentes = props.contenu.recent;
+    if(props.contenu.top) {
+      imagesRecentes = props.contenu.top;
     }
     if(props.contenu.collections) {
       collections = props.contenu.collections;
@@ -142,8 +142,8 @@ function RenderCarousel(props) {
 function GenererListeCartes(props) {
   const listeRendered = [];
   if(props.images) {
-    for(let idx in props.images) {
-      let element = props.images[idx];
+    for(let uuid_source_figee in props.images) {
+      let element = props.images[uuid_source_figee];
       let descriptif = element.descriptif || element.legende || element.commentaires || element.nom;
 
       var legende;
@@ -174,6 +174,7 @@ function GenererListeCartes(props) {
         <Card key={element.uuid} onClick={props.selectionner}
           data-uuid={element.uuid}
           data-fuuid={element.fuuid}
+          data-uuid_source_figee={uuid_source_figee}
           data-extension={element.extension}>
           <picture>
             {listeImages}
