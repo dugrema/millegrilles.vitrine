@@ -1,5 +1,5 @@
 import React from 'react';
-import {SectionVitrine} from './sections';
+import {SectionVitrine, CollectionVitrine} from './sections';
 import {Container, Row, Col, Button, ListGroup} from 'react-bootstrap';
 import {pathConsignation} from '../pathUtils';
 
@@ -26,6 +26,35 @@ export class FichiersVitrine extends SectionVitrine {
   }
 
   render() {
+
+    let contenu;
+    if(this.state.uuidCollectionCourante) {
+      contenu = (
+        <AfficherCollection
+          renderDateModifiee={this.renderDateModifiee}
+          retourPrincipale={this._retourPrincipale}
+          {...this.props}
+          {...this.state}
+        />
+      )
+    } else {
+      let fichiers = null;
+      if(this.state.contenu) {
+        fichiers = this.state.contenu.top
+      }
+
+      contenu = (
+        <div>
+          <RenderFichiers
+            fichiers={fichiers}
+            renderDateModifiee={this.renderDateModifiee}
+            {...this.props}
+            {...this.state} />
+          {this._renderCollections()}
+        </div>
+      )
+    }
+
     return (
       <Container>
         <Row className="page-header">
@@ -34,100 +63,9 @@ export class FichiersVitrine extends SectionVitrine {
             <hr/>
           </Col>
         </Row>
-        {this._renderFichiersRecents()}
-        {this._renderCollections()}
+        {contenu}
       </Container>
     );
-  }
-
-  _renderFichiersRecents() {
-    var fichiersElements;
-
-    if(this.state.contenu && this.state.contenu.top) {
-      const fichiers = this.state.contenu.top;
-
-      // console.debug("Fichiers");
-      // console.debug(fichiers);
-
-      if(fichiers && Object.values(fichiers).length > 0) {
-        fichiersElements = [];
-
-        // Ajouter entete pour les fichiers recents
-        fichiersElements.push(
-          <Row key={1}>
-            <Col>
-              <h4><Trans>fichiers.top</Trans></h4>
-            </Col>
-          </Row>
-        )
-
-        // Trier les fichiers par date descendante et afficher
-        new Array().concat(Object.values(fichiers))
-        .sort((a,b) => {
-          if(a.date_version === b.date_version) return 0;
-          if(!a.date_version) return 1;
-          if(!b.date_version) return -1;
-          return b.date_version - a.date_version
-        })
-        .forEach(fichier=>{
-          let nom, texte, dateElement;
-          if(fichier.nom) {
-            const nomFichier = traduire(fichier, 'nom', this.props.language);
-
-            // Exception pour les videos, on prend le 480p
-            let fuuid, extension;
-            if(fichier.fuuidVideo480p) {
-              fuuid = fichier.fuuidVideo480p;
-              extension = 'mp4';
-            } else{
-              fuuid = fichier.fuuid;
-              extension = fichier.extension;
-            }
-
-            var pathFichier = pathConsignation(
-              fuuid, {extension}, this.props.configuration.consignation);
-            nom = (
-              <Button variant="link" href={pathFichier} download={nomFichier}>
-                <h3 className="nom-fichier">
-                  {nomFichier}
-                </h3>
-              </Button>
-            );
-          }
-          if(fichier.commentaires) {
-            texte = (
-              <p className="texte-fichier">
-                {traduire(fichier, 'commentaires', this.props.language)}
-              </p>
-            );
-          }
-          if(fichier.date_version) {
-            dateElement = this.renderDateModifiee(fichier.date_version);
-          }
-          fichiersElements.push(
-            <Row key={fichier.fuuid} className="fichier">
-              <Col sm={2}>
-                {dateElement}
-              </Col>
-              <Col sm={10}>
-                {nom}
-                {texte}
-              </Col>
-            </Row>
-          );
-        })
-      }
-    }
-
-    if(!fichiersElements) {
-      fichiersElements = (
-        <Row key={1} className="message">
-          <Col><Trans>fichiers.aucun</Trans></Col>
-        </Row>
-      );
-    }
-
-    return fichiersElements;
   }
 
   _renderCollections() {
@@ -215,4 +153,124 @@ export class FichiersVitrine extends SectionVitrine {
     console.debug(uuidCollectionCourante)
     this.setState({uuidCollectionCourante});
   }
+
+  _retourPrincipale = event => {
+    this.setState({uuidCollectionCourante: null});
+  }
+
+}
+
+class AfficherCollection extends CollectionVitrine {
+
+  getUuid() {
+    return this.props.uuidCollectionCourante;
+  }
+
+  render() {
+    var nom, fichiers;
+    if(this.state.contenu) {
+      nom = this.state.contenu.nom;
+      fichiers = this.state.contenu.documents;
+    }
+    return (
+      <div>
+        <h2>Collection {nom}</h2>
+        <Button onClick={this.props.retourPrincipale}>Back</Button>
+        <RenderFichiers
+          fichiers={fichiers}
+          {...this.props} />
+      </div>
+    )
+  }
+
+}
+
+function RenderFichiers(props) {
+  var fichiersElements;
+
+  if(props.fichiers) {
+    const fichiers = props.fichiers;
+
+    // console.debug("Fichiers");
+    // console.debug(fichiers);
+
+    if(fichiers && Object.values(fichiers).length > 0) {
+      fichiersElements = [];
+
+      // Ajouter entete pour les fichiers recents
+      fichiersElements.push(
+        <Row key={1}>
+          <Col>
+            <h4><Trans>fichiers.top</Trans></h4>
+          </Col>
+        </Row>
+      )
+
+      // Trier les fichiers par date descendante et afficher
+      new Array().concat(Object.values(fichiers))
+      .sort((a,b) => {
+        if(a.date_version === b.date_version) return 0;
+        if(!a.date_version) return 1;
+        if(!b.date_version) return -1;
+        return b.date_version - a.date_version
+      })
+      .forEach(fichier=>{
+        let nom, texte, dateElement;
+        if(fichier.nom) {
+          const nomFichier = traduire(fichier, 'nom', props.language);
+
+          // Exception pour les videos, on prend le 480p
+          let fuuid, extension;
+          if(fichier.fuuidVideo480p) {
+            fuuid = fichier.fuuidVideo480p;
+            extension = 'mp4';
+          } else{
+            fuuid = fichier.fuuid;
+            extension = fichier.extension;
+          }
+
+          var pathFichier = pathConsignation(
+            fuuid, {extension}, props.configuration.consignation);
+          nom = (
+            <Button variant="link" href={pathFichier} download={nomFichier}>
+              <h3 className="nom-fichier">
+                {nomFichier}
+              </h3>
+            </Button>
+          );
+        }
+        if(fichier.commentaires) {
+          texte = (
+            <p className="texte-fichier">
+              {traduire(fichier, 'commentaires', props.language)}
+            </p>
+          );
+        }
+        if(fichier.date_version) {
+          dateElement = props.renderDateModifiee(fichier.date_version);
+        }
+        fichiersElements.push(
+          <Row key={fichier.fuuid} className="fichier">
+            <Col sm={2}>
+              {dateElement}
+            </Col>
+            <Col sm={10}>
+              {nom}
+              {texte}
+            </Col>
+          </Row>
+        );
+      })
+    }
+  }
+
+  if(!fichiersElements) {
+    fichiersElements = (
+      <Row key={1} className="message">
+        <Col><Trans>fichiers.aucun</Trans></Col>
+      </Row>
+    );
+  }
+
+  return fichiersElements;
 }
