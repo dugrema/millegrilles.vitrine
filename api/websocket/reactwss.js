@@ -386,10 +386,10 @@ class AlbumsSection {
   emit(cle, message) {
     // Emet un message MQ
     console.debug("Section Albums Recu message " + cle);
-    this.wssConnexion.emit(cle, message);
 
     // Faire l'entretien du document local
     if(message.routingKey === this.commandePublierAlbums) {
+      this.wssConnexion.emit('contenu', message);
       maj_fichier_data(
         path.join(this.pathData, 'albums.json'),
         JSON.stringify(message.message)
@@ -470,7 +470,7 @@ class AlbumsSection {
   }
 
   _enregistrerEvenements(server) {
-    let namespace = '/accueil';
+    let namespace = '/' + this.name;
     this.wssConnexion = server.of(namespace);
     console.debug("Initialisation namespace " + namespace);
     this.wssConnexion.on('connection', socket=>{

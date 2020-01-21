@@ -59,13 +59,17 @@ export class SectionVitrine extends React.Component {
   }
 
   mettreAJourContenu = (contenuPage, lastModified) => {
+    console.debug("MAJ contenu")
+    let contenuExtrait = contenuPage.message || contenuPage;
+
+    console.debug(contenuPage)
     const libelle = 'page.' + this.getNomSection();
     const contenu = {
-      contenu: contenuPage,
+      contenu: contenuExtrait,
       lastModified: lastModified,
     }
-    this.setState({contenu: contenuPage});
-    localStorage.setItem(libelle, JSON.stringify(contenu));
+    this.setState({contenu: contenuExtrait});
+    localStorage.setItem(libelle, JSON.stringify(contenuExtrait));
   }
 
   renderDateModifiee(dateModifieeEpoch) {
