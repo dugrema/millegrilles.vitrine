@@ -69,7 +69,7 @@ export class SectionVitrine extends React.Component {
       lastModified: lastModified,
     }
     this.setState({contenu: contenuExtrait});
-    localStorage.setItem(libelle, JSON.stringify(contenuExtrait));
+    localStorage.setItem(libelle, JSON.stringify(contenu));
   }
 
   renderDateModifiee(dateModifieeEpoch) {
