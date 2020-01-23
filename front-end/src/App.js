@@ -295,6 +295,18 @@ class Footer extends React.Component {
         </Row>
       )
     }
+    if(facebook) {
+      contact.push(
+        <Row key="facebook">
+          <Trans>application.facebook</Trans>
+          <span className="valeur">
+            <a href={facebook}>
+              {facebook}
+            </a>
+          </span>
+        </Row>
+      )
+    }
     if(facebookGroupe) {
       contact.push(
         <Row key="facebookGroupe">

@@ -55,10 +55,10 @@ export class AccueilVitrine extends SectionVitrine {
 
     var descriptif, messageBienvenue, image;
     if(configurationMilleGrille && configurationMilleGrille.nomMilleGrille) {
-      descriptif = (<p>{traduire(configurationMilleGrille, 'nomMilleGrille', this.props.language)}</p>);
+      descriptif = (<p>{traduire(configurationMilleGrille, 'nomMilleGrille', this.props.language, configurationMilleGrille)}</p>);
     }
     if(pageAccueil && pageAccueil.messageBienvenue) {
-      let texte = traduire(pageAccueil, 'messageBienvenue', this.props.language);
+      let texte = traduire(pageAccueil, 'messageBienvenue', this.props.language, configurationMilleGrille);
       messageBienvenue = (<p>{texte}</p>);
 
       if(pageAccueil.thumbnail) {
@@ -109,11 +109,11 @@ export class AccueilVitrine extends SectionVitrine {
         );
       }
       if(carte.titre) {
-        titre = (<Card.Title>{traduire(carte, 'titre', this.props.language)}</Card.Title>);
+        titre = (<Card.Title>{traduire(carte, 'titre', this.props.language, this.props.millegrille)}</Card.Title>);
       }
       if(carte.texte) {
         // Traduire texte et generer paragraphes
-        var texteColonne = traduire(carte, 'texte', this.props.language);
+        var texteColonne = traduire(carte, 'texte', this.props.language, this.props.millegrille);
         texteColonne = texteColonne.split('\n\n').map(p=>{
           return (<p>{p}</p>);
         });
@@ -121,7 +121,7 @@ export class AccueilVitrine extends SectionVitrine {
         texte = (<Card.Text>{texteColonne}</Card.Text>);
       }
       if(carte.bouton) {
-        bouton = (<Button variant="primary">{traduire(carte.bouton, 'texte', this.props.language)}</Button>);
+        bouton = (<Button variant="primary">{traduire(carte.bouton, 'texte', this.props.language, this.props.millegrille)}</Button>);
       }
       if(carte.liens) {
         let listeLiens = [];
@@ -133,7 +133,7 @@ export class AccueilVitrine extends SectionVitrine {
           }
           listeLiens.push(
             <li key={idx}>
-              {traduire(lien, 'texte', this.props.language)} {href}
+              {traduire(lien, 'texte', this.props.language, this.props.millegrille)} {href}
             </li>
           )
         }
