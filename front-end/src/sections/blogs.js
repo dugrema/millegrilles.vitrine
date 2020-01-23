@@ -42,43 +42,47 @@ export class BlogsVitrine extends SectionVitrine {
   _renderBlogs() {
     var blogpostsElements;
 
-    if(this.state.contenu && this.state.contenu.blog) {
-      const blogposts = this.state.contenu.blog;
+    if(this.state.contenu && this.state.contenu.blogposts) {
+      const blogposts = this.state.contenu.blogposts?Object.values(this.state.contenu.blogposts):null;
+      // console.debug("Blogposts")
+      // console.debug(blogposts);
       if(blogposts && blogposts.length > 0) {
-        blogpostsElements = [];
+        blogpostsElements = blogposts
+        .sort(blogpostSortParPublicationDesc)
+        .map((blogpost, idx) => {
+          let image = null, sujet = null, texte = null, dateElement = null;
 
-        for(let idx in blogposts) {
-          let blogpost = blogposts[idx];
-          let image, sujet, texte, dateElement;
           if(blogpost.titre) {
             sujet = (
               <h3 className="titre-blogpost">
-                {traduire(blogpost, 'titre', this.props.language)}
+                {traduire(blogpost, 'titre', this.props.language, this.props.milleGrille)}
               </h3>
             );
           }
           if(blogpost.texte) {
             texte = [];
-            let paragraphes = traduire(blogpost, 'texte', this.props.language);
-            for(let idxPara in paragraphes) {
+            const texteTraduit = traduire(blogpost, 'texte', this.props.language, this.props.milleGrille);
+            const paragraphes = texteTraduit.split('\n\n');
+            paragraphes.forEach( (p, idxPara) => {
               let paragraphe = paragraphes[idxPara];
               texte.push(<p key={idxPara}>{paragraphe}</p>)
-            }
+            });
           }
-          if(blogpost.modifie) {
-            dateElement = this.renderDateModifiee(blogpost.modifie);
+          if(blogpost.datePublication) {
+            dateElement = this.renderDateModifiee(blogpost.datePublication);
           }
-          if(blogpost.thumbnail) {
+          if(blogpost.image) {
             image = (
               <img
                 width={128}
                 className="align-self-start mr-3"
-                src={PREFIX_DATA_URL + blogpost.thumbnail}
-                alt={traduire(blogpost, 'titre', this.props.language)}
+                src={PREFIX_DATA_URL + blogpost.image.thumbnail}
+                alt={traduire(blogpost, 'titre', this.props.language, this.props.milleGrille)}
                 />
             )
           }
-          blogpostsElements.push(
+
+          return(
             <Row key={idx} className="blogpost">
               <Col lg={2}>
                 {image}
@@ -90,16 +94,29 @@ export class BlogsVitrine extends SectionVitrine {
               </Col>
             </Row>
           );
-        }
+
+        });
+
       } else {
+
         blogpostsElements = (
           <Row key={1} className="blogpost">
             <Col><Trans>blogs.aucun</Trans></Col>
           </Row>
         );
+
       }
     }
 
     return blogpostsElements;
   }
+}
+
+function blogpostSortParPublicationDesc(a, b) {
+  const aDate = a.datePublication, bDate = b.datePublication;
+
+  if(aDate === bDate) return 0;
+  if(!aDate) return 1;
+  if(!bDate) return -1;
+  return bDate - aDate;
 }
