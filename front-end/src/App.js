@@ -228,7 +228,9 @@ class ToggleMenu extends React.Component {
 
     var nomMilleGrille = (<Trans>application.nom</Trans>);
     if(this.props.millegrille && this.props.millegrille.nomMilleGrille) {
-      nomMilleGrille = traduire(this.props.millegrille, 'nomMilleGrille', this.props.language);
+      nomMilleGrille = traduire(
+        this.props.millegrille, 'nomMilleGrille', this.props.language,
+        this.props.millegrille);
     }
 
     let content = (
@@ -350,7 +352,7 @@ class Footer extends React.Component {
 function _setTitre(language, configuration) {
   const vitrineDescription = (<Translation>{t=>t('application.nom')}</Translation>);
   if(configuration) {
-    document.title = traduire(configuration, 'nomMilleGrille', language) || vitrineDescription;
+    document.title = traduire(configuration, 'nomMilleGrille', language, configuration) || vitrineDescription;
   } else {
     document.title = vitrineDescription;
   }
