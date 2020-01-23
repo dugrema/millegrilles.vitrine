@@ -8,21 +8,21 @@ const { maj_fichier_data } = require('./traitementFichiersData');
 const DOCUMENT_VITRINE_ACCUEIL = 'requete.millegrilles.domaines.Plume.chargerAccueil';
 const PUBLICATION_DOCUMENT_ACCUEIL = 'commande.publierAccueil';
 
-class SectionAccueil {
+const DOCUMENT_VITRINE_BLOGS = 'requete.millegrilles.domaines.Plume.chargerBlogpostsRecents';
+const PUBLICATION_DOCUMENT_BLOGS = 'commande.publierBlogpostsRecents';
+
+class SectionHandler {
 
   constructor() {
-    this.name = 'accueil';
-
     this.wssConnexion = null;
 
     this.dateChargement = null;
     this.timerChargement = null;
     this.pathData = null;
     this.webUrl = null;
-    this.commandePublierAlbums = null;
 
     this.routingKeys = {};
-    this.routingKeys[PUBLICATION_DOCUMENT_ACCUEIL] = true;
+    // this.routingKeys[PUBLICATION_DOCUMENT_BLOGS] = true;
 
     this.initialiser = this.initialiser.bind(this);
   }
@@ -34,8 +34,8 @@ class SectionAccueil {
     this.webUrl = opts.webUrl;
 
     let webUrlFormatte = this.webUrl.replace(/\./g, '_');
-    this.commandePublier = PUBLICATION_DOCUMENT_ACCUEIL;
-    this.routingKeys[this.commandePublierAlbums] = true;
+    // this.commandePublier = PUBLICATION_DOCUMENT_ACCUEIL;
+    this.routingKeys[this.getCommandePublier()] = true;
 
     // this._enregistrerEvenements(server);
     rabbitMQ.routingKeyManager.addRoutingKeyForNamespace(this, Object.keys(this.routingKeys));
@@ -47,28 +47,14 @@ class SectionAccueil {
     } else {
       // On va attendre avant de charger les documents. Le system est probablement
       // en initialisation/reboot.
-      console.warn("Albums: Attente avant du chargement des documents (60s)");
+      console.warn(this.name + ": Attente avant du chargement des documents (60s)");
       this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, 60000);
-    }
-  }
-
-  emit(cle, message) {
-    // Emet un message MQ
-    console.debug("Section " + this.name + " Recu message " + cle);
-
-    // Faire l'entretien du document local
-    if(message.routingKey === this.commandePublier) {
-      this.wssConnexion.emit('contenu', message);
-      maj_fichier_data(
-        path.join(this.pathData, 'accueil.json'),
-        JSON.stringify(message.message)
-      );
     }
   }
 
   requeteDocuments() {
     // Effectuer les requetes et conserver localement les resultats
-    var routingRequeteInitiale = DOCUMENT_VITRINE_ACCUEIL;
+    var routingRequeteInitiale = this.getRoutingRequeteInitiale();
     if(!this.timerChargement) {
       this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, 30000);  // Ressayer dans 30 secondes
     }
@@ -83,10 +69,10 @@ class SectionAccueil {
       let messageContent = reponse.content.toString('utf-8');
       let jsonMessage = JSON.parse(messageContent);
       const resultats = jsonMessage.resultats;
-      console.debug("Reponse accueil.json, sauvegarde sous " + this.pathData);
+      console.debug("Reponse " + this.name + ".json, sauvegarde sous " + this.pathData);
 
       maj_fichier_data(
-        path.join(this.pathData, 'accueil.json'),
+        path.join(this.pathData, this.name + '.json'),
         JSON.stringify(resultats)
       );
 
@@ -97,6 +83,20 @@ class SectionAccueil {
       console.error(err);
     })
 
+  }
+
+  emit(cle, message) {
+    // Emet un message MQ
+    console.debug("Section " + this.name + " Recu message " + cle);
+
+    // Faire l'entretien du document local
+    if(message.routingKey === this.getCommandePublier()) {
+      this.wssConnexion.emit('contenu', message);
+      maj_fichier_data(
+        path.join(this.pathData, this.name + '.json'),
+        JSON.stringify(message.message)
+      );
+    }
   }
 
   rechargerDocuments() {
@@ -122,4 +122,38 @@ class SectionAccueil {
 
 }
 
-module.exports = {SectionAccueil}
+class SectionAccueil extends SectionHandler {
+
+  constructor() {
+    super();
+    this.name = 'accueil';
+  }
+
+  getCommandePublier() {
+    return PUBLICATION_DOCUMENT_ACCUEIL;
+  }
+
+  getRoutingRequeteInitiale() {
+    return DOCUMENT_VITRINE_ACCUEIL;
+  }
+
+}
+
+class SectionBlogs extends SectionHandler {
+
+  constructor() {
+    super();
+    this.name = 'blogs';
+  }
+
+  getCommandePublier() {
+    return PUBLICATION_DOCUMENT_BLOGS;
+  }
+
+  getRoutingRequeteInitiale() {
+    return DOCUMENT_VITRINE_BLOGS;
+  }
+
+}
+
+module.exports = {SectionAccueil, SectionBlogs}

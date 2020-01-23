@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { SectionMessagesSockets } = require('./MessageSockets');
 const { maj_fichier_data, maj_collection } = require('./traitementFichiersData');
-const { SectionAccueil } = require('./Sections');
+const { SectionAccueil, SectionBlogs } = require('./Sections');
 
 // Constantes
 const FICHE_PUBLIQUE = 'document.millegrilles_domaines_Annuaire.fiche.publique';
@@ -56,6 +56,7 @@ class GestionnaireDomaines {
       messages: new SectionMessagesSockets(),
       albums: new AlbumsSection(),
       fichiers: new FichiersSection(),
+      blogs: new SectionBlogs(),
     }
 
     this.pathData = process.env.DATA_FOLDER;
