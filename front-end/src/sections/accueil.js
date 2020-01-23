@@ -88,7 +88,7 @@ export class AccueilVitrine extends SectionVitrine {
     const listeCartes = [];
     for(let idx in cartes) {
       const carte = cartes[idx];
-      var image, titre, texte, bouton, liens;
+      var image = null, titre = null, texte = null, bouton = null, liens = null;
 
       if(carte.image) {
         let imagesDef = [];
@@ -112,7 +112,13 @@ export class AccueilVitrine extends SectionVitrine {
         titre = (<Card.Title>{traduire(carte, 'titre', this.props.language)}</Card.Title>);
       }
       if(carte.texte) {
-        texte = (<Card.Text>{traduire(carte, 'texte', this.props.language)}</Card.Text>);
+        // Traduire texte et generer paragraphes
+        var texteColonne = traduire(carte, 'texte', this.props.language);
+        texteColonne = texteColonne.split('\n\n').map(p=>{
+          return (<p>{p}</p>);
+        });
+
+        texte = (<Card.Text>{texteColonne}</Card.Text>);
       }
       if(carte.bouton) {
         bouton = (<Button variant="primary">{traduire(carte.bouton, 'texte', this.props.language)}</Button>);
