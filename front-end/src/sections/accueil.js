@@ -90,17 +90,17 @@ export class AccueilVitrine extends SectionVitrine {
       const carte = cartes[idx];
       var image, titre, texte, bouton, liens;
 
-      if(carte.image || carte.thumbnail) {
+      if(carte.image) {
         let imagesDef = [];
-        if(carte.mimetype_preview && carte.fuuid_preview && this.props.configuration) {
-          var imagePath = pathConsignation(carte.fuuid_preview, {extension: 'jpg'}, this.props.configuration.consignation);
+        if(carte.image.mimetype_preview && carte.image.fuuid_preview && this.props.configuration) {
+          var imagePath = pathConsignation(carte.image.fuuid_preview, {extension: 'jpg'}, this.props.configuration.consignation);
           imagesDef.push(
-            <source key='highdef' type={carte.mimetype_preview} srcSet={imagePath} media=" (min-width: 600px)"/>
+            <source key='highdef' type={carte.image.mimetype_preview} srcSet={imagePath} media=" (min-width: 600px)"/>
           );
         }
-        if(carte.thumbnail) {
+        if(carte.image.thumbnail) {
           imagesDef.push(
-            <Card.Img key='thumbnail' variant="top" src={PREFIX_DATA_URL + carte.thumbnail}/>
+            <Card.Img key='thumbnail' variant="top" src={PREFIX_DATA_URL + carte.image.thumbnail}/>
           );
         }
 
