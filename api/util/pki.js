@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const x509 = require('x509');
+const forge = require('node-forge')
 const stringify = require('json-stable-stringify');
 const fs = require('fs');
 
@@ -36,22 +36,27 @@ class PKIUtils {
     this.getFingerprint();
   }
 
-  chargerCertificat() {
-    let parsedCert = x509.parseCert(this.certFile);
-    let fingerprint = parsedCert['fingerPrint'];
+  async chargerCertificat() {
+    await new Promise((resolve, reject) => {
+      fs.readFile(this.certFile, (err, data)=>{
+        if(err) {
+          return reject(err);
+        }
+        let parsedCert = this.chargerCertificatPEM(data);
 
-    this.cert = parsedCert;
+        this.fingerprint = getCertificateFingerprint(parsedCert);
+        this.cert = parsedCert;
+        this.commonName = parsedCert.subject.getField('CN').value;
+      })
+    })
+    .catch(err=>{
+      throw new Error(err);
+    })
+  }
 
-    // Pour correspondre au format Python, enlever les colons (:) et
-    // mettre en lowercase.
-    fingerprint = fingerprint.replace(/:/g, '').toLowerCase();
-    console.log("Certificat fingerprint: " + fingerprint);
-
-    //console.log(parsedCert);
-    this.commonName = parsedCert.subject.commonName;
-    console.log("Certificat du noeud, sujet CN: " + this.commonName)
-
-    this.fingerprint = fingerprint;
+  chargerCertificatPEM(pem) {
+    let parsedCert = forge.pki.certificateFromPem(pem);
+    return parsedCert;
   }
 
   getFingerprint() {
@@ -122,6 +127,14 @@ class PKIUtils {
   }
 
 };
+
+function getCertificateFingerprint(cert) {
+  const fingerprint = forge.md.sha1.create()
+    .update(forge.asn1.toDer(forge.pki.certificateToAsn1(cert)).getBytes())
+    .digest()
+    .toHex();
+  return fingerprint;
+}
 
 const pki = new PKIUtils();
 module.exports = pki;
