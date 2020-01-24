@@ -114,9 +114,11 @@ export class AccueilVitrine extends SectionVitrine {
       if(carte.texte) {
         // Traduire texte et generer paragraphes
         var texteColonne = traduire(carte, 'texte', this.props.language, this.props.millegrille);
-        texteColonne = texteColonne.split('\n\n').map(p=>{
-          return (<p>{p}</p>);
-        });
+
+        // Card.Text est deja un <p>, on ne peut pas en imbriquer davantage
+        // texteColonne = texteColonne.split('\n\n').map((parag, idx)=>{
+        //   return (<p key={idx}>{parag}</p>);
+        // });
 
         texte = (<Card.Text>{texteColonne}</Card.Text>);
       }

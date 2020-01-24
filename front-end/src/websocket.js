@@ -16,7 +16,7 @@ export class VitrineWebSocketHandler {
 
   connecter() {
     let urlConnexion = '/' + this.domaine;
-    console.debug("Ouverture WSS vers " + urlConnexion);
+    // console.debug("Ouverture WSS vers " + urlConnexion);
     this.socket = openSocket(urlConnexion, {path: '/vitrine_wss'});
     this._enregistrerEvenements();
   }
@@ -30,7 +30,7 @@ export class VitrineWebSocketHandler {
   }
 
   deconnexion() {
-    console.error("WSS Vitrine Deconnecte");
+    // console.error("WSS Vitrine Deconnecte");
   }
 
   _enregistrerEvenements() {
