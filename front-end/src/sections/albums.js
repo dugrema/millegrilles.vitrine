@@ -40,16 +40,20 @@ export class AlbumsVitrine extends SectionVitrine {
     if(this.state.collectionCourante) {
       page = (
         <RenderCollection
+          millegrille={this.props.millegrille}
           configuration={this.props.configuration}
           language={this.props.language}
           uuid={this.state.collectionCourante}
-          retourPageAlbums={this.retourPageAlbums}/>);
+          retourPageAlbums={this.retourPageAlbums}
+          language={this.props.language}/>);
     } else {
       page = (
         <RenderPageAlbums
+          millegrille={this.props.millegrille}
           configuration={this.props.configuration}
           contenu={this.state.contenu}
-          selectionner={this.selectionnerCollection}/>);
+          selectionner={this.selectionnerCollection}
+          language={this.props.language}/>);
     }
 
     return page;
@@ -78,15 +82,20 @@ function RenderPageAlbums(props) {
     }
   }
 
+  // console.debug("Props RenderPageAlbums")
+  // console.debug(props);
+
   return (
     <div>
       <RenderCarousel
         configuration={props.configuration}
-        images={imagesRecentes}/>
+        images={imagesRecentes}
+        {...props} />
       <GenererListeCartes
         configuration={props.configuration}
         images={collections}
-        selectionner={props.selectionner} />
+        selectionner={props.selectionner}
+        {...props} />
     </div>
   );
 }
@@ -99,7 +108,7 @@ function RenderCarousel(props) {
     const listeImages = props.images;
     for(let idx in listeImages) {
       let element = listeImages[idx];
-      let descriptif = element.nom;
+      let descriptif = traduire(element, 'nom', props.language, props.millegrille);
 
       var legende;
       if(descriptif) {
@@ -144,13 +153,23 @@ function GenererListeCartes(props) {
   if(props.images) {
     for(let uuid_source_figee in props.images) {
       let element = props.images[uuid_source_figee];
-      let descriptif = element.descriptif || element.legende || element.commentaires || element.nom;
+      // let descriptif = element.descriptif || element.legende || element.commentaires || element.nom;
+      let nom = traduire(element, 'nom', props.language, props.millegrille);
+      let descriptif = traduire(element, 'commentaires', props.language, props.millegrille);
 
       var legende;
-      if(descriptif) {
+      if(nom || descriptif) {
+        let nomElem, descriptifElem;
+        if(nom) {
+          nomElem = <Card.Title>{nom}</Card.Title>;
+        }
+        if(descriptif) {
+          descriptifElem = <Card.Text>{descriptif}</Card.Text>;
+        }
         legende = (
           <Card.Body>
-            <Card.Text>{descriptif}</Card.Text>
+            {nomElem}
+            {descriptifElem}
           </Card.Body>
         );
       }
@@ -205,9 +224,9 @@ class RenderCollection extends CollectionVitrine {
   render() {
     var nomCollection, images, description;
     if(this.state.contenu) {
-      nomCollection = traduire(this.state.contenu, 'nom', this.props.language);
+      nomCollection = traduire(this.state.contenu, 'nom', this.props.language, this.props.millegrille);
       images = this._preparerImages();
-      description = this.state.contenu.descriptif || this.state.contenu.commentaires;
+      description = traduire(this.state.contenu, 'commentaires', this.props.language, this.props.millegrille);
     }
 
     return (
@@ -229,7 +248,8 @@ class RenderCollection extends CollectionVitrine {
             <GenererListeCartes
               configuration={this.props.configuration}
               images={images}
-              selectionner={this._afficherImage}/>
+              selectionner={this._afficherImage}
+              {...this.props} />
           </Col>
         </Row>
       </Container>
