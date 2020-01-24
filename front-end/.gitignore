@@ -12,6 +12,8 @@
 
 # production
 /build
+/api/public/consignation
+/api/public/data
 
 # misc
 .DS_Store
