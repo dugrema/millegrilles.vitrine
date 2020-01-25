@@ -17,4 +17,9 @@ RUN chmod 755 $APP_BUNDLE_DIR/run.sh
 
 COPY html/* react_build/build/ $APP_HTML_DEST/
 
+# Ajouter user nginx existant et au groupe millegrilles (980), utilise pour acceder aux fichiers
+# USER 101, groupe 980
+RUN addgroup --gid 980 millegrilles && \
+    adduser nginx millegrilles
+
 WORKDIR $APP_BUNDLE_DIR
