@@ -86,7 +86,7 @@ class _app extends React.Component {
     // Ajouter fonctionnalite pour changer de langage
     const i18n = this.props.i18n;
     const changeLanguage = lng => {
-      console.debug("Changer langage vers " + lng);
+      // console.debug("Changer language vers " + lng);
       i18n.changeLanguage(lng);
     };
     const language = i18n.language;

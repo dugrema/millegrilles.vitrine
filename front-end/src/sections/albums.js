@@ -61,7 +61,7 @@ export class AlbumsVitrine extends SectionVitrine {
 
   selectionnerCollection = event => {
     let uuid = event.currentTarget.dataset.uuid_source_figee || event.currentTarget.dataset.uuid;
-    console.debug("Selectionner collection " + uuid);
+    // console.debug("Selectionner collection " + uuid);
     this.setState({collectionCourante: uuid});
   }
 
@@ -192,9 +192,9 @@ function GenererListeCartes(props) {
       listeRendered.push(
         <Card key={element.uuid} onClick={props.selectionner}
           data-uuid={element.uuid}
-          data-fuuid={element.fuuid}
+          data-fuuid={element.fuuidVideo480p || element.fuuid}
           data-uuid_source_figee={uuid_source_figee}
-          data-extension={element.extension}>
+          data-extension={element.fuuidVideo480p?'mp4':element.extension}>
           <picture>
             {listeImages}
           </picture>
