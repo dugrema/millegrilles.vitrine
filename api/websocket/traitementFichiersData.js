@@ -20,8 +20,8 @@ function maj_fichier_data(pathFichier, contenu) {
 
 // Met a jour un fichier dans le repertoire data de la MilleGrille
 function maj_collection(pathRepertoire, uuidCollection, contenu) {
-  console.debug("Maj collection data sous " + pathRepertoire);
   var pathFichier = path.join(pathRepertoire, uuidCollection + '.json');
+  // console.debug("Maj collection data sous " + pathFichier);
 
   fs.mkdir(pathRepertoire, { recursive: true }, (err)=>{
     if(err) {

@@ -51,7 +51,7 @@ class GestionnaireDomaines {
   constructor() {
     this.domaines = {
       vitrineGlobal: new VitrineGlobal(),
-      senseursPassifs: new SenseursPassifsDomaine(),
+      // senseursPassifs: new SenseursPassifsDomaine(),
       accueil: new SectionAccueil(),
       messages: new SectionMessagesSockets(),
       albums: new AlbumsSection(),
@@ -183,7 +183,7 @@ class VitrineGlobal {
 
     })
     .catch(err=>{
-      console.info("Erreur chargement, on va ressayer plus tard");
+      console.info("VitrineGlobal.requeteDocuments fichePublique: Erreur chargement, on va ressayer plus tard");
     })
 
     // Requete noeud public
@@ -208,7 +208,7 @@ class VitrineGlobal {
 
     })
     .catch(err=>{
-      console.info("Erreur chargement, on va ressayer plus tard");
+      console.info("VitrineGlobal.requeteDocuments noeudPublic: Erreur chargement, on va ressayer plus tard");
     })
 
 
@@ -216,7 +216,7 @@ class VitrineGlobal {
 
 
   rechargerDocuments() {
-    console.info("Tentative de rechargement des documents");
+    console.info("VitrineGlobal.requeteDocuments noeudPublic: Tentative de rechargement des documents");
     if(this.timerChargement) {
       clearTimeout(this.timerChargement);
       this.timerChargement = null;
@@ -341,7 +341,7 @@ class FichiersSection {
         var requete = {uuid: uuid_collection};
         rabbitMQ.transmettreRequete(routingRequeteCollection, requete)
         .then(reponse=>{
-          console.debug("Reponse fichier collection figee");
+          console.debug("Reponse fichier collection figee " + uuid_collection);
           let messageContent = reponse.content.toString('utf-8');
           let jsonMessage = JSON.parse(messageContent);
           // console.debug(jsonMessage.resultats);
@@ -355,13 +355,13 @@ class FichiersSection {
       }
     })
     .catch(err=>{
-      console.info("Erreur chargement, on va ressayer plus tard");
+      console.info("FichiersSection.requetesDocuments: Erreur chargement, on va ressayer plus tard");
     })
 
   }
 
   rechargerDocuments() {
-    console.info("Tentative de rechargement des documents");
+    console.info("FichiersSection.requetesDocuments: Tentative de rechargement des documents");
     if(this.timerChargement) {
       clearTimeout(this.timerChargement);
       this.timerChargement = null;
@@ -486,7 +486,7 @@ class AlbumsSection {
         var requete = {uuid: uuid_collection};
         rabbitMQ.transmettreRequete(routingRequeteCollection, requete)
         .then(reponse=>{
-          console.debug("Reponse fichier collection figee");
+          console.debug("Reponse fichier collection figee " + uuid_collection);
           let messageContent = reponse.content.toString('utf-8');
           let jsonMessage = JSON.parse(messageContent);
           // console.debug(jsonMessage.resultats);
@@ -500,13 +500,13 @@ class AlbumsSection {
       }
     })
     .catch(err=>{
-      console.info("Erreur chargement, on va ressayer plus tard");
+      console.info("AlbumsSection.requetesDocuments: Erreur chargement, on va ressayer plus tard");
     })
 
   }
 
   rechargerDocuments() {
-    console.info("Tentative de rechargement des documents");
+    console.info("AlbumsSection.requetesDocuments: Tentative de rechargement des documents");
     if(this.timerChargement) {
       clearTimeout(this.timerChargement);
       this.timerChargement = null;
@@ -598,12 +598,12 @@ class SenseursPassifsDomaine {
       }
     })
     .catch(err=>{
-      console.info("Erreur chargement, on va ressayer plus tard");
+      console.info("SenseursPassifsDomaine.requeteDocuments: Erreur chargement, on va ressayer plus tard");
     })
   }
 
   rechargerDocuments() {
-    console.info("Tentative de rechargement des documents");
+    console.info("SenseursPassifsDomaine.requeteDocuments: Tentative de rechargement des documents");
     if(this.timerChargement) {
       clearTimeout(this.timerChargement);
       this.timerChargement = null;

@@ -13,4 +13,4 @@ RUN npm install
 # Bundle app source
 # Api est l'application node back-end et front-end est l'application react
 COPY api/ ./
-COPY react_build/build/ ./public/vitrine/
+COPY react_build/build/ ./public/

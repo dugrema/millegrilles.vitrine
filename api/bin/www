@@ -9,7 +9,8 @@ const debug = require('debug')('api:server');
 // var http = require('http');
 const FS = require("fs");
 const Path = require('path');
-const Spdy = require('spdy');
+// const Spdy = require('spdy');
+const https = require('https');
 const io = require('socket.io');
 const rabbitMQ = require('../util/rabbitMQ')
 const {WebSocketVitrineApp} = require('../websocket/reactwss')
@@ -41,7 +42,7 @@ const config = {
 const wss_server = io({path: '/vitrine_wss'});
 const vitrineWss = new WebSocketVitrineApp(wss_server);
 
-const server = Spdy.createServer(config, app).listen(port, () => {
+const server = https.createServer(config, app).listen(port, () => {
   wss_server.listen(server);
   console.log('Server is listening at https://localhost:' + port + '. Ctrl^C to stop it.');
 

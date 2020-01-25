@@ -85,7 +85,7 @@ class SectionMessagesSockets {
 
     })
     .catch(err=>{
-      console.info("Erreur chargement, on va ressayer plus tard");
+      console.info("SectionMessagesSockets.requeteDocuments: Erreur chargement, on va ressayer plus tard");
     })
   }
 

@@ -76,10 +76,9 @@ class SectionHandler {
         JSON.stringify(resultats)
       );
 
-      return Object.keys(collections);
     })
     .catch(err=>{
-      console.info("Erreur chargement, on va ressayer plus tard");
+      console.info("Sections.requeteDocuments(): Erreur chargement, on va ressayer plus tard");
       console.error(err);
     })
 
