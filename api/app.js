@@ -20,10 +20,15 @@ app.use(express.urlencoded({ extended: false }));
 // app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
 app.get('/announce', (req, res) => trackerServer.onHttpRequest(req, res, { action: 'announce', trustProxy: true }))
 app.get('/scrape', (req, res) => trackerServer.onHttpRequest(req, res, { action: 'scrape', trustProxy: true }))
 app.get('/stats', (req, res) => trackerServer.onHttpRequest(req, res))
+app.use('/', indexRouter);
+
+// Capturer differentes versions pour index.html - rediriger vers React
+app.get('*', (req,res) =>{
+    res.sendFile(path.join(__dirname, 'public/index.html'));
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
