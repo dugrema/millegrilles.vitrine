@@ -5,3 +5,7 @@
 .date {
   font-size: small;
 }
+
+.expire {
+  color: IndianRed;
+}

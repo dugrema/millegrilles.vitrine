@@ -58,10 +58,11 @@
       "temperatureAbbrev": "Tempér.",
       "humidite": "Humidité",
       "pression": "Pression",
-      "dateLectureFormat": "{{date, YYYY/MM/DD H:m:s}}",
+      "dateLectureFormat": "{{date, YYYY/MM/DD HH:mm:ss}}",
       "temperatureFormat": "{{temperature, 1}}°C",
       "humiditeFormat": "{{humidite, 0}}%",
-      "pressionFormat": "{{pression, 1}} kPa"
+      "pressionFormat": "{{pression, 1}} kPa",
+      "aucun": "Aucun senseur n'est disponible"
     }
   }
 }

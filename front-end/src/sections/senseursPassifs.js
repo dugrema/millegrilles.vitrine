@@ -55,16 +55,9 @@ export class SenseursPassifsVitrine extends SectionVitrine {
 
     senseursTriesUuid.forEach(cleSenseur => {
       let senseur = noeud[cleSenseur];
-      // Veririer si lecture plus vieille que 2 minutes
-      /*let classRow = '';
-      if(this.props.expiresSurNoeud[noSenseur+'@'+noeud.noeud]) {
-        classRow += ' expiree';
-      }*/
-
-      // var lectureFormattee = formatterLecture(senseur);
-
       // console.debug(senseur);
       const locationSenseur = senseur.location || cleSenseur;
+      const batterieIcon = getBatterieIcon(senseur);
 
       listeSenseurs.push(
         <Row key={cleSenseur} className="senseur-header">
@@ -72,15 +65,9 @@ export class SenseursPassifsVitrine extends SectionVitrine {
             <span className="label d-block d-lg-none"><Trans>senseursPassifs.location</Trans><br/></span>
             {locationSenseur}
           </Col>
-          <Col lg={1}>
+          <Col lg={4}>
             <span className="label d-block d-lg-none"><Trans>senseursPassifs.batterie</Trans><br/></span>
-            {senseur.batterieIcon}
-          </Col>
-          <Col lg={3}>
-            <span className="label d-block d-lg-none"><Trans>senseursPassifs.dateLecture</Trans><br/></span>
-            <span className="date">
-              <Trans values={{date: new Date(senseur.timestamp*1000)}}>senseursPassifs.dateLectureFormat</Trans>
-            </span>
+            {batterieIcon}
           </Col>
         </Row>
       );
@@ -105,6 +92,13 @@ export class SenseursPassifsVitrine extends SectionVitrine {
           var appareil = senseur.affichage[cleAppareil];
           // var lectureFormatteeAppareil = formatterLecture(appareil);
           const location = appareil.location || cleAppareil;
+
+          // Veririer si lecture plus vieille que 2 minutes
+          var cssExpire = null;
+          if(appareil.timestamp * 1000 < (new Date().getTime()) - 2000) {
+            cssExpire = ' expire';
+          }
+
           listeSenseurs.push(
             <Row key={cleSenseur+cleAppareil}>
               <Col lg={4}>
@@ -123,7 +117,7 @@ export class SenseursPassifsVitrine extends SectionVitrine {
                 <span className="label d-block d-lg-none"><Trans>senseursPassifs.pression</Trans><br/></span>
                 <Trans values={{pression: appareil.pression}}>senseursPassifs.pressionFormat</Trans>
               </Col>
-              <Col lg={4} className="date">
+              <Col lg={4} className={"date " + cssExpire}>
                 <span className="label d-block d-lg-none"><Trans>senseursPassifs.dateLecture</Trans><br/></span>
                 <Trans values={{date: new Date(appareil.timestamp*1000)}}>senseursPassifs.dateLectureFormat</Trans>
               </Col>
@@ -157,8 +151,6 @@ export class SenseursPassifsVitrine extends SectionVitrine {
 
     if(this.state.contenu && this.state.contenu.noeuds) {
       const noeuds = this.state.contenu.noeuds;
-      console.debug("Noeuds")
-      console.debug(noeuds);
       if(noeuds) {
         var nomsNoeudsTries = Object.keys(noeuds);
 
@@ -169,7 +161,6 @@ export class SenseursPassifsVitrine extends SectionVitrine {
         })
 
         nomsNoeudsTries.forEach(n => {
-          console.debug("Preparation noeud " + n);
           let noeud = noeuds[n];
           noeudsElements.push(this._renderSenseursNoeud(n, noeud))
         });
@@ -191,30 +182,30 @@ export class SenseursPassifsVitrine extends SectionVitrine {
 
 }
 
-// function getBatterieIcon(documentSenseur) {
-//   if(!documentSenseur) return null;
-//
-//   var batterieIcon = null;
-//   if(documentSenseur.bat_reserve > 100) {
-//     batterieIcon = (<i className="fa fa-bug"/>);
-//   } else if(documentSenseur.bat_reserve === 100) {
-//     batterieIcon = (<i className="fa fa-bolt"/>);
-//   } else if(documentSenseur.bat_reserve < 100 && documentSenseur.bat_reserve > 80) {
-//     batterieIcon = (<i className="fa fa-battery-full"/>);
-//   } else if(documentSenseur.bat_reserve > 66) {
-//     batterieIcon = (<i className="fa fa-battery-three-quarters"/>);
-//   } else if(documentSenseur.bat_reserve > 33) {
-//     batterieIcon = (<i className="fa fa-battery-half"/>);
-//   } else if(documentSenseur.bat_reserve > 5) {
-//     batterieIcon = (<i className="fa fa-battery-quarter"/>);
-//   } else if(documentSenseur.bat_reserve > 0) {
-//     batterieIcon = (<i className="fa fa-battery-empty"/>);
-//   } else {
-//     batterieIcon = (<i className="fa fa-bug"/>);
-//   }
-//
-//   return batterieIcon;
-// }
+function getBatterieIcon(documentSenseur) {
+  if(!documentSenseur) return null;
+
+  var batterieIcon = null;
+  if(documentSenseur.bat_reserve > 100) {
+    batterieIcon = (<i className="fa fa-bug"/>);
+  } else if(documentSenseur.bat_reserve === 100) {
+    batterieIcon = (<i className="fa fa-bolt"/>);
+  } else if(documentSenseur.bat_reserve < 100 && documentSenseur.bat_reserve > 80) {
+    batterieIcon = (<i className="fa fa-battery-full"/>);
+  } else if(documentSenseur.bat_reserve > 66) {
+    batterieIcon = (<i className="fa fa-battery-three-quarters"/>);
+  } else if(documentSenseur.bat_reserve > 33) {
+    batterieIcon = (<i className="fa fa-battery-half"/>);
+  } else if(documentSenseur.bat_reserve > 5) {
+    batterieIcon = (<i className="fa fa-battery-quarter"/>);
+  } else if(documentSenseur.bat_reserve > 0) {
+    batterieIcon = (<i className="fa fa-battery-empty"/>);
+  } else {
+    batterieIcon = (<i className="fa fa-bug"/>);
+  }
+
+  return batterieIcon;
+}
 
 // function formatterLecture(documentSenseur) {
 //   let temperature = null, humidite = null, pression = null, timestamp = null;
