@@ -76,8 +76,7 @@ export class SectionVitrine extends React.Component {
       contenu: contenuExtrait,
       lastModified: lastModified,
     }
-    this.setState({contenu: contenuExtrait});
-    this.hookContenuMaj();
+    this.setState({contenu: contenuExtrait}, ()=>this.hookContenuMaj());
     localStorage.setItem(libelle, JSON.stringify(contenu));
   }
 
