@@ -8,6 +8,7 @@
 # testing
 /coverage
 /public/consignation
+/public/data
 
 
 # production
