@@ -11,6 +11,9 @@ const PUBLICATION_DOCUMENT_ACCUEIL = 'commande.publierAccueil';
 const DOCUMENT_VITRINE_BLOGS = 'requete.millegrilles.domaines.Plume.chargerBlogpostsRecents';
 const PUBLICATION_DOCUMENT_BLOGS = 'commande.publierBlogpostsRecents';
 
+const DOCUMENT_VITRINE_SENSEURSPASSIFS = 'requete.millegrilles.domaines.SenseursPassifs.dashboard';
+const PUBLICATION_DOCUMENT_SENSEURSPASSIFS = 'noeuds.source.millegrilles_domaines_SenseursPassifs.documents.vitrine.dashboard';
+
 class SectionHandler {
 
   constructor() {
@@ -155,4 +158,21 @@ class SectionBlogs extends SectionHandler {
 
 }
 
-module.exports = {SectionAccueil, SectionBlogs}
+class SectionSenseursPassifs extends SectionHandler {
+
+  constructor() {
+    super();
+    this.name = 'senseurspassifs';
+  }
+
+  getCommandePublier() {
+    return PUBLICATION_DOCUMENT_SENSEURSPASSIFS;
+  }
+
+  getRoutingRequeteInitiale() {
+    return DOCUMENT_VITRINE_SENSEURSPASSIFS;
+  }
+
+}
+
+module.exports = {SectionAccueil, SectionBlogs, SectionSenseursPassifs}
