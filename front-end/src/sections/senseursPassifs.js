@@ -8,8 +8,15 @@ import './senseursPassifs.css';
 
 const NOM_SECTION = 'senseursPassifs';
 const SENSEURSPASSIFS_LIBELLE = 'page.' + NOM_SECTION, SENSEURSPASSIFS_URL = NOM_SECTION + '.json';
+const DELAI_EXPIRATION_LECTURES = 120 * 1000; // Expiration lectures en ms
 
 export class SenseursPassifsVitrine extends SectionVitrine {
+
+  constructor(props) {
+    super(props);
+
+    this.state.appareilExpire = {};  // Ajoute le dict pour expiration appareils
+  }
 
   getNomSection() {
     return NOM_SECTION;
@@ -21,6 +28,22 @@ export class SenseursPassifsVitrine extends SectionVitrine {
 
   getDocumentUrl() {
     return SENSEURSPASSIFS_URL;
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    // Verifier l'expiration des dates d'appareils a toutes les 5 secondes
+    this.timerExpiration = setInterval(this.verifierExpiration, 5000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerExpiration);
+    super.componentWillUnmount()
+  }
+
+  // S'assurer de mettre a jour les timeouts immediatement
+  hookContenuMaj() {
+    this.setState({expire: {}})  // Reset liste de senseurs expires
   }
 
   render() {
@@ -61,7 +84,7 @@ export class SenseursPassifsVitrine extends SectionVitrine {
 
       listeSenseurs.push(
         <Row key={cleSenseur} className="senseur-header">
-          <Col lg={7}>
+          <Col lg={8}>
             <span className="label d-block d-lg-none"><Trans>senseursPassifs.location</Trans><br/></span>
             {locationSenseur}
           </Col>
@@ -95,7 +118,8 @@ export class SenseursPassifsVitrine extends SectionVitrine {
 
           // Veririer si lecture plus vieille que 2 minutes
           var cssExpire = null;
-          if(appareil.timestamp * 1000 < (new Date().getTime()) - 2000) {
+          if(this.state.expire && this.state.expire[cleSenseur + '.' + cleAppareil] ||
+             appareil.timestamp * 1000 < (new Date().getTime()) - DELAI_EXPIRATION_LECTURES) {
             cssExpire = ' expire';
           }
 
@@ -179,6 +203,28 @@ export class SenseursPassifsVitrine extends SectionVitrine {
     return noeudsElements;
   }
 
+  verifierExpiration = () => {
+    // console.debug("Verifier expirations");
+    const expire = {...this.state.expire};
+    if(this.state.contenu && this.state.contenu.noeuds) {
+      Object.values(this.state.contenu.noeuds).forEach(noeud=>{
+        // Le noeud est un dict d'appareils
+        for(let uuid in noeud) {
+          let appareil = noeud[uuid];
+          // On prend juste les senseurs dans affichage
+          for(let idAppareil in appareil.affichage) {
+            let senseur = appareil.affichage[idAppareil];
+            if(senseur.timestamp * 1000 < (new Date().getTime()) - DELAI_EXPIRATION_LECTURES) {
+              // console.debug("Expire: " + uuid)
+              expire[uuid + '.' + idAppareil] = true;
+            }
+          }
+        }
+      })
+    }
+
+    this.setState({expire})
+  }
 
 }
 
@@ -206,29 +252,3 @@ function getBatterieIcon(documentSenseur) {
 
   return batterieIcon;
 }
-
-// function formatterLecture(documentSenseur) {
-//   let temperature = null, humidite = null, pression = null, timestamp = null;
-//   if(documentSenseur.temperature) { temperature = (<span>{numberformatter.format_numberdecimals(documentSenseur.temperature, 1)}&deg;C</span>); }
-//   if(documentSenseur.humidite) { humidite = (<span>{documentSenseur.humidite}%</span>); }
-//   if(documentSenseur.pression) { pression = (<span>{documentSenseur.pression} kPa</span>); }
-//   if(documentSenseur.timestamp) {
-//     timestamp = dateformatter.format_monthhour(documentSenseur.timestamp);
-//   }
-//
-//   var bat_mv, bat_reserve;
-//   var batterieIcon = getBatterieIcon(documentSenseur);
-//   if(documentSenseur.bat_mv) {
-//     bat_mv = documentSenseur.bat_mv + ' mV';
-//   }
-//   if(documentSenseur.bat_reserve) {
-//     bat_reserve = documentSenseur.bat_reserve + '%';
-//   }
-//
-//   var nomSenseur = documentSenseur.location;
-//   if(!nomSenseur || nomSenseur === '') {
-//     nomSenseur = documentSenseur.uuid_senseur;
-//   }
-//
-//   return {nomSenseur, temperature, humidite, pression, timestamp, batterieIcon, bat_mv, bat_reserve};
-// }

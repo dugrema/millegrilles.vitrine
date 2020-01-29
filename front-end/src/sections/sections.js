@@ -9,6 +9,14 @@ export class SectionVitrine extends React.Component {
     contenu: null,
   }
 
+  // constructor(props) {
+  //   super(props);
+  //
+  //   this.state = {
+  //     contenu: null,
+  //   }
+  // }
+
   componentDidMount() {
     this._chargerPage(this.getDocumentLibelle(), this.getDocumentUrl());
     this.webSocketHandler = new VitrineWebSocketHandler(this.getNomSection());
@@ -69,7 +77,12 @@ export class SectionVitrine extends React.Component {
       lastModified: lastModified,
     }
     this.setState({contenu: contenuExtrait});
+    this.hookContenuMaj();
     localStorage.setItem(libelle, JSON.stringify(contenu));
+  }
+
+  hookContenuMaj() {
+    // Hook pour sous-classes
   }
 
   renderDateModifiee(dateModifieeEpoch) {
