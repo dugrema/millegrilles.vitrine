@@ -23,28 +23,6 @@ export class SenseursPassifsVitrine extends SectionVitrine {
     return SENSEURSPASSIFS_URL;
   }
 
-  componentDidMount() {
-    super.componentDidMount();
-    // this.webSocketHandler = new VitrineWebSocketHandler(nomDomaine, this.messageMq);
-    // this.webSocketHandler.connecter();
-    //
-    // // this.props.webSocketHandler.chargerDomaine(nomDomaine, reponse=>this.setDocuments(reponse));
-    //
-    // this.webSocketHandler.enregistrerCallback('mq_message', this.messageMq);
-    // this.webSocketHandler.enregistrerCallback('documents', this.documentsMq);
-    //
-    // this.intervalleCalculExpiration = setInterval(this.calculerExpirations, 15000);
-  }
-
-  componentWillUnmount() {
-    // this.webSocketHandler.deconnecter();
-    //
-    // // Nettoyage interval calcul expiration senseurs
-    // clearInterval(this.intervalleCalculExpiration);
-    // this.intervalleCalculExpiration = null;
-    // super.componentWillUnmount();
-  }
-
   render() {
     return (
       <Container>
@@ -59,12 +37,24 @@ export class SenseursPassifsVitrine extends SectionVitrine {
     );
   }
 
-  _renderSenseursNoeud(noeud) {
+  _renderSenseursNoeud(nomNoeud, noeud) {
 
-    let listeSenseurs = [];
+    const listeSenseurs = [];
+    const senseursTriesUuid = Object.keys(noeud);
+    senseursTriesUuid.sort((a,b)=>{
+      if(a===b) return 0;
+      var locationA = noeud[a].location;
+      var locationB = noeud[b].location;
+      if(locationA && locationB){
+        return locationA.localeCompare(locationB);
+      }
+      if(locationA) return 1;
+      if(locationB) return -1;
+      return a.localeCompare(b);
+    });
 
-    for(var noSenseur in noeud.dict_senseurs) {
-      let senseur = noeud.dict_senseurs[noSenseur];
+    senseursTriesUuid.forEach(cleSenseur => {
+      let senseur = noeud[cleSenseur];
       // Veririer si lecture plus vieille que 2 minutes
       /*let classRow = '';
       if(this.props.expiresSurNoeud[noSenseur+'@'+noeud.noeud]) {
@@ -74,8 +64,6 @@ export class SenseursPassifsVitrine extends SectionVitrine {
       // var lectureFormattee = formatterLecture(senseur);
 
       // console.debug(senseur);
-      let cleSenseur = noSenseur + '@' + noeud.noeud;
-
       const locationSenseur = senseur.location || cleSenseur;
 
       listeSenseurs.push(
@@ -97,42 +85,59 @@ export class SenseursPassifsVitrine extends SectionVitrine {
         </Row>
       );
 
-      for(var cleAppareil in senseur.affichage) {
-        var appareil = senseur.affichage[cleAppareil];
-        // var lectureFormatteeAppareil = formatterLecture(appareil);
-        const location = appareil.location || cleAppareil;
-        listeSenseurs.push(
-          <Row key={cleSenseur+cleAppareil}>
-            <Col lg={4}>
-              <span className="label d-block d-lg-none"><Trans>senseursPassifs.location</Trans><br/></span>
-              {location}
-            </Col>
-            <Col lg={1} className="temperature">
-              <span className="label d-block d-lg-none"><Trans>senseursPassifs.temperature</Trans><br/></span>
-              <Trans values={{temperature: appareil.temperature}}>senseursPassifs.temperatureFormat</Trans>
-            </Col>
-            <Col lg={1} className="humidite">
-              <span className="label d-block d-lg-none"><Trans>senseursPassifs.humidite</Trans><br/></span>
-              <Trans values={{humidite: appareil.humidite}}>senseursPassifs.humiditeFormat</Trans>
-            </Col>
-            <Col lg={2} className="pression">
-              <span className="label d-block d-lg-none"><Trans>senseursPassifs.pression</Trans><br/></span>
-              <Trans values={{pression: appareil.pression}}>senseursPassifs.pressionFormat</Trans>
-            </Col>
-            <Col lg={4} className="date">
-              <span className="label d-block d-lg-none"><Trans>senseursPassifs.dateLecture</Trans><br/></span>
-              <Trans values={{date: new Date(appareil.timestamp*1000)}}>senseursPassifs.dateLectureFormat</Trans>
-            </Col>
-          </Row>
-        );
+      if(senseur.affichage) {
+
+        // Trier par ordre de location, uuid
+        var clesAppareilTriees = Object.keys(senseur.affichage);
+        clesAppareilTriees.sort((a,b)=>{
+          if(a===b) return 0;
+          var locationA = senseur.affichage[a].location;
+          var locationB = senseur.affichage[b].location;
+          if(locationA && locationB){
+            return locationA.localeCompare(locationB);
+          }
+          if(locationA) return 1;
+          if(locationB) return -1;
+          return a.localeCompare(b);
+        });
+
+        clesAppareilTriees.forEach(cleAppareil => {
+          var appareil = senseur.affichage[cleAppareil];
+          // var lectureFormatteeAppareil = formatterLecture(appareil);
+          const location = appareil.location || cleAppareil;
+          listeSenseurs.push(
+            <Row key={cleSenseur+cleAppareil}>
+              <Col lg={4}>
+                <span className="label d-block d-lg-none"><Trans>senseursPassifs.location</Trans><br/></span>
+                {location}
+              </Col>
+              <Col lg={1} className="temperature">
+                <span className="label d-block d-lg-none"><Trans>senseursPassifs.temperature</Trans><br/></span>
+                <Trans values={{temperature: appareil.temperature}}>senseursPassifs.temperatureFormat</Trans>
+              </Col>
+              <Col lg={1} className="humidite">
+                <span className="label d-block d-lg-none"><Trans>senseursPassifs.humidite</Trans><br/></span>
+                <Trans values={{humidite: appareil.humidite}}>senseursPassifs.humiditeFormat</Trans>
+              </Col>
+              <Col lg={2} className="pression">
+                <span className="label d-block d-lg-none"><Trans>senseursPassifs.pression</Trans><br/></span>
+                <Trans values={{pression: appareil.pression}}>senseursPassifs.pressionFormat</Trans>
+              </Col>
+              <Col lg={4} className="date">
+                <span className="label d-block d-lg-none"><Trans>senseursPassifs.dateLecture</Trans><br/></span>
+                <Trans values={{date: new Date(appareil.timestamp*1000)}}>senseursPassifs.dateLectureFormat</Trans>
+              </Col>
+            </Row>
+          );
+        });
       }
 
-    }
+    });
 
     return (
-      <Container key={noeud.noeud}>
+      <Container key={nomNoeud}>
         <Row className="noeud-header">
-          <h2>{noeud.noeud}</h2>
+          <h2>{nomNoeud}</h2>
         </Row>
         <Row className="noeud-table-header">
           <Col lg={4} className="d-none d-lg-block"><Trans>senseursPassifs.location</Trans></Col>
@@ -148,21 +153,31 @@ export class SenseursPassifsVitrine extends SectionVitrine {
   }
 
   _renderNoeuds() {
-    var noeudsElements;
+    var noeudsElements = [];
 
     if(this.state.contenu && this.state.contenu.noeuds) {
       const noeuds = this.state.contenu.noeuds;
-      if(noeuds && noeuds.length > 0) {
+      console.debug("Noeuds")
+      console.debug(noeuds);
+      if(noeuds) {
+        var nomsNoeudsTries = Object.keys(noeuds);
 
-        noeudsElements = [];
-        for(let idx in noeuds) {
-          let noeud = noeuds[idx];
-          noeudsElements.push(this._renderSenseursNoeud(noeud))
-        }
+        // Trier les noeuds
+        nomsNoeudsTries.sort((a, b)=>{
+          if(a===b) return 0;
+          return a.localeCompare(b);
+        })
+
+        nomsNoeudsTries.forEach(n => {
+          console.debug("Preparation noeud " + n);
+          let noeud = noeuds[n];
+          noeudsElements.push(this._renderSenseursNoeud(n, noeud))
+        });
+
       }
     }
 
-    if(!noeudsElements) {
+    if(noeudsElements.length === 0) {
       noeudsElements = (
         <Row key={1} className="message">
           <Col><Trans>senseursPassifs.aucun</Trans></Col>

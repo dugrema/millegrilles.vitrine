@@ -162,7 +162,7 @@ class SectionSenseursPassifs extends SectionHandler {
 
   constructor() {
     super();
-    this.name = 'senseurspassifs';
+    this.name = 'senseursPassifs';
   }
 
   getCommandePublier() {
