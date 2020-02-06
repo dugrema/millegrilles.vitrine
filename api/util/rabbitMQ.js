@@ -68,6 +68,12 @@ class RabbitMQWrapper {
           this.scheduleReconnect();
         });
 
+        conn.on('error', (reason)=>{
+          console.error("Fermeture connexion RabbitMQ sur erreur");
+          console.info(reason);
+          this.scheduleReconnect();
+        });
+
         return conn.createChannel();
       }).then( (ch) => {
         this.channel = ch;
