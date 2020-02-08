@@ -62,6 +62,10 @@ export class SenseursPassifsVitrine extends SectionVitrine {
 
   _renderSenseursNoeud(nomNoeud, noeud) {
 
+    if(noeud && Object.keys(noeud).length === 0) {
+      return null;  // Rien a faire pour noeud vide
+    }
+
     const listeSenseurs = [];
     const senseursTriesUuid = Object.keys(noeud);
     senseursTriesUuid.sort((a,b)=>{
@@ -78,27 +82,44 @@ export class SenseursPassifsVitrine extends SectionVitrine {
 
     senseursTriesUuid.forEach(cleSenseur => {
       let senseur = noeud[cleSenseur];
-      // console.debug(senseur);
+      console.debug(senseur);
       const locationSenseur = senseur.location || cleSenseur;
       const batterieIcon = getBatterieIcon(senseur);
-
-      listeSenseurs.push(
-        <Row key={cleSenseur} className="senseur-header">
-          <Col lg={8}>
-            <span className="label d-block d-lg-none"><Trans>senseursPassifs.location</Trans><br/></span>
-            {locationSenseur}
-          </Col>
-          <Col lg={4}>
-            <span className="label d-block d-lg-none"><Trans>senseursPassifs.batterie</Trans><br/></span>
-            {batterieIcon}
-          </Col>
-        </Row>
-      );
 
       if(senseur.affichage) {
 
         // Trier par ordre de location, uuid
         var clesAppareilTriees = Object.keys(senseur.affichage);
+
+        // Prendre un appareil au hasard pour trouver la date
+        var dateSenseur = null;
+        var cssExpire = null;
+        if(clesAppareilTriees && clesAppareilTriees[0]) {
+          var cleAppareil = clesAppareilTriees[0];
+          console.debug("Cle appareil : " + cleAppareil);
+          var appareil = senseur.affichage[cleAppareil];
+          dateSenseur = <Trans values={{date: new Date(appareil.timestamp*1000)}}>senseursPassifs.dateLectureFormat</Trans>;
+          // Veririer si lecture plus vieille que 2 minutes
+          if( (this.state.expire && this.state.expire[cleSenseur + '.' + cleAppareil]) ||
+             appareil.timestamp * 1000 < (new Date().getTime()) - DELAI_EXPIRATION_LECTURES) {
+            cssExpire = ' expire';
+          }
+        }
+
+        listeSenseurs.push(
+          <Row key={cleSenseur} className="senseur-header">
+            <Col xs={8} lg={7}>
+              {locationSenseur}
+            </Col>
+            <Col xs={1} lg={2}>
+              {batterieIcon}
+            </Col>
+            <Col xs={3} lg={3} className={cssExpire}>
+              {dateSenseur}
+            </Col>
+          </Row>
+        );
+
         clesAppareilTriees.sort((a,b)=>{
           if(a===b) return 0;
           var locationA = senseur.affichage[a].location;
@@ -116,34 +137,19 @@ export class SenseursPassifsVitrine extends SectionVitrine {
           // var lectureFormatteeAppareil = formatterLecture(appareil);
           const location = appareil.location || cleAppareil;
 
-          // Veririer si lecture plus vieille que 2 minutes
-          var cssExpire = null;
-          if(this.state.expire && this.state.expire[cleSenseur + '.' + cleAppareil] ||
-             appareil.timestamp * 1000 < (new Date().getTime()) - DELAI_EXPIRATION_LECTURES) {
-            cssExpire = ' expire';
-          }
-
           listeSenseurs.push(
             <Row key={cleSenseur+cleAppareil}>
-              <Col lg={4}>
-                <span className="label d-block d-lg-none"><Trans>senseursPassifs.location</Trans><br/></span>
+              <Col xs={6} lg={5}>
                 {location}
               </Col>
-              <Col lg={1} className="temperature">
-                <span className="label d-block d-lg-none"><Trans>senseursPassifs.temperature</Trans><br/></span>
+              <Col xs={2} lg={2} className="temperature">
                 <Trans values={{temperature: appareil.temperature}}>senseursPassifs.temperatureFormat</Trans>
               </Col>
-              <Col lg={1} className="humidite">
-                <span className="label d-block d-lg-none"><Trans>senseursPassifs.humidite</Trans><br/></span>
+              <Col xs={2} lg={2} className="humidite">
                 <Trans values={{humidite: appareil.humidite}}>senseursPassifs.humiditeFormat</Trans>
               </Col>
-              <Col lg={2} className="pression">
-                <span className="label d-block d-lg-none"><Trans>senseursPassifs.pression</Trans><br/></span>
+              <Col xs={2} lg={3} className="pression">
                 <Trans values={{pression: appareil.pression}}>senseursPassifs.pressionFormat</Trans>
-              </Col>
-              <Col lg={4} className={"date " + cssExpire}>
-                <span className="label d-block d-lg-none"><Trans>senseursPassifs.dateLecture</Trans><br/></span>
-                <Trans values={{date: new Date(appareil.timestamp*1000)}}>senseursPassifs.dateLectureFormat</Trans>
               </Col>
             </Row>
           );
@@ -153,16 +159,15 @@ export class SenseursPassifsVitrine extends SectionVitrine {
     });
 
     return (
-      <Container key={nomNoeud}>
+      <Container key={nomNoeud} className="noeud-block">
         <Row className="noeud-header">
-          <h2>{nomNoeud}</h2>
+          <h3>{nomNoeud}</h3>
         </Row>
         <Row className="noeud-table-header">
-          <Col lg={4} className="d-none d-lg-block"><Trans>senseursPassifs.location</Trans></Col>
-          <Col lg={1} className="d-none d-lg-block"><Trans>senseursPassifs.temperatureAbbrev</Trans></Col>
-          <Col lg={1} className="d-none d-lg-block"><Trans>senseursPassifs.humidite</Trans></Col>
-          <Col lg={2} className="d-none d-lg-block"><Trans>senseursPassifs.pression</Trans></Col>
-          <Col lg={3} className="d-none d-lg-block"><Trans>senseursPassifs.dateLecture</Trans></Col>
+          <Col xs={5} lg={5} className="d-none d-lg-block"><Trans>senseursPassifs.location</Trans></Col>
+          <Col xs={2} lg={2} className="d-none d-lg-block"><Trans>senseursPassifs.temperatureAbbrev</Trans></Col>
+          <Col xs={2} lg={2} className="d-none d-lg-block"><Trans>senseursPassifs.humidite</Trans></Col>
+          <Col xs={3} lg={3} className="d-none d-lg-block"><Trans>senseursPassifs.pression</Trans></Col>
         </Row>
         {listeSenseurs}
       </Container>
