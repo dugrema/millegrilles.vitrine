@@ -82,7 +82,7 @@ export class SenseursPassifsVitrine extends SectionVitrine {
 
     senseursTriesUuid.forEach(cleSenseur => {
       let senseur = noeud[cleSenseur];
-      console.debug(senseur);
+      // console.debug(senseur);
       const locationSenseur = senseur.location || cleSenseur;
       const batterieIcon = getBatterieIcon(senseur);
 
@@ -96,7 +96,7 @@ export class SenseursPassifsVitrine extends SectionVitrine {
         var cssExpire = null;
         if(clesAppareilTriees && clesAppareilTriees[0]) {
           var cleAppareil = clesAppareilTriees[0];
-          console.debug("Cle appareil : " + cleAppareil);
+          // console.debug("Cle appareil : " + cleAppareil);
           var appareil = senseur.affichage[cleAppareil];
           dateSenseur = <Trans values={{date: new Date(appareil.timestamp*1000)}}>senseursPassifs.dateLectureFormat</Trans>;
           // Veririer si lecture plus vieille que 2 minutes
@@ -137,19 +137,30 @@ export class SenseursPassifsVitrine extends SectionVitrine {
           // var lectureFormatteeAppareil = formatterLecture(appareil);
           const location = appareil.location || cleAppareil;
 
+          var temperature = null, humidite = null, pression = null;
+          if(appareil.temperature) {
+            temperature = <Trans values={{temperature: appareil.temperature}}>senseursPassifs.temperatureFormat</Trans>;
+          }
+          if(appareil.humidite) {
+            humidite = <Trans values={{humidite: appareil.humidite}}>senseursPassifs.humiditeFormat</Trans>;
+          }
+          if(appareil.pression) {
+            pression = <Trans values={{pression: appareil.pression}}>senseursPassifs.pressionFormat</Trans>;
+          }
+
           listeSenseurs.push(
             <Row key={cleSenseur+cleAppareil}>
               <Col xs={6} lg={5}>
                 {location}
               </Col>
               <Col xs={2} lg={2} className="temperature">
-                <Trans values={{temperature: appareil.temperature}}>senseursPassifs.temperatureFormat</Trans>
+                {temperature}
               </Col>
-              <Col xs={2} lg={2} className="humidite">
-                <Trans values={{humidite: appareil.humidite}}>senseursPassifs.humiditeFormat</Trans>
+              <Col xs={1} lg={2} className="humidite">
+                {humidite}
               </Col>
-              <Col xs={2} lg={3} className="pression">
-                <Trans values={{pression: appareil.pression}}>senseursPassifs.pressionFormat</Trans>
+              <Col xs={3} lg={3} className="pression">
+                {pression}
               </Col>
             </Row>
           );
