@@ -10,15 +10,21 @@ REPLACE_VARS='${IDMG},${WEB_URL},${IDMGLOWER}'
 # On supporte plusieurs de fichiers de configuration (un par millegrille)
 # Faire le remplacement pour chaque template et copier vers /etc/nginx/conf.d
 
-# LISTE_MILLEGRILLES=( 'IDMG=33KRMhqcWCKvMHyY5xymMCUEbT53Kg1NqUb9AU6:WEB_URL=www.millegrilles.com:WEB_CERT=/run/secrets/33KRMhqcWCKvMHyY5xymMCUEbT53Kg1NqUb9AU6.fullchain.pem:WEB_KEY=/run/secrets/33KRMhqcWCKvMHyY5xymMCUEbT53Kg1NqUb9AU6.key.pem' )
+# IDMG_33KRMhqcWCKvMHyY5xymMCUEbT53Kg1NqUb9AU6="IDMG=33KRMhqcWCKvMHyY5xymMCUEbT53Kg1NqUb9AU6 WEB_URL=www.millegrilles.com WEB_CERT=/run/secrets/33KRMhqcWCKvMHyY5xymMCUEbT53Kg1NqUb9AU6.fullchain.pem WEB_KEY=/run/secrets/33KRMhqcWCKvMHyY5xymMCUEbT53Kg1NqUb9AU6.key.pem"
 
-for MILLEGRILLE in ${LISTE_MILLEGRILLES[@]}; do
-  PARAMS=`echo $MILLEGRILLE | awk 'BEGIN {FS=":"} {print $1 " " $2 " " $3 " " $4}'`
+LISTE_MILLEGRILLES=`env | awk -F= '/^IDMG_/ {print $1}'`
+
+for CLE_IDMG in ${LISTE_MILLEGRILLES[@]}; do
+  PARAMS=${!CLE_IDMG}
+  IDMG=`echo $CLE_IDMG | awk 'BEGIN {FS="_"} {print $2}'`
+
+  # Utiliser un fichier pour charger les parametres dans l'environnement
   echo '' > $PARAMS_FILE
   for PARAM in ${PARAMS[@]}; do
     echo $PARAM >> $PARAMS_FILE
   done
   source $PARAMS_FILE
+
   export IDMG=$IDMG
   export IDMGLOWER=`echo "$IDMG" | tr '[:upper:]' '[:lower:]'`
   export WEB_URL=$WEB_URL
