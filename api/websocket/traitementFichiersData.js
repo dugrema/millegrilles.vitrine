@@ -4,7 +4,7 @@ const path = require('path');
 
 // Met a jour un fichier dans le repertoire data de la MilleGrille
 function maj_fichier_data(pathFichier, contenu) {
-  console.debug("Maj fichier data " + pathFichier);
+  // console.debug("Maj fichier data " + pathFichier);
   let pathRepertoire = path.dirname(pathFichier);
   fs.mkdir(pathRepertoire, { recursive: true }, (err)=>{
     if(err) {

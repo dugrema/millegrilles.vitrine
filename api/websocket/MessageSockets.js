@@ -76,7 +76,7 @@ class SectionMessagesSockets {
       const resultats = jsonMessage.resultats;
 
       if(resultats.annonces) {
-        console.debug("Reponse " + FICHIER_MESSAGES + ", sauvegarde sous " + this.pathData);
+        // console.debug("Reponse " + FICHIER_MESSAGES + ", sauvegarde sous " + this.pathData);
         maj_fichier_data(
           path.join(this.pathData, FICHIER_MESSAGES),
           JSON.stringify(resultats)
@@ -101,11 +101,11 @@ class SectionMessagesSockets {
   _enregistrerEvenements(server) {
     let namespace = '/messages';
     this.wssConnexion = server.of(namespace);
-    console.debug("Initialisation namespace " + namespace);
+    // console.debug("Initialisation namespace " + namespace);
     this.wssConnexion.on('connection', socket=>{
-      console.info('CONNECT_WSS ' + new Date() + ": Connexion sur " + namespace + ' a partir de ' + socket.handshake.address);
+      console.debug('CONNECT_WSS ' + new Date() + ": Connexion sur " + namespace + ' a partir de ' + socket.handshake.address);
       socket.on('disconnect', ()=>{
-        console.info('DISCONNECT_WSS ' + new Date() + ": Deconnexion de " + namespace + ' a partir de ' + socket.handshake.address);
+        console.debug('DISCONNECT_WSS ' + new Date() + ": Deconnexion de " + namespace + ' a partir de ' + socket.handshake.address);
       })
     })
   }

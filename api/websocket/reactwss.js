@@ -41,7 +41,7 @@ class WebSocketVitrineApp {
 
     delete this.sockets[socket.id];
 
-    console.debug("Nombre sockets ouverts: " + Object.keys(this.sockets).length);
+    // console.debug("Nombre sockets ouverts: " + Object.keys(this.sockets).length);
   }
 
 }
@@ -119,7 +119,7 @@ class VitrineGlobal {
 
   emit(cle, message) {
     // Recoit un message MQ
-    console.debug("Section VitrineGlobal Recu message " + message.routingKey);
+    // console.debug("Section VitrineGlobal Recu message " + message.routingKey);
 
     // Faire l'entretien du document local
     if(message.routingKey === FICHE_PUBLIQUE) {
@@ -138,7 +138,7 @@ class VitrineGlobal {
         );
       }
     } else if(message.routingKey === COMMANDE_PUBLIER) {
-      console.debug("Recu collection")
+      // console.debug("Recu collection")
       this.wssConnexion.emit('document.collection', message);
       maj_collection(
         path.join(this.pathData, 'collections'),
@@ -146,7 +146,7 @@ class VitrineGlobal {
         JSON.stringify(message.message)
       );
     } else if(message.routingKey === COMMANDE_PUBLIER_FICHIERS) {
-      console.debug("Recu maj fichiers")
+      // console.debug("Recu maj fichiers")
       this.wssConnexion.emit('document.fichiers', message);
       maj_fichier_data(
         path.join(this.pathData, 'fichiers.json'),
@@ -175,7 +175,7 @@ class VitrineGlobal {
       let messageContent = reponse.content.toString('utf-8');
       let jsonMessage = JSON.parse(messageContent);
       const resultats = jsonMessage.resultats;
-      console.debug("Reponse millegrille.json, sauvegarde sous " + this.pathData);
+      // console.debug("Reponse millegrille.json, sauvegarde sous " + this.pathData);
 
       maj_fichier_data(
         path.join(this.pathData, 'millegrille.json'),
@@ -200,7 +200,7 @@ class VitrineGlobal {
       let messageContent = reponse.content.toString('utf-8');
       let jsonMessage = JSON.parse(messageContent);
       const resultats = jsonMessage.resultats[0];
-      console.debug("Reponse noeudPublic.json, sauvegarde sous " + this.pathData);
+      // console.debug("Reponse noeudPublic.json, sauvegarde sous " + this.pathData);
 
       maj_fichier_data(
         path.join(this.pathData, 'noeudPublic.json'),
@@ -228,7 +228,7 @@ class VitrineGlobal {
   _enregistrerEvenements(server) {
     let namespace = '/global';
     this.wssConnexion = server.of(namespace);
-    console.debug("Initialisation namespace " + namespace);
+    // console.debug("Initialisation namespace " + namespace);
     this.wssConnexion.on('connection', socket=>{
       console.info('CONNECT_WSS ' + new Date() + ": Connexion sur " + namespace + ' a partir de ' + socket.handshake.address);
       socket.on('disconnect', ()=>{
@@ -286,7 +286,7 @@ class FichiersSection {
 
   emit(cle, message) {
     // Emet un message MQ
-    console.debug("Section Fichiers Recu message " + cle);
+    // console.debug("Section Fichiers Recu message " + cle);
 
     // Faire l'entretien du document local
     if(message.routingKey === this.commandePublier) {
@@ -315,7 +315,7 @@ class FichiersSection {
       let messageContent = reponse.content.toString('utf-8');
       let jsonMessage = JSON.parse(messageContent);
       const resultats = jsonMessage.resultats;
-      console.debug("Reponse fichiers.json, sauvegarde sous " + this.pathData);
+      // console.debug("Reponse fichiers.json, sauvegarde sous " + this.pathData);
 
       maj_fichier_data(
         path.join(this.pathData, 'fichiers.json'),
@@ -431,7 +431,7 @@ class AlbumsSection {
 
   emit(cle, message) {
     // Emet un message MQ
-    console.debug("Section Albums Recu message " + cle);
+    // console.debug("Section Albums Recu message " + cle);
 
     // Faire l'entretien du document local
     if(message.routingKey === this.commandePublierAlbums) {
@@ -460,7 +460,7 @@ class AlbumsSection {
       let messageContent = reponse.content.toString('utf-8');
       let jsonMessage = JSON.parse(messageContent);
       const resultats = jsonMessage.resultats;
-      console.debug("Reponse albums.json, sauvegarde sous " + this.pathData);
+      // console.debug("Reponse albums.json, sauvegarde sous " + this.pathData);
 
       maj_fichier_data(
         path.join(this.pathData, 'albums.json'),
@@ -487,7 +487,7 @@ class AlbumsSection {
         var requete = {uuid: uuid_collection};
         rabbitMQ.transmettreRequete(routingRequeteCollection, requete)
         .then(reponse=>{
-          console.debug("Reponse fichier collection figee " + uuid_collection);
+          // console.debug("Reponse fichier collection figee " + uuid_collection);
           let messageContent = reponse.content.toString('utf-8');
           let jsonMessage = JSON.parse(messageContent);
           // console.debug(jsonMessage.resultats);
@@ -518,11 +518,11 @@ class AlbumsSection {
   _enregistrerEvenements(server) {
     let namespace = '/' + this.name;
     this.wssConnexion = server.of(namespace);
-    console.debug("Initialisation namespace " + namespace);
+    // console.debug("Initialisation namespace " + namespace);
     this.wssConnexion.on('connection', socket=>{
-      console.info('CONNECT_WSS ' + new Date() + ": Connexion sur " + namespace + ' a partir de ' + socket.handshake.address);
+      console.debug('CONNECT_WSS ' + new Date() + ": Connexion sur " + namespace + ' a partir de ' + socket.handshake.address);
       socket.on('disconnect', ()=>{
-        console.info('DISCONNECT_WSS ' + new Date() + ": Deconnexion de " + namespace + ' a partir de ' + socket.handshake.address);
+        console.debug('DISCONNECT_WSS ' + new Date() + ": Deconnexion de " + namespace + ' a partir de ' + socket.handshake.address);
       })
     })
   }

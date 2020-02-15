@@ -72,7 +72,7 @@ class SectionHandler {
       let messageContent = reponse.content.toString('utf-8');
       let jsonMessage = JSON.parse(messageContent);
       const resultats = jsonMessage.resultats;
-      console.debug("Reponse " + this.name + ".json, sauvegarde sous " + this.pathData);
+      // console.debug("Reponse " + this.name + ".json, sauvegarde sous " + this.pathData);
 
       maj_fichier_data(
         path.join(this.pathData, this.name + '.json'),
@@ -89,7 +89,7 @@ class SectionHandler {
 
   emit(cle, message) {
     // Emet un message MQ
-    console.debug("Section " + this.name + " Recu message " + cle);
+    // console.debug("Section " + this.name + " Recu message " + cle);
 
     // Faire l'entretien du document local
     if(message.routingKey === this.getCommandePublier()) {
@@ -113,7 +113,7 @@ class SectionHandler {
   _enregistrerEvenements(server) {
     let namespace = '/' + this.name;
     this.wssConnexion = server.of(namespace);
-    console.debug("Initialisation namespace " + namespace);
+    // console.debug("Initialisation namespace " + namespace);
     this.wssConnexion.on('connection', socket=>{
       console.info('CONNECT_WSS ' + new Date() + ": Connexion sur " + namespace + ' a partir de ' + socket.handshake.address);
       socket.on('disconnect', ()=>{

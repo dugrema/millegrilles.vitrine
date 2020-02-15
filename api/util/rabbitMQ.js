@@ -111,12 +111,12 @@ class RabbitMQWrapper {
     if(!this.reconnectTimeout) {
       var mq = this;
       this.reconnectTimeout = setTimeout(()=>{
-        console.debug("Reconnexion en cours");
+        // console.debug("Reconnexion en cours");
         mq.reconnectTimeout = null;
         mq._connect();
       }, dureeAttente*1000);
 
-      console.info("Reconnexion a MQ dans " + dureeAttente + " secondes");
+      // console.info("Reconnexion a MQ dans " + dureeAttente + " secondes");
 
       var conn = this.connection, channel = this.channel;
       this.connection = null;
@@ -152,7 +152,7 @@ class RabbitMQWrapper {
         exclusive: true,
       })
       .then( (q) => {
-        console.debug("Queue reponse globale cree"),
+        // console.debug("Queue reponse globale cree"),
         // console.log(q);
         this.reply_q = q;
 
@@ -204,58 +204,13 @@ class RabbitMQWrapper {
         delete this.pendingResponses[correlationId]; // Message recu
 
         // Verifier la signature du message
-        pki.verifierSignatureMessage(json_message)
+        this.validerSignature(json_message)
         .then(signatureValide=>{
           if(signatureValide) {
             callback(msg);
           } else {
             console.warn("Signature invalide, message dropped");
           }
-        })
-        .catch(err=>{
-          if(err.inconnu) {
-            // Message inconnu, on va verifier si c'est une reponse de
-            // certificat.
-            if(json_message.resultats && json_message.resultats.certificat_pem) {
-              // On laisse le message passer, c'est un certificat
-              // console.debug("Certificat recu");
-              callback(msg);
-            } else {
-              // On tente de charger le certificat
-              let fingerprint = json_message['en-tete'].certificat;
-              console.warn("Certificat inconnu, on fait une demande : " + fingerprint);
-              this.demanderCertificat(fingerprint)
-              .then(reponse=>{
-
-                // console.debug("Reponse demande certificat");
-                // console.debug(reponse);
-
-                // Sauvegarder le certificat et tenter de valider le message en attente
-                pki.sauvegarderMessageCertificat(JSON.stringify(reponse.resultats))
-                .then(()=>pki.verifierSignatureMessage(json_message))
-                .then(signatureValide=>{
-                  if(signatureValide) {
-                    callback(msg);
-                  } else {
-                    console.warn("Signature invalide, message dropped");
-                  }
-                })
-                .catch(err=>{
-                  console.warn("Message non valide apres reception du certificat, message dropped");
-                });
-
-              })
-              .catch(err=>{
-                console.warn("Certificat non charge, message dropped");
-                console.debug(err);
-              })
-            }
-
-          } else {
-            console.error("Erreur verification signature message, message dropped");
-            console.error(err);
-          }
-
         });
 
       }
@@ -263,12 +218,58 @@ class RabbitMQWrapper {
       if(routingKey === this.routingKeyCertificat) {
         this.transmettreCertificat();
       } else {
-        console.error("Message avec routing key recu sur Q API global: " + routingKey + ". Message rejete");
+          // console.debug("Message avec routing key: " + routingKey);
+          this.validerSignature(json_message)
+          .then(signatureValide=>{
+            if(signatureValide) {
+              this.routingKeyManager.emitMessage(routingKey, messageContent);
+            } else {
+              console.warn("Signature invalide, message dropped");
+            }
+          });
       }
     } else {
       console.debug("Recu message sans correlation Id ou routing key");
       console.warn(msg);
     }
+  }
+
+  // Valide une signature. Demande le certificat s'il est inconnu.
+  async validerSignature(json_message) {
+    var signatureValide = false;
+
+    try {
+      signatureValide = await pki.verifierSignatureMessage(json_message)
+      // console.debug("Signature valide ? " + signatureValide);
+    } catch (err) {
+      // console.error("Erreur validation signature");
+      // console.error(err);
+      if(err.inconnu) {
+        // console.error("Certificat inconnu");
+        // Message inconnu, on va verifier si c'est une reponse de
+        // certificat.
+        if(json_message.resultats && json_message.resultats.certificat_pem) {
+          signatureValide = true;
+        } else {
+          let fingerprint = json_message['en-tete'].certificat;
+          console.warn("Certificat inconnu, on fait une demande : " + fingerprint);
+          try {
+            // Demander le certificat inconnu
+            let reponseCertificat = await this.demanderCertificat(fingerprint);
+            var reponseJson = JSON.stringify(reponseCertificat.resultats);
+            // console.debug("Reponse certificat : " + reponseJson);
+            await pki.sauvegarderMessageCertificat(reponseJson);
+
+            // Refaire la validation de la signature avec le certificat recu
+            signatureValide = await pki.verifierSignatureMessage(json_message);
+          } catch (err2) {
+            console.warn("Certificat ne peut pas etre charge : " + fingerprint);
+          }
+        }
+      }
+    }
+
+    return signatureValide;
   }
 
   transmettreCertificat() {
@@ -546,7 +547,7 @@ class RoutingKeyManager {
     let listeNamespaces = this.registeredRoutingKeysForNamespaces[routingKey];
     for(let idx in listeNamespaces) {
       let namespace = listeNamespaces[idx];
-      console.debug("Emission vers namespace  " + namespace.name + " pour " + routingKey);
+      // console.debug("Emission vers namespace  " + namespace.name + " pour " + routingKey);
       // console.debug(namespace);
       namespace.emit('mq_message', {routingKey, message: json_message});
     }
