@@ -4,13 +4,15 @@ NGINX=/usr/sbin/nginx
 CONF=/etc/nginx/conf.d
 PARAMS_FILE=/tmp/params.txt
 PUBLIC_CONF_TEMPLATE=$APP_BUNDLE_DIR
-CONF_NAME=public.conf
-REPLACE_VARS='${IDMG},${WEB_URL},${IDMGLOWER}'
+REPLACE_VARS='${IDMG},${WEB_URL},${IDMGLOWER},${UPLINKURL}'
+
+# Configuration standard qui utilise un hostname pour upstream
+CONF_NAME_UPLINKURL=public.conf
+# Configuration via DNS SRV record plutot qu'un hostname pour upstream
+CONF_NAME_SRV=awssrv.conf
 
 # On supporte plusieurs de fichiers de configuration (un par millegrille)
 # Faire le remplacement pour chaque template et copier vers /etc/nginx/conf.d
-
-# IDMG_33KRMhqcWCKvMHyY5xymMCUEbT53Kg1NqUb9AU6="IDMG=33KRMhqcWCKvMHyY5xymMCUEbT53Kg1NqUb9AU6 WEB_URL=www.millegrilles.com WEB_CERT=/run/secrets/33KRMhqcWCKvMHyY5xymMCUEbT53Kg1NqUb9AU6.fullchain.pem WEB_KEY=/run/secrets/33KRMhqcWCKvMHyY5xymMCUEbT53Kg1NqUb9AU6.key.pem"
 
 LISTE_MILLEGRILLES=`env | awk -F= '/^IDMG_/ {print $1}'`
 
@@ -25,23 +27,38 @@ for CLE_IDMG in ${LISTE_MILLEGRILLES[@]}; do
   done
   source $PARAMS_FILE
 
-  export IDMG=$IDMG
-  export IDMGLOWER=`echo "$IDMG" | tr '[:upper:]' '[:lower:]'`
-  export WEB_URL=$WEB_URL
+  export IDMG
+  export WEB_URL
 
   echo "IDMG=$IDMG"
-  echo "IDMGLOWER=$IDMGLOWER"
   echo "WEB_URL=$WEB_URL"
   echo "WEB_CERT=$WEB_CERT"
   echo "WEB_KEY=$WEB_KEY"
 
+  # Identifier le type de configuration a utiliser (template)
+  if [ -n "$SRV" ]; then
+    export SRV
+    export HOST
+    echo "Uplink SRV=$SRV, HOST=$HOST"
+    CONF_NAME=$CONF_NAME_SRV
+  elif [ -n "$UPLINKURL" ]; then
+    export UPLINKURL
+    echo "Uplink URL $UPLINKURL"
+    CONF_NAME=$CONF_NAME_UPLINKURL
+  else
+    echo "Configuration non reconnue, IDMG=${IDMG} ne sera pas disponible."
+    continue
+  fi
+
+  # Faire le lien avec le cert/cle X509 public (e.g. letsencrypt)
   ln -s $WEB_CERT $APP_BUNDLE_DIR/$IDMG.cert.pem
   ln -s $WEB_KEY $APP_BUNDLE_DIR/$IDMG.key.pem
 
+  # Generer le fichier de configuration pour la MilleGrille
   CONFIG_FILE=$APP_BUNDLE_DIR/$CONF_NAME
   CONFIG_EFFECTIVE=$APP_BUNDLE_DIR/$IDMG.conf
-
   envsubst $REPLACE_VARS < $CONFIG_FILE > $CONFIG_EFFECTIVE
+
   echo Creation lien vers $IDMG.conf sous /etc/nginx/conf.d
   ln -s $CONFIG_EFFECTIVE /etc/nginx/conf.d/$IDMG.conf
 
