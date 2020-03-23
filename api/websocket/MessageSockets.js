@@ -64,15 +64,15 @@ class SectionMessagesSockets {
     // Document milleGrille
     var routingRequeteMilleGrilleInitiale = REQUETE_ANNONCES_RECENTES;
     rabbitMQ.transmettreRequete(routingRequeteMilleGrilleInitiale, {})
-    .then(reponse=>{
+    .then(jsonMessage=>{
       if(this.timerChargement) {
         clearTimeout(this.timerChargement);
         this.timerChargement = null;
       }
 
       // Extraire l'element resultats de la reponse
-      let messageContent = reponse.content.toString('utf-8');
-      let jsonMessage = JSON.parse(messageContent);
+      // let messageContent = reponse.content.toString('utf-8');
+      // let jsonMessage = JSON.parse(messageContent);
       const resultats = jsonMessage.resultats;
 
       if(resultats.annonces) {
@@ -103,9 +103,9 @@ class SectionMessagesSockets {
     this.wssConnexion = server.of(namespace);
     // console.debug("Initialisation namespace " + namespace);
     this.wssConnexion.on('connection', socket=>{
-      console.debug('CONNECT_WSS ' + new Date() + ": Connexion sur " + namespace + ' a partir de ' + socket.handshake.address);
+      console.info('CONNECT_WSS ' + new Date() + ": Connexion sur " + namespace + ' a partir de ' + socket.handshake.address);
       socket.on('disconnect', ()=>{
-        console.debug('DISCONNECT_WSS ' + new Date() + ": Deconnexion de " + namespace + ' a partir de ' + socket.handshake.address);
+        console.info('DISCONNECT_WSS ' + new Date() + ": Deconnexion de " + namespace + ' a partir de ' + socket.handshake.address);
       })
     })
   }

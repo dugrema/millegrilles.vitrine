@@ -62,7 +62,7 @@ class RabbitMQWrapper {
 
       return amqplib.connect(this.url, options)
       .then( conn => {
-        console.debug("Connexion a RabbitMQ reussie");
+        console.info("Connexion a RabbitMQ reussie");
         this.connection = conn;
 
         conn.on('close', (reason)=>{
@@ -130,8 +130,8 @@ class RabbitMQWrapper {
         try {
           channel.close();
         } catch (err) {
-          console.debug("Erreur fermeture channel");
-          console.debug(err);
+          console.info("Erreur fermeture channel");
+          // console.debug(err);
         }
       }
 
@@ -199,6 +199,9 @@ class RabbitMQWrapper {
       // Sauvegarder le certificat localement pour usage futur
       pki.sauvegarderMessageCertificat(messageContent, json_message.fingerprint);
       return; // Ce message ne correspond pas au format standard
+    } else if(routingKey === this.routingKeyCertificat) {
+      this.transmettreCertificat();
+      return;
     }
 
     // Valider le contenu du message - hachage et signature
@@ -206,7 +209,7 @@ class RabbitMQWrapper {
     let hashTransactionRecu = json_message['en-tete']['hachage-contenu'];
     if(hashTransactionCalcule !== hashTransactionRecu) {
       console.warn("Erreur hachage incorrect : " + hashTransactionCalcule + ", message dropped");
-      console.debug(messageContent);
+      // console.debug(messageContent);
 
       return;
     }
@@ -214,9 +217,11 @@ class RabbitMQWrapper {
     return pki.verifierSignatureMessage(json_message)
     .then(signatureValide=>{
       if(signatureValide) {
+        // console.debug("Message valide");
         return this.traiterMessageValide(json_message, msg, callback);
       } else {
         // Cleanup au besoin
+        console.error("Signature message invalide");
         delete this.pendingResponses[correlationId];
       }
     })
@@ -286,7 +291,7 @@ class RabbitMQWrapper {
               })
               .catch(err=>{
                 console.warn("Message non valide apres reception du certificat, message dropped");
-                console.debug(err);
+                console.info(err);
               });
 
             } else {
@@ -304,7 +309,7 @@ class RabbitMQWrapper {
           })
           .catch(err=>{
             console.warn("Certificat non charge, message dropped");
-            console.debug(err);
+            console.info(err);
           })
         }
       }
@@ -354,8 +359,8 @@ class RabbitMQWrapper {
     if(callback) {
       callback(json_message);
     } else if(routingKey) {
-      // Traiter le message via handlers
-      return this.routingKeyManager.handleMessage(routingKey, msg.content, msg.properties);
+      // console.debug(`Message sur routing ${routingKey}`);
+      this.routingKeyManager.emitMessage(routingKey, json_message);
     } else {
       console.warn("Recu message sans correlation Id ou routing key");
       console.warn(msg);
@@ -571,10 +576,10 @@ class RabbitMQWrapper {
     var requete = {fingerprint}
     var routingKey = 'requete.millegrilles.domaines.Pki.certificat';
     return this.transmettreRequete(routingKey, requete)
-    .then(reponse=>{
-      let messageContent = decodeURIComponent(escape(reponse.content));
-      let json_message = JSON.parse(messageContent);
-      console.debug("Reception certificat " + json_message);
+    .then(json_message=>{
+      // let messageContent = decodeURIComponent(escape(reponse.content));
+      // let json_message = JSON.parse(messageContent);
+      console.info("Reception certificat " + json_message);
       return json_message;
     })
   }
@@ -630,9 +635,9 @@ class RoutingKeyManager {
     }
   }
 
-  emitMessage(routingKey, message) {
+  emitMessage(routingKey, json_message) {
     // let messageContent = decodeURIComponent(escape(message.content));
-    let json_message = JSON.parse(message);
+    // let json_message = JSON.parse(message);
 
     // Emettre sur namespaces (specifiques au domaine)
     let listeNamespaces = this.registeredRoutingKeysForNamespaces[routingKey];

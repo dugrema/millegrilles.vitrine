@@ -67,10 +67,10 @@ class GestionnaireDomaines {
   }
 
   initialiser(server, modeErreur) {
-    console.debug("Initialiser domaines, modeErreur:" + modeErreur);
+    console.info("Initialiser domaines, modeErreur:" + modeErreur);
 
     for(let domaine in this.domaines) {
-      console.debug("Initialiser domaine " + domaine);
+      console.info("Initialiser domaine " + domaine);
       this.domaines[domaine].initialiser(
         server, {pathData: this.pathData, webUrl: this.webUrl}, modeErreur
       );
@@ -165,15 +165,15 @@ class VitrineGlobal {
     // Document milleGrille
     var routingRequeteMilleGrilleInitiale = 'requete.millegrilles.domaines.Annuaire.fichePublique';
     rabbitMQ.transmettreRequete(routingRequeteMilleGrilleInitiale, {})
-    .then(reponse=>{
+    .then(jsonMessage=>{
       if(this.timerChargement) {
         clearTimeout(this.timerChargement);
         this.timerChargement = null;
       }
 
       // Extraire l'element resultats de la reponse (fiche publique)
-      let messageContent = reponse.content.toString('utf-8');
-      let jsonMessage = JSON.parse(messageContent);
+      // let messageContent = reponse.content.toString('utf-8');
+      // let jsonMessage = JSON.parse(messageContent);
       const resultats = jsonMessage.resultats;
       // console.debug("Reponse millegrille.json, sauvegarde sous " + this.pathData);
 
@@ -342,7 +342,7 @@ class FichiersSection {
         var requete = {uuid: uuid_collection};
         rabbitMQ.transmettreRequete(routingRequeteCollection, requete)
         .then(reponse=>{
-          console.debug("Reponse fichier collection figee " + uuid_collection);
+          // console.debug("Reponse fichier collection figee " + uuid_collection);
           let messageContent = reponse.content.toString('utf-8');
           let jsonMessage = JSON.parse(messageContent);
           // console.debug(jsonMessage.resultats);
@@ -373,7 +373,7 @@ class FichiersSection {
   _enregistrerEvenements(server) {
     let namespace = '/' + this.name;
     this.wssConnexion = server.of(namespace);
-    console.debug("Initialisation namespace " + namespace);
+    console.info("Initialisation namespace " + namespace);
     this.wssConnexion.on('connection', socket=>{
       console.info('CONNECT_WSS ' + new Date() + ": Connexion sur " + namespace + ' a partir de ' + socket.handshake.address);
       socket.on('disconnect', ()=>{
@@ -520,9 +520,9 @@ class AlbumsSection {
     this.wssConnexion = server.of(namespace);
     // console.debug("Initialisation namespace " + namespace);
     this.wssConnexion.on('connection', socket=>{
-      console.debug('CONNECT_WSS ' + new Date() + ": Connexion sur " + namespace + ' a partir de ' + socket.handshake.address);
+      console.info('CONNECT_WSS ' + new Date() + ": Connexion sur " + namespace + ' a partir de ' + socket.handshake.address);
       socket.on('disconnect', ()=>{
-        console.debug('DISCONNECT_WSS ' + new Date() + ": Deconnexion de " + namespace + ' a partir de ' + socket.handshake.address);
+        console.info('DISCONNECT_WSS ' + new Date() + ": Deconnexion de " + namespace + ' a partir de ' + socket.handshake.address);
       })
     })
   }

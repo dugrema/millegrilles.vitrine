@@ -62,15 +62,18 @@ class SectionHandler {
       this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, 30000);  // Ressayer dans 30 secondes
     }
     rabbitMQ.transmettreRequete(routingRequeteInitiale, {})
-    .then(reponse=>{
+    .then(jsonMessage=>{
       if(this.timerChargement) {
         clearTimeout(this.timerChargement);
         this.timerChargement = null;
       }
 
-      // Extraire l'element resultats de la reponse (fiche publique)
-      let messageContent = reponse.content.toString('utf-8');
-      let jsonMessage = JSON.parse(messageContent);
+      // console.debug("Reponse requete doc");
+      // console.debug(reponse);
+      //
+      // // Extraire l'element resultats de la reponse (fiche publique)
+      // let messageContent = reponse.content.toString('utf-8');
+      // let jsonMessage = JSON.parse(messageContent);
       const resultats = jsonMessage.resultats;
       // console.debug("Reponse " + this.name + ".json, sauvegarde sous " + this.pathData);
 
@@ -90,6 +93,7 @@ class SectionHandler {
   emit(cle, message) {
     // Emet un message MQ
     // console.debug("Section " + this.name + " Recu message " + cle);
+    // console.debug(message);
 
     // Faire l'entretien du document local
     if(message.routingKey === this.getCommandePublier()) {
