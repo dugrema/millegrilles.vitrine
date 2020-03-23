@@ -28,6 +28,9 @@ class RabbitMQWrapper {
     this.routingKeyManager = new RoutingKeyManager(this);
     this.routingKeyCertificat = null;
 
+    // Conserver une liste de certificats connus, permet d'eviter la
+    // sauvegarder redondante du meme certificat
+    this.certificatsConnus = {};
   }
 
   connect(url) {
@@ -78,6 +81,7 @@ class RabbitMQWrapper {
       }).then( (ch) => {
         this.channel = ch;
         // console.debug("Channel ouvert");
+        ch.prefetch(5);
         return this.ecouter();
       }).then(()=>{
         this.routingKeyManager.enregsitrerApresConnexion();
@@ -158,7 +162,7 @@ class RabbitMQWrapper {
 
         this.channel.consume(
           q.queue,
-          (msg) => {this.traiterMessage(msg);},
+          (msg) => {this._traiterMessage(msg);},
           {noAck: true}
         );
 
@@ -174,11 +178,19 @@ class RabbitMQWrapper {
 
   }
 
-  traiterMessage(msg) {
-    // console.debug('1. Message recu');
-    // console.debug(msg);
+  async _traiterMessage(msg) {
+    // const noMessage = this.compteurMessages;
+    // this.compteurMessages = noMessage + 1;
+
+    // console.debug("Message recu " + noMessage);
     let correlationId = msg.properties.correlationId;
-    let messageContent = msg.content.toString('utf-8');
+    let callback = this.pendingResponses[correlationId];
+    if(callback) {
+      delete this.pendingResponses[correlationId];
+    }
+
+    // let messageContent = decodeURIComponent(escape(msg.content));
+    let messageContent = msg.content.toString();
     let routingKey = msg.fields.routingKey;
     let json_message = JSON.parse(messageContent);
     // console.debug(json_message);
@@ -194,44 +206,109 @@ class RabbitMQWrapper {
     let hashTransactionRecu = json_message['en-tete']['hachage-contenu'];
     if(hashTransactionCalcule !== hashTransactionRecu) {
       console.warn("Erreur hachage incorrect : " + hashTransactionCalcule + ", message dropped");
+      console.debug(messageContent);
+
       return;
     }
 
-    if(correlationId) {
-      // Relayer le message
-      let callback = this.pendingResponses[correlationId];
-      if(callback) {
-        delete this.pendingResponses[correlationId]; // Message recu
-
-        // Verifier la signature du message
-        this.validerSignature(json_message)
-        .then(signatureValide=>{
-          if(signatureValide) {
-            callback(msg);
-          } else {
-            console.warn("Signature invalide, message dropped");
-          }
-        });
-
-      }
-    } else if(routingKey) {
-      if(routingKey === this.routingKeyCertificat) {
-        this.transmettreCertificat();
+    return pki.verifierSignatureMessage(json_message)
+    .then(signatureValide=>{
+      if(signatureValide) {
+        return this.traiterMessageValide(json_message, msg, callback);
       } else {
-          // console.debug("Message avec routing key: " + routingKey);
-          this.validerSignature(json_message)
-          .then(signatureValide=>{
-            if(signatureValide) {
-              this.routingKeyManager.emitMessage(routingKey, messageContent);
-            } else {
-              console.warn("Signature invalide, message dropped");
-            }
-          });
+        // Cleanup au besoin
+        delete this.pendingResponses[correlationId];
       }
-    } else {
-      console.debug("Recu message sans correlation Id ou routing key");
-      console.warn(msg);
-    }
+    })
+    .catch(err=>{
+      if(err.inconnu) {
+        // Message inconnu, on va verifier si c'est une reponse de
+        // certificat.
+        if(json_message.resultats && json_message.resultats.certificat_pem) {
+          // On laisse le message passer, c'est un certificat
+          // console.debug("Certificat recu");
+          callback(msg);
+        } else {
+          // On tente de charger le certificat
+          let fingerprint = json_message['en-tete'].certificat;
+          console.warn("Certificat inconnu, on fait une demande : " + fingerprint);
+
+          return this.demanderCertificat(fingerprint)
+          .then(reponse=>{
+            // console.debug("Reponse demande certificat " + fingerprint);
+            // console.debug(reponse);
+
+            var etatCertificat = this.certificatsConnus[fingerprint];
+
+            if(!etatCertificat) {
+
+              // Creer un placeholder pour messages en attente sur ce
+              // certificat.
+              etatCertificat = {
+                reponse: reponse.resultats,
+                certificatSauvegarde: false,
+                callbacks: [],
+                timer: setTimeout(()=>{
+                  console.error("Timeout traitement certificat " + fingerprint);
+                  // Supprimer attente, va essayer a nouveau plus tard
+                  delete this.certificatsConnus[fingerprint];
+                }, 10000),
+              }
+
+              this.certificatsConnus[fingerprint] = etatCertificat;
+
+              // Sauvegarder le certificat et tenter de valider le message en attente
+              pki.sauvegarderMessageCertificat(JSON.stringify(reponse.resultats))
+              .then(()=>pki.verifierSignatureMessage(json_message))
+              .then(signatureValide=>{
+                if(signatureValide) {
+                  return this.traiterMessageValide(json_message, msg, callback);
+                  clearTimeout(etatCertificat.timer);
+
+                  etatCertificat.certificatSauvegarde = true;
+
+                  while(etatCertificat.callbacks.length > 0) {
+                    const callbackMessage = this.certificatsConnus[fingerprint].callbacks.pop();
+                    try {
+                      // console.debug("Callback apres reception certificat " + fingerprint);
+                      callbackMessage();
+                    } catch (err) {
+                      console.error("Erreur callback certificat " + fingerprint);
+                    }
+                  }
+
+                  // Cleanup memoire
+                  this.certificatsConnus[fingerprint] = {certificatSauvegarde: true};
+
+                } else {
+                  console.warn("Signature invalide, message dropped");
+                }
+              })
+              .catch(err=>{
+                console.warn("Message non valide apres reception du certificat, message dropped");
+                console.debug(err);
+              });
+
+            } else {
+
+              if(etatCertificat.certificatSauvegarde) {
+                return this.traiterMessageValide(json_message, msg, callback);
+              } else {
+                // Inserer callback a executer lors de la reception du certificat
+                etatCertificat.callbacks.push(
+                  () => {return this.traiterMessageValide(json_message, msg, callback);}
+                );
+              }
+            };
+
+          })
+          .catch(err=>{
+            console.warn("Certificat non charge, message dropped");
+            console.debug(err);
+          })
+        }
+      }
+    });
   }
 
   // Valide une signature. Demande le certificat s'il est inconnu.
@@ -270,6 +347,20 @@ class RabbitMQWrapper {
     }
 
     return signatureValide;
+  }
+
+  traiterMessageValide(json_message, msg, callback) {
+    let routingKey = msg.fields.routingKey;
+    if(callback) {
+      callback(json_message);
+    } else if(routingKey) {
+      // Traiter le message via handlers
+      return this.routingKeyManager.handleMessage(routingKey, msg.content, msg.properties);
+    } else {
+      console.warn("Recu message sans correlation Id ou routing key");
+      console.warn(msg);
+    }
+
   }
 
   transmettreCertificat() {
