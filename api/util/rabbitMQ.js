@@ -576,10 +576,10 @@ class RabbitMQWrapper {
     var requete = {fingerprint}
     var routingKey = 'requete.millegrilles.domaines.Pki.certificat';
     return this.transmettreRequete(routingKey, requete)
-    .then(json_message=>{
-      // let messageContent = decodeURIComponent(escape(reponse.content));
-      // let json_message = JSON.parse(messageContent);
-      console.info("Reception certificat " + json_message);
+    .then(reponse=>{
+      let messageContent = decodeURIComponent(escape(reponse.content));
+      let json_message = JSON.parse(messageContent);
+      console.info(`Reception certificat ${json_message.resultats.fingerprint}`);
       return json_message;
     })
   }
