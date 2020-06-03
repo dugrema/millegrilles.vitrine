@@ -75,6 +75,28 @@ class SectionBlogs extends SectionHandler {
 
 }
 
+class SectionAnnonces extends SectionHandler {
+
+  NOM_SECTION = 'annonces'
+
+  ROUTING_KEYS = {
+    'evenement.Posteur.document.annonces_recentes': {
+      nomFichier: 'annonces.json',
+      requete: 'Posteur.chargerAnnonces',
+      cleEmit: 'annonces',
+    },
+  }
+
+  getNomSection() {
+    return this.NOM_SECTION
+  }
+
+  getRoutingKeys() {
+    return this.ROUTING_KEYS
+  }
+
+}
+
 // class SectionSenseursPassifs extends SectionHandler {
 //
 //   constructor() {
@@ -92,4 +114,4 @@ class SectionBlogs extends SectionHandler {
 //
 // }
 
-module.exports = { VitrineGlobal, SectionAccueil, SectionBlogs }
+module.exports = { VitrineGlobal, SectionAccueil, SectionBlogs, SectionAnnonces }

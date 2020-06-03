@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 
 const { SectionMessagesSockets } = require('./messageSockets')
-const { VitrineGlobal, SectionAccueil, SectionBlogs } = require('./sectionsconfig')
+const { VitrineGlobal, SectionAccueil, SectionBlogs, SectionAnnonces } = require('./sectionsconfig')
 
 // const { maj_fichier_data, maj_collection } = require('../util/traitementFichiersData')
 // const { VitrineGlobal, SectionAccueil, SectionBlogs, SectionSenseursPassifs } = require('./Sections')
@@ -53,6 +53,7 @@ class GestionnaireDomaines {
       vitrineGlobal: new VitrineGlobal(),
       accueil: new SectionAccueil(),
       blogs: new SectionBlogs(),
+      annonces: new SectionAnnonces(),
       // messages: new SectionMessagesSockets(),
       // albums: new AlbumsSection(),
       // fichiers: new FichiersSection(),

@@ -27,6 +27,7 @@ class SectionHandler {
     //   }
 
     // this.initialiser = this.initialiser.bind(this)
+    this.handleMessage = this.handleMessage.bind(this)
   }
 
   getNomSection() {
@@ -118,26 +119,37 @@ class SectionHandler {
   }
 
   async handleMessage(routingKey, message, opts) {
-    const config = getRoutingKeys()[routingKey]
-    if(config) {
+    debug("Message MQ %s", routingKey)
+    debug(message)
 
-      if(config.cleEmit) {
-        const cleEmit = config.cleEmit
-        this.emit(cle, message)
+    try {
+      const routingKeys = this.getRoutingKeys()
+      const config = routingKeys[routingKey]
+
+      if(config) {
+        if(config.nomFichier) {
+          const pathFichier = path.join(this.pathData, config.nomFichier)
+          debug("Sauvegarde message dans %s", pathFichier)
+          maj_fichier_data(pathFichier, JSON.stringify(message))
+        }
+
+        if(config.cleEmit) {
+          const cleEmit = config.cleEmit
+          this.emit(cleEmit, message)
+        }
+
+      } else {
+        console.warning("Recu routing key inconnue : %s", routingKey)
       }
-
-      if(config.nomFichier) {
-        const pathFichier = path.join(this.pathData, config.nomFichier)
-        await maj_fichier_data(pathFichier, JSON.stringify(reponse));
-      }
-
-    } else {
-      console.warning("Recu routing key inconnue : %s", routingKey)
+    } catch(err) {
+      console.error("Erreur handleMessage sur %s", routingKey)
+      console.error(err)
     }
   }
 
   emit(cle, message) {
-    const nomSection = getNomSection()
+    const nomSection = this.getNomSection()
+    debug("Emission message sur Socket.IO, room: %s, cle: %s", nomSection, cle)
     this.socketIoConnexion.to(nomSection).emit(cle, message)
   }
 
