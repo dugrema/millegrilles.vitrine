@@ -1,18 +1,11 @@
 // WebSocket api pour l'application React Vitrine
-const debug = require('debug')('millegrilles:vitrine:Sections')
+const debug = require('debug')('millegrilles:vitrine:sections')
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
 const { maj_fichier_data } = require('../util/traitementFichiersData');
 
-const DOCUMENT_VITRINE_ACCUEIL = 'requete.millegrilles.domaines.Plume.chargerAccueil';
-const PUBLICATION_DOCUMENT_ACCUEIL = 'commande.publierAccueil';
-
-const DOCUMENT_VITRINE_BLOGS = 'requete.millegrilles.domaines.Plume.chargerBlogpostsRecents';
-const PUBLICATION_DOCUMENT_BLOGS = 'commande.publierBlogpostsRecents';
-
-const DOCUMENT_VITRINE_SENSEURSPASSIFS = 'requete.millegrilles.domaines.SenseursPassifs.dashboard';
-const PUBLICATION_DOCUMENT_SENSEURSPASSIFS = 'noeuds.source.millegrilles_domaines_SenseursPassifs.documents.vitrine.dashboard';
+const EXCHANGE_PUBLIC = '1.public'
 
 class SectionHandler {
 
@@ -53,7 +46,7 @@ class SectionHandler {
   //       modeErreur: bool,
   //       pathData: str,
   //     }
-  initialiser(server, amqpdao, uuidNoeud, opts) {
+  async initialiser(server, amqpdao, uuidNoeud, opts) {
     if(!opts) opts = {}
 
     this.socketIoConnexion = server
@@ -70,10 +63,10 @@ class SectionHandler {
 
     debug("Section %s, modeErreur: %s, pathData: %s, routing keys :", nomSection, modeErreur, this.pathData)
     debug(routingKeys)
-    this.amqpdao.routingKeyManager.addRoutingKeyCallback(this.handleMessage, Object.keys(routingKeys), {exchange: '1.public'})
+    this.amqpdao.routingKeyManager.addRoutingKeyCallback(this.handleMessage, Object.keys(routingKeys), {exchange: EXCHANGE_PUBLIC})
 
     if(!modeErreur) {
-      this.requeteDocuments()
+      await this.requeteDocuments()
     } else {
       // On va attendre avant de charger les documents. Le system est probablement
       // en initialisation/reboot.
@@ -103,7 +96,7 @@ class SectionHandler {
             debug(reponse)
 
             const pathFichier = path.join(this.pathData, config.nomFichier)
-            maj_fichier_data(pathFichier, JSON.stringify(reponse));
+            await maj_fichier_data(pathFichier, JSON.stringify(reponse));
           } catch(err) {
             console.error("Erreur transmission requete %s", routingKey)
             console.error(err)
@@ -125,7 +118,7 @@ class SectionHandler {
 
   }
 
-  handleMessage(routingKey, message, opts) {
+  async handleMessage(routingKey, message, opts) {
     const config = getRoutingKeys()[routingKey]
     if(config) {
 
@@ -136,7 +129,7 @@ class SectionHandler {
 
       if(config.nomFichier) {
         const pathFichier = path.join(this.pathData, config.nomFichier)
-        maj_fichier_data(pathFichier, JSON.stringify(reponse));
+        await maj_fichier_data(pathFichier, JSON.stringify(reponse));
       }
 
     } else {
@@ -149,97 +142,15 @@ class SectionHandler {
     this.socketIoConnexion.to(nomSection).emit(cle, message)
   }
 
-  rechargerDocuments() {
+  async rechargerDocuments() {
     console.info("Tentative de rechargement des documents")
     if(this.timerChargement) {
       clearTimeout(this.timerChargement)
       this.timerChargement = null
     }
-    this.requeteDocuments()
+    await this.requeteDocuments()
   }
 
 }
 
-class VitrineGlobal extends SectionHandler {
-  NOM_SECTION = 'global'
-
-  initialiser(server, amqpdao, uuidNoeud, opts) {
-    const routingNoeudPublic = 'evenement.Parametres.noeudPublic.' + uuidNoeud
-    this.routingKeys = {
-      'evenement.Annuaire.document.fichePublique': {
-        nomFichier: 'fichePublique.json',
-        requete: 'Annuaire.fichePublique',
-        cleEmit: 'fichePublique',
-      },
-      [routingNoeudPublic]: {
-        nomFichier: 'configuration.json',
-        requete: 'Parametres.noeudPublic',
-        requeteParametres: {uuidNoeud},
-        cleEmit: 'configuration',
-      },
-    }
-
-    super.initialiser(server, amqpdao, uuidNoeud, opts)
-  }
-
-  getNomSection() {
-    return this.NOM_SECTION
-  }
-
-  getRoutingKeys() {
-    return this.routingKeys
-  }
-}
-
-// class SectionAccueil extends SectionHandler {
-//
-//   NOM_SECTION = 'accueil'
-//   ROUTING_KEYS = {
-//
-//   }
-//
-//   getNomSection() {
-//     return NOM_SECTION
-//   }
-//
-//   getRoutingKeys() {
-//     return ROUTING_KEYS
-//   }
-//
-// }
-//
-// class SectionBlogs extends SectionHandler {
-//
-//   constructor() {
-//     super();
-//     this.name = 'blogs';
-//   }
-//
-//   getCommandePublier() {
-//     return PUBLICATION_DOCUMENT_BLOGS;
-//   }
-//
-//   getRoutingRequeteInitiale() {
-//     return DOCUMENT_VITRINE_BLOGS;
-//   }
-//
-// }
-//
-// class SectionSenseursPassifs extends SectionHandler {
-//
-//   constructor() {
-//     super();
-//     this.name = 'senseursPassifs';
-//   }
-//
-//   getCommandePublier() {
-//     return PUBLICATION_DOCUMENT_SENSEURSPASSIFS;
-//   }
-//
-//   getRoutingRequeteInitiale() {
-//     return DOCUMENT_VITRINE_SENSEURSPASSIFS;
-//   }
-//
-// }
-
-module.exports = {VitrineGlobal} // SectionAccueil, SectionBlogs, SectionSenseursPassifs}
+module.exports = { SectionHandler }

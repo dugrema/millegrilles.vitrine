@@ -1,3 +1,4 @@
+const debug = require('debug')('millegrilles:vitrine:messageSockets')
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
@@ -100,7 +101,8 @@ class SectionMessagesSockets {
   _enregistrerEvenements(server) {
     let namespace = '/messages';
     this.wssConnexion = server.of(namespace);
-    // console.debug("Initialisation namespace " + namespace);
+
+    debug("Initialisation namespace " + namespace);
     this.wssConnexion.on('connection', socket=>{
       console.info('CONNECT_WSS ' + new Date() + ": Connexion sur " + namespace + ' a partir de ' + socket.handshake.address);
       socket.on('disconnect', ()=>{
