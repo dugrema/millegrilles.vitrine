@@ -53,18 +53,18 @@ class SectionHandler {
   //       modeErreur: bool,
   //       pathData: str,
   //     }
-  initialiser(server, amqpdao, nodeId, opts) {
+  initialiser(server, amqpdao, uuidNoeud, opts) {
     if(!opts) opts = {}
 
     this.socketIoConnexion = server
     this.amqpdao = amqpdao
-    this.nodeId = nodeId
+    this.uuidNoeud = uuidNoeud
 
     // Note : s'assurer d'implementer ces methodes dans les sous-classes
     const nomSection = this.getNomSection()
     const routingKeys = this.getRoutingKeys()
 
-    this.pathData = opts.pathData || path.join('/tmp/vitrine/', nodeId, nomSection)
+    this.pathData = opts.pathData || path.join('/tmp/vitrine/', uuidNoeud, nomSection)
     const modeErreur = opts.modeErreur || false
 
     debug("Section %s, modeErreur: %s, pathData: %s, routing keys :", nomSection, modeErreur, this.pathData)
@@ -162,20 +162,23 @@ class SectionHandler {
 class VitrineGlobal extends SectionHandler {
   NOM_SECTION = 'global'
 
-  constructor(uuidNoeud) {
+  initialiser(server, amqpdao, uuidNoeud, opts) {
+    const routingNoeudPublic = 'evenement.Parametres.noeudPublic.' + uuidNoeud
     this.routingKeys = {
       'evenement.Annuaire.document.fichePublique': {
         nomFichier: 'fichePublique.json',
         requete: 'Annuaire.fichePublique',
         cleEmit: 'fichePublique',
       },
-      'evenement.Parametres.noeudPublic.' + uuidNoeud: {
+      [routingNoeudPublic]: {
         nomFichier: 'configuration.json',
         requete: 'Parametres.noeudPublic',
-        requeteParametres: {uuid_noeud},
+        requeteParametres: {uuidNoeud},
         cleEmit: 'configuration',
       },
     }
+
+    super.initialiser(server, amqpdao, uuidNoeud, opts)
   }
 
   getNomSection() {
