@@ -6,10 +6,9 @@ const path = require('path');
 const { maj_fichier_data } = require('../util/traitementFichiersData');
 
 const EXCHANGE_PUBLIC = '1.public'
+DELAI_ESSAI_DOCUMENTS = 60000
 
 class SectionHandler {
-
-  DELAI_ESSAI_DOCUMENTS = 60000
 
   constructor() {
     this.amqpdao = null
@@ -112,8 +111,8 @@ class SectionHandler {
     }
 
     if(erreurDocument) {
-      debug("Activation timer de %d secondes pour charger documents", this.DELAI_ESSAI_DOCUMENTS/1000)
-      this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, this.DELAI_ESSAI_DOCUMENTS);
+      debug("Activation timer de %d secondes pour charger documents", DELAI_ESSAI_DOCUMENTS/1000)
+      this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, DELAI_ESSAI_DOCUMENTS);
     }
 
   }

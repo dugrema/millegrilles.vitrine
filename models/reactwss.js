@@ -48,8 +48,6 @@ class WebSocketVitrineApp {
 
 class GestionnaireDomaines {
 
-  NODE_ID = 'DUMMY_CHANGE_MOI'
-
   constructor() {
     this.domaines = {
       vitrineGlobal: new VitrineGlobal(),
