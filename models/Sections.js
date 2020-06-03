@@ -162,18 +162,20 @@ class SectionHandler {
 class VitrineGlobal extends SectionHandler {
   NOM_SECTION = 'global'
 
-  ROUTING_KEYS = {
-    // 'evenement.Annuaire.document.fichePublique': {
-    //   nomFichier: 'fichePublique.json',
-    //   requete: 'Annuaire.fichePublique',
-    //   cleEmit: 'fichePublique',
-    // },
-    'evenement.Parametres.document.configurationNoeudPublic': {
-      nomFichier: 'configuration.json',
-      requete: 'Parametres.noeudPublic',
-      requeteParametres: {uuid_noeud: 'DUMMY'},
-      cleEmit: 'configuration',
-    },
+  constructor(uuidNoeud) {
+    this.routingKeys = {
+      'evenement.Annuaire.document.fichePublique': {
+        nomFichier: 'fichePublique.json',
+        requete: 'Annuaire.fichePublique',
+        cleEmit: 'fichePublique',
+      },
+      'evenement.Parametres.noeudPublic.' + uuidNoeud: {
+        nomFichier: 'configuration.json',
+        requete: 'Parametres.noeudPublic',
+        requeteParametres: {uuid_noeud},
+        cleEmit: 'configuration',
+      },
+    }
   }
 
   getNomSection() {
@@ -181,7 +183,7 @@ class VitrineGlobal extends SectionHandler {
   }
 
   getRoutingKeys() {
-    return this.ROUTING_KEYS
+    return this.routingKeys
   }
 }
 
