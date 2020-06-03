@@ -1,0 +1,40 @@
+#!/usr/bin/env node
+const debug = require('debug')('millegrilles:vitrine:www')
+const express = require('express')
+
+const amqpdao = require('../models/amqpdao')
+const { initialiser: initialiserServer } = require('millegrilles.common/lib/server')
+const { initialiser: initialiserVitrine } = require('../routes/vitrine')
+const { initialiser: initialiserTorrent } = require('../routes/torrentTracker');
+
+async function init() {
+
+  // Connexion AMQ
+  const {amqpdao: instAmqpdao} = await amqpdao.init()
+  const idmg = instAmqpdao.pki.idmg
+
+  debug("Initialisation serveur IDMG : %s", idmg)
+
+  // Creer une collection avec la connexion a MQ (format qui supporte hebergement)
+  const rabbitMQParIdmg = {
+    [idmg]: instAmqpdao
+  }
+
+  const fctRabbitMQParIdmg = (idmg) => {
+    return rabbitMQParIdmg[idmg]
+  }
+
+  // Initalier les apps individuelles, mapper dans dict (cle est path relatif)
+  const vitrine = await initialiserVitrine(fctRabbitMQParIdmg, {idmg})
+  const mappingApps = {vitrine}
+
+  const root = express()
+  const serverInstance = initialiserServer(root, mappingApps)
+
+  // Ajouter torrent a la racine
+  const torrent = await initialiserTorrent(fctRabbitMQParIdmg, {idmg})
+  root.use(torrent.route)
+
+}
+
+init()

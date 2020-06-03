@@ -1,5 +1,16 @@
-const express = require('express');
+const express = require('express')
 const TrackerServer = require('bittorrent-tracker').Server;  // bittorrent-tracker
+
+function initialiser() {
+  const app = express()
+
+  app.use(express.urlencoded({ extended: false }));
+  app.get('/announce', (req, res) => trackerServer.onHttpRequest(req, res, { action: 'announce', trustProxy: true }))
+  app.get('/scrape', (req, res) => trackerServer.onHttpRequest(req, res, { action: 'scrape', trustProxy: true }))
+  app.get('/stats', (req, res) => trackerServer.onHttpRequest(req, res))
+
+  return {route: app}
+}
 
 const trackerServer = new TrackerServer({
   udp: false, // enable udp server? [default=true]
@@ -76,4 +87,4 @@ trackerServer.on('stop', function (addr) {
   console.log("Tracker stop " + addr);
 })
 
-module.exports = {trackerServer};
+module.exports = {initialiser};

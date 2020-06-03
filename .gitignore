@@ -1,2 +1,10 @@
 react_build
+**/node_modules
+**/build
+
 *.tar.gz
+
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
