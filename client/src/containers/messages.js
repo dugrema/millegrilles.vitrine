@@ -3,7 +3,7 @@ import {SectionVitrine} from './sections';
 import {Container, Row, Col} from 'react-bootstrap';
 
 import { Trans } from 'react-i18next';
-import { traduire } from '../langutils.js';
+import { traduire } from '../components/langutils.js';
 
 import './messages.css';
 

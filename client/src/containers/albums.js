@@ -3,8 +3,8 @@ import {Card, CardColumns, Carousel, Button,
         Container, Row, Col} from 'react-bootstrap';
 import { Trans } from 'react-i18next';
 import {SectionVitrine, CollectionVitrine} from './sections';
-import {pathConsignation} from '../pathUtils';
-import { traduire } from '../langutils.js';
+import {pathConsignation} from '../components/pathUtils';
+import { traduire } from '../components/langutils.js';
 import './albums.css';
 
 const NOM_SECTION = 'albums';

@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import { Trans } from 'react-i18next';
-import { VitrineWebSocketHandler } from '../websocket'
+import { VitrineWebSocketHandler } from '../components/websocket'
 
 export class SectionVitrine extends React.Component {
 

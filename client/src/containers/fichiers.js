@@ -1,10 +1,10 @@
 import React from 'react';
 import {SectionVitrine, CollectionVitrine} from './sections';
 import {Container, Row, Col, Button, ListGroup} from 'react-bootstrap';
-import {pathConsignation} from '../pathUtils';
+import {pathConsignation} from '../components/pathUtils';
 
 import { Trans } from 'react-i18next';
-import { traduire } from '../langutils.js';
+import { traduire } from '../components/langutils.js';
 
 import './fichiers.css';
 

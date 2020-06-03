@@ -1,5 +1,7 @@
 // Vitrine web socket handler vers l'api de Vitrine (Express WSS)
-import openSocket from 'socket.io-client';
+import { WebSocketManager } from 'millegrilles.common/lib/webSocketManager'
+
+const PATH_SOCKETIO = '/vitrine/socket-io'
 
 export class VitrineWebSocketHandler {
   constructor(domaine) {
@@ -14,11 +16,22 @@ export class VitrineWebSocketHandler {
     this.deconnecter = this.deconnecter.bind(this);
   }
 
-  connecter() {
-    let urlConnexion = '/' + this.domaine;
-    // console.debug("Ouverture WSS vers " + urlConnexion);
-    this.socket = openSocket(urlConnexion, {path: '/vitrine_wss'});
-    this._enregistrerEvenements();
+  async connecter() {
+    // let urlConnexion = '/' + this.domaine;
+    // // console.debug("Ouverture WSS vers " + urlConnexion);
+    // this.socket = openSocket(urlConnexion, {path: PATH_SOCKETIO});
+    // this._enregistrerEvenements();
+
+    const config = {
+      path: PATH_SOCKETIO,
+      reconnection: true,
+    }
+    const websocketConnexion = new WebSocketManager(config)
+    // websocketConnexion.disconnectHandler = this.props.desactiverProtege
+
+    await websocketConnexion.connecter()
+    console.debug("Authentification completee")
+    return websocketConnexion
   }
 
   reconnecter() {

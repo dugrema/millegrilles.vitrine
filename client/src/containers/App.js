@@ -2,49 +2,51 @@ import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { Nav, Navbar, NavDropdown, Container, Row, Col} from 'react-bootstrap';
 import axios from 'axios';
-import { VitrineWebSocketHandler } from './websocket'
+import { ConnexionWebsocket } from './Authentification'
 
 // Importer sections et domaines
-import { AfficherSection } from './sections/mapSections';
+import { AfficherSection } from './mapSections';
 
-import './i18n';
+import '../components/i18n';
 import { Trans, Translation, withTranslation } from 'react-i18next';
-import { traduire } from './langutils.js';
+import { traduire } from '../components/langutils.js';
 
 import './App.css';
 
 const MILLEGRILLE_LIBELLE = 'millegrille.configuration', MILLEGRILLE_URL = 'millegrille.json';
 const NOEUDPUBLIC_LIBELLE = 'noeudPublic.configuration', NOEUDPUBLIC_URL = 'noeudPublic.json';
 
-class _app extends React.Component {
+// Application withTranslation sur l'application
+export default class _ApplicationVitrine extends React.Component {
 
   state = {
     configuration: null,
     noeudPublic: null,
+    websocketApp: null,
   }
 
-  webSocketHandler = null;
+  setWebsocketApp = websocketApp => {
+    // Set la connexion Socket.IO. Par defaut, le mode est prive (lecture seule)
+    this.setState({websocketApp})
+  }
 
   componentDidMount() {
-    // Charger la configuration de la MilleGrille
-    this._chargerConfiguration();
-
-    // Connecter via websocket
-    this.webSocketHandler = new VitrineWebSocketHandler('global');
-    this.webSocketHandler.connecter();
-
-    // Enregistrer callback pour maj de la fiche publique
-    this.majConfigurationMilleGrille = this.majConfigurationMilleGrille.bind(this);
-    this.webSocketHandler.enregistrerCallback(MILLEGRILLE_LIBELLE, this.majConfigurationMilleGrille);
-
-    // Enregistrer callback pour maj configuration du noeud public
-    this.majConfigurationNoeudPublic = this.majConfigurationNoeudPublic.bind(this);
-    this.webSocketHandler.enregistrerCallback(NOEUDPUBLIC_LIBELLE, this.majConfigurationNoeudPublic);
-
+    // // Charger la configuration de la MilleGrille
+    // this._chargerConfiguration()
+    //
+    // // Enregistrer callback pour maj de la fiche publique
+    // this.majConfigurationMilleGrille = this.majConfigurationMilleGrille.bind(this);
+    // this.state.webSocketHandler.enregistrerCallback(MILLEGRILLE_LIBELLE, this.majConfigurationMilleGrille);
+    //
+    // // Enregistrer callback pour maj configuration du noeud public
+    // this.majConfigurationNoeudPublic = this.majConfigurationNoeudPublic.bind(this);
+    // this.state.webSocketHandler.enregistrerCallback(NOEUDPUBLIC_LIBELLE, this.majConfigurationNoeudPublic);
   }
 
   componentWillUnmount() {
-    this.webSocketHandler.deconnecter();
+    if(this.state.websocketApp) {
+      this.state.websocketApp.deconnecter()
+    }
   }
 
   majConfigurationMilleGrille(enveloppe, lastModified) {
@@ -76,8 +78,8 @@ class _app extends React.Component {
   }
 
   componentDidUpdate() {
-    const i18n = this.props.i18n;
-    const language = i18n.language;
+    const i18n = this.props.i18n
+    const language = 'fr' //i18n.language;
     _setTitre(language, this._milleGrille());
   }
 
@@ -89,7 +91,8 @@ class _app extends React.Component {
       // console.debug("Changer language vers " + lng);
       i18n.changeLanguage(lng);
     };
-    const language = i18n.language;
+    const language = 'fr'; // i18n.language;
+    // const language = i18n.language;
     const languageChangement = language==='fr'?'en':'fr';
 
     const configurationNoeud = this._configuration(),
@@ -101,9 +104,17 @@ class _app extends React.Component {
       language
     };
 
+    let webSocketOpener = null
+    if( ! this.state.websocketApp ) {
+      webSocketOpener = <ConnexionWebsocket setWebsocketApp={this.setWebsocketApp} />
+    }
+
     return (
       <Router>
         <div className="App">
+
+          { webSocketOpener }
+
           <ToggleMenu
             millegrille={configurationMilleGrille}
             configuration={configurationNoeud}
@@ -181,9 +192,7 @@ class _app extends React.Component {
       return this.state[NOEUDPUBLIC_LIBELLE];
   }
 
-}
-
-const App = withTranslation()(_app);
+} const ApplicationVitrine = withTranslation()(_ApplicationVitrine)
 
 class ToggleMenu extends React.Component {
 
@@ -357,5 +366,3 @@ function _setTitre(language, configuration) {
     document.title = vitrineDescription;
   }
 }
-
-export default App;

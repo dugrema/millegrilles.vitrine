@@ -69,6 +69,11 @@ class GestionnaireDomaines {
   async initialiser(server, amqpdao, nodeId, modeErreur) {
     console.info("Initialiser domaines, modeErreur:" + modeErreur);
 
+    // Sur connexion, juste emettre message login true
+    server.on('connection', socket => {
+      socket.emit('pret', {'login': true})
+    })
+
     for(let domaine in this.domaines) {
       console.info("Initialiser domaine " + domaine);
       const instDomaine = this.domaines[domaine]

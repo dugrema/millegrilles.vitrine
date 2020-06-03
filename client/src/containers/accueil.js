@@ -2,8 +2,8 @@ import React from 'react';
 import {SectionVitrine} from './sections';
 import {Jumbotron, Card, CardDeck, Button, Image,
         Container, Row, Col} from 'react-bootstrap';
-import {pathConsignation} from '../pathUtils';
-import { traduire } from '../langutils.js';
+import {pathConsignation} from '../components/pathUtils';
+import { traduire } from '../components/langutils.js';
 
 import './accueil.css';
 
