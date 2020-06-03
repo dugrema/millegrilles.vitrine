@@ -10,8 +10,8 @@ CERT_FOLDER=/home/mathieu/mgdev/certs
 
 # export COUPDOEIL_SESSION_TIMEOUT=15000
 export MG_MQ_CAFILE=$CERT_FOLDER/pki.millegrille.cert
-export MG_MQ_CERTFILE=$CERT_FOLDER/pki.coupdoeil.cert
-export MG_MQ_KEYFILE=$CERT_FOLDER/pki.coupdoeil.key
+export MG_MQ_CERTFILE=$CERT_FOLDER/pki.vitrineweb.cert
+export MG_MQ_KEYFILE=$CERT_FOLDER/pki.vitrineweb.key
 
 export MG_MQ_URL=amqps://$HOST:5673
 export PORT=3007

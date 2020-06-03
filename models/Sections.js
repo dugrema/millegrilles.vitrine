@@ -1,9 +1,9 @@
 // WebSocket api pour l'application React Vitrine
-const rabbitMQ = require('../util/rabbitMQ');
+const debug = require('debug')('millegrilles:vitrine:Sections')
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
-const { maj_fichier_data } = require('./traitementFichiersData');
+const { maj_fichier_data } = require('../util/traitementFichiersData');
 
 const DOCUMENT_VITRINE_ACCUEIL = 'requete.millegrilles.domaines.Plume.chargerAccueil';
 const PUBLICATION_DOCUMENT_ACCUEIL = 'commande.publierAccueil';
@@ -16,167 +16,224 @@ const PUBLICATION_DOCUMENT_SENSEURSPASSIFS = 'noeuds.source.millegrilles_domaine
 
 class SectionHandler {
 
+  DELAI_ESSAI_DOCUMENTS = 60000
+
   constructor() {
-    this.wssConnexion = null;
+    this.amqpdao = null
+    this.socketIoConnexion = null
+    this.dateChargement = null
+    this.timerChargement = null
+    this.pathData = null
+    this.webUrl = null
 
-    this.dateChargement = null;
-    this.timerChargement = null;
-    this.pathData = null;
-    this.webUrl = null;
+    // RoutingKeys sert a configurer les evenements recus.
+    // Permet aussi d'initialiser les documents au demarrage
+    //   'evenement.DOMAINE.ACTION.cleDocument' : {
+    //      nomFichier: 'accueil.json',
+    //      requete: 'requete.Posteur.chargerAccueil',
+    //      cleEmit: ''
+    //   }
 
-    this.routingKeys = {};
-    // this.routingKeys[PUBLICATION_DOCUMENT_BLOGS] = true;
-
-    this.initialiser = this.initialiser.bind(this);
+    // this.initialiser = this.initialiser.bind(this)
   }
 
-  initialiser(server, opts, modeErreur) {
-    // console.debug("init albums")
-    // console.debug(opts);
+  getNomSection() {
+    throw new Error("Pas implemente")
+  }
 
-    this.webUrl = opts.webUrl;
+  getRoutingKeys() {
+    throw new Error("Pas implemente")
+  }
 
-    let webUrlFormatte = this.webUrl.replace(/\./g, '_');
-    // this.commandePublier = PUBLICATION_DOCUMENT_ACCUEIL;
-    this.routingKeys[this.getCommandePublier()] = true;
+  // Initialiser la section
+  //   - server : Instance socket.io (socketio())
+  //   - amqpdao : Instance de RabbitMQ (common)
+  //   - nodeId : id unique du noeud dans la millegrille
+  //   - opts : {
+  //       modeErreur: bool,
+  //       pathData: str,
+  //     }
+  initialiser(server, amqpdao, nodeId, opts) {
+    if(!opts) opts = {}
 
-    // this._enregistrerEvenements(server);
-    rabbitMQ.routingKeyManager.addRoutingKeyForNamespace(this, Object.keys(this.routingKeys));
-    this.pathData = opts.pathData;
-    this._enregistrerEvenements(server); // Enregistrer wss namespace
+    this.socketIoConnexion = server
+    this.amqpdao = amqpdao
+    this.nodeId = nodeId
+
+    // Note : s'assurer d'implementer ces methodes dans les sous-classes
+    const nomSection = this.getNomSection()
+    const routingKeys = this.getRoutingKeys()
+
+    this.pathData = opts.pathData || path.join('/tmp/vitrine/', nodeId, nomSection)
+    const modeErreur = opts.modeErreur || false
+
+    debug("Section %s, modeErreur: %s, pathData: %s, routing keys :", nomSection, modeErreur, this.pathData)
+    debug(routingKeys)
+    this.amqpdao.routingKeyManager.addRoutingKeyCallback(this.handleMessage, Object.keys(routingKeys), {exchange: '1.public'})
 
     if(!modeErreur) {
-      this.requeteDocuments();
+      this.requeteDocuments()
     } else {
       // On va attendre avant de charger les documents. Le system est probablement
       // en initialisation/reboot.
       console.warn(this.name + ": Attente avant du chargement des documents (60s)");
-      this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, 60000);
+      this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, DELAI_ESSAI_DOCUMENTS);
     }
   }
 
-  requeteDocuments() {
+  async requeteDocuments() {
     // Effectuer les requetes et conserver localement les resultats
-    var routingRequeteInitiale = this.getRoutingRequeteInitiale();
-    if(!this.timerChargement) {
-      this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, 30000);  // Ressayer dans 30 secondes
+    const routingKeys = this.getRoutingKeys()
+
+    var erreurDocument = false
+
+    try {
+      for(let routingKey in routingKeys) {
+        const config = routingKeys[routingKey]
+        if(config.requete) {
+          const domaineAction = config.requete
+
+          debug("Requete vers %s", domaineAction)
+          const parametres = config.requeteParametres || {}
+          try {
+            const reponse = await this.amqpdao.transmettreRequete(domaineAction, parametres)
+
+            debug("Reponse %s :", domaineAction)
+            debug(reponse)
+
+            const pathFichier = path.join(this.pathData, config.nomFichier)
+            maj_fichier_data(pathFichier, JSON.stringify(reponse));
+          } catch(err) {
+            console.error("Erreur transmission requete %s", routingKey)
+            console.error(err)
+            erreurDocument = true
+          }
+
+        }
+      }
+    } catch(err) {
+      console.error("Erreur chargement documents")
+      console.error(err)
+      erreurDocument = true
     }
-    rabbitMQ.transmettreRequete(routingRequeteInitiale, {})
-    .then(jsonMessage=>{
-      if(this.timerChargement) {
-        clearTimeout(this.timerChargement);
-        this.timerChargement = null;
+
+    if(erreurDocument) {
+      debug("Activation timer de %d secondes pour charger documents", this.DELAI_ESSAI_DOCUMENTS/1000)
+      this.timerChargement = setTimeout(()=>{this.rechargerDocuments()}, this.DELAI_ESSAI_DOCUMENTS);
+    }
+
+  }
+
+  handleMessage(routingKey, message, opts) {
+    const config = getRoutingKeys()[routingKey]
+    if(config) {
+
+      if(config.cleEmit) {
+        const cleEmit = config.cleEmit
+        this.emit(cle, message)
       }
 
-      // console.debug("Reponse requete doc");
-      // console.debug(reponse);
-      //
-      // // Extraire l'element resultats de la reponse (fiche publique)
-      // let messageContent = reponse.content.toString('utf-8');
-      // let jsonMessage = JSON.parse(messageContent);
-      const resultats = jsonMessage.resultats;
-      // console.debug("Reponse " + this.name + ".json, sauvegarde sous " + this.pathData);
+      if(config.nomFichier) {
+        const pathFichier = path.join(this.pathData, config.nomFichier)
+        maj_fichier_data(pathFichier, JSON.stringify(reponse));
+      }
 
-      maj_fichier_data(
-        path.join(this.pathData, this.name + '.json'),
-        JSON.stringify(resultats)
-      );
-
-    })
-    .catch(err=>{
-      console.info("Sections.requeteDocuments(): Erreur chargement, on va ressayer plus tard");
-      console.error(err);
-    })
-
+    } else {
+      console.warning("Recu routing key inconnue : %s", routingKey)
+    }
   }
 
   emit(cle, message) {
-    // Emet un message MQ
-    // console.debug("Section " + this.name + " Recu message " + cle);
-    // console.debug(message);
-
-    // Faire l'entretien du document local
-    if(message.routingKey === this.getCommandePublier()) {
-      this.wssConnexion.emit('contenu', message);
-      maj_fichier_data(
-        path.join(this.pathData, this.name + '.json'),
-        JSON.stringify(message.message)
-      );
-    }
+    const nomSection = getNomSection()
+    this.socketIoConnexion.to(nomSection).emit(cle, message)
   }
 
   rechargerDocuments() {
-    console.info("Tentative de rechargement des documents");
+    console.info("Tentative de rechargement des documents")
     if(this.timerChargement) {
-      clearTimeout(this.timerChargement);
-      this.timerChargement = null;
+      clearTimeout(this.timerChargement)
+      this.timerChargement = null
     }
-    this.requeteDocuments();
-  }
-
-  _enregistrerEvenements(server) {
-    let namespace = '/' + this.name;
-    this.wssConnexion = server.of(namespace);
-    // console.debug("Initialisation namespace " + namespace);
-    this.wssConnexion.on('connection', socket=>{
-      console.info('CONNECT_WSS ' + new Date() + ": Connexion sur " + namespace + ' a partir de ' + socket.handshake.address);
-      socket.on('disconnect', ()=>{
-        console.info('DISCONNECT_WSS ' + new Date() + ": Deconnexion de " + namespace + ' a partir de ' + socket.handshake.address);
-      })
-    })
+    this.requeteDocuments()
   }
 
 }
 
-class SectionAccueil extends SectionHandler {
+class VitrineGlobal extends SectionHandler {
+  NOM_SECTION = 'global'
 
-  constructor() {
-    super();
-    this.name = 'accueil';
+  ROUTING_KEYS = {
+    // 'evenement.Annuaire.document.fichePublique': {
+    //   nomFichier: 'fichePublique.json',
+    //   requete: 'Annuaire.fichePublique',
+    //   cleEmit: 'fichePublique',
+    // },
+    'evenement.Parametres.document.configurationNoeudPublic': {
+      nomFichier: 'configuration.json',
+      requete: 'Parametres.noeudPublic',
+      requeteParametres: {uuid_noeud: 'DUMMY'},
+      cleEmit: 'configuration',
+    },
   }
 
-  getCommandePublier() {
-    return PUBLICATION_DOCUMENT_ACCUEIL;
+  getNomSection() {
+    return this.NOM_SECTION
   }
 
-  getRoutingRequeteInitiale() {
-    return DOCUMENT_VITRINE_ACCUEIL;
+  getRoutingKeys() {
+    return this.ROUTING_KEYS
   }
-
 }
 
-class SectionBlogs extends SectionHandler {
+// class SectionAccueil extends SectionHandler {
+//
+//   NOM_SECTION = 'accueil'
+//   ROUTING_KEYS = {
+//
+//   }
+//
+//   getNomSection() {
+//     return NOM_SECTION
+//   }
+//
+//   getRoutingKeys() {
+//     return ROUTING_KEYS
+//   }
+//
+// }
+//
+// class SectionBlogs extends SectionHandler {
+//
+//   constructor() {
+//     super();
+//     this.name = 'blogs';
+//   }
+//
+//   getCommandePublier() {
+//     return PUBLICATION_DOCUMENT_BLOGS;
+//   }
+//
+//   getRoutingRequeteInitiale() {
+//     return DOCUMENT_VITRINE_BLOGS;
+//   }
+//
+// }
+//
+// class SectionSenseursPassifs extends SectionHandler {
+//
+//   constructor() {
+//     super();
+//     this.name = 'senseursPassifs';
+//   }
+//
+//   getCommandePublier() {
+//     return PUBLICATION_DOCUMENT_SENSEURSPASSIFS;
+//   }
+//
+//   getRoutingRequeteInitiale() {
+//     return DOCUMENT_VITRINE_SENSEURSPASSIFS;
+//   }
+//
+// }
 
-  constructor() {
-    super();
-    this.name = 'blogs';
-  }
-
-  getCommandePublier() {
-    return PUBLICATION_DOCUMENT_BLOGS;
-  }
-
-  getRoutingRequeteInitiale() {
-    return DOCUMENT_VITRINE_BLOGS;
-  }
-
-}
-
-class SectionSenseursPassifs extends SectionHandler {
-
-  constructor() {
-    super();
-    this.name = 'senseursPassifs';
-  }
-
-  getCommandePublier() {
-    return PUBLICATION_DOCUMENT_SENSEURSPASSIFS;
-  }
-
-  getRoutingRequeteInitiale() {
-    return DOCUMENT_VITRINE_SENSEURSPASSIFS;
-  }
-
-}
-
-module.exports = {SectionAccueil, SectionBlogs, SectionSenseursPassifs}
+module.exports = {VitrineGlobal} // SectionAccueil, SectionBlogs, SectionSenseursPassifs}

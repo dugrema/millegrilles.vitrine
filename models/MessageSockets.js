@@ -1,8 +1,7 @@
-const rabbitMQ = require('../util/rabbitMQ');
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
-const { maj_fichier_data } = require('./traitementFichiersData');
+const { maj_fichier_data } = require('../util/traitementFichiersData');
 
 const REQUETE_ANNONCES_RECENTES = 'requete.millegrilles.domaines.Plume.chargerAnnoncesRecentes'
 const MESSAGE_ANNONCES = 'noeuds.source.millegrilles_domaines_Plume.documents.annonces.recentes';

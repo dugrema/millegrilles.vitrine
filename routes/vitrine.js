@@ -1,21 +1,24 @@
 const debug = require('debug')('millegrilles:vitrine:route')
 const express = require('express')
 
+const {WebSocketVitrineApp} = require('../models/reactwss')
+
 const _info = {
+  nodeId: 'DUMMY_CHANGE_MOI',
   modeHebergement: false,
-};
+}
 
-// const {WebSocketVitrineApp} = require('../websocket/reactwss')
-//  vitrineWss.initialiserDomaines();
-//  vitrineWss.initialiserDomaines(true);
-
+var _fctRabbitMQParIdmg = null
 
 function initialiser(fctRabbitMQParIdmg, opts) {
   if(!opts) opts = {}
 
+  _fctRabbitMQParIdmg = fctRabbitMQParIdmg
+
   if(opts.idmg) {
     // Pour mode sans hebergement, on conserve le IDMG de reference local
-    _info.idmg = opts.idmg
+    const idmg = opts.idmg
+    _info.idmg = idmg
   } else {
     // Pas d'IDMG de reference, on est en mode hebergement
     _info.modeHebergement = true
@@ -46,26 +49,25 @@ function initialiser(fctRabbitMQParIdmg, opts) {
     res.end()
   });
 
-  // Ajouter parametres pour Socket.IO
-  const socketio = {addSocket}
-
-  return {route: app, socketio}
+  // Retourner hooks pour la configuration de la route
+  return {route: app, socketio: {configurerServer: configurerSocketIO}}
 }
 
 function ajouterStaticRoute(route) {
   var folderStatic =
     process.env.MG_COUPDOEIL_STATIC_RES ||
-    'static/coupdoeil'
+    'static/vitrine'
 
-  debug("Folder static pour coupdoeil : %s", folderStatic)
+  debug("Folder static pour vitrine : %s", folderStatic)
 
   route.use(express.static(folderStatic))
 }
 
-// Fonction qui permet d'activer Socket.IO pour l'application
-async function addSocket(socket) {
-  // await _webSocketApp.addSocket(socket);
-  debug("Socket ajoute : %s", socket.id)
+function configurerSocketIO(server) {
+  const amqpdao = _fctRabbitMQParIdmg(_info.idmg)
+  const nodeId = _info.nodeId
+  const vitrineSocketIO = new WebSocketVitrineApp(server, amqpdao, nodeId)
+  vitrineSocketIO.initialiserDomaines()
 }
 
 function routeInfo(req, res, next) {
