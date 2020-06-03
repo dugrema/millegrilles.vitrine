@@ -59,12 +59,13 @@ class SectionHandler {
     this.socketIoConnexion = server
     this.amqpdao = amqpdao
     this.uuidNoeud = uuidNoeud
+    this.idmg = amqpdao.pki.idmg
 
     // Note : s'assurer d'implementer ces methodes dans les sous-classes
     const nomSection = this.getNomSection()
     const routingKeys = this.getRoutingKeys()
 
-    this.pathData = opts.pathData || path.join('/tmp/vitrine/', uuidNoeud, nomSection)
+    this.pathData = opts.pathData || path.join('/tmp/vitrine/', this.idmg, nomSection)
     const modeErreur = opts.modeErreur || false
 
     debug("Section %s, modeErreur: %s, pathData: %s, routing keys :", nomSection, modeErreur, this.pathData)
