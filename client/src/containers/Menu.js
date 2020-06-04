@@ -23,7 +23,7 @@ export default function Menu(props) {
         <MenuItems changerPage={props.changerPage} />
         <Nav className="justify-content-end">
           <Nav.Link href='/'>{iconeHome}</Nav.Link>
-          <Nav.Link onClick={props.rootProps.toggleProtege}>{boutonProtege}</Nav.Link>
+          <Nav.Link href='/millegrilles'>{boutonProtege}</Nav.Link>
           <Nav.Link onClick={props.rootProps.changerLanguage}><Trans>menu.changerLangue</Trans></Nav.Link>
         </Nav>
       </Navbar.Collapse>
