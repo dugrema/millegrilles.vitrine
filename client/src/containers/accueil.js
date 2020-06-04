@@ -7,12 +7,11 @@ import { traduire } from '../components/langutils.js';
 
 import './accueil.css';
 
-const NOM_SECTION = 'accueil';
-const ACCUEIL_LIBELLE = 'page.' + NOM_SECTION, ACCUEIL_URL = NOM_SECTION + '.json';
-
 const PREFIX_DATA_URL = 'data:image/jpeg;base64,';
 
 export class AccueilVitrine extends SectionVitrine {
+
+  NOM_SECTION = 'accueil'
 
   CONFIGURATION_DOCUMENTS = {
     'accueil': {pathFichier: '/accueil/accueil.json'},
@@ -23,15 +22,7 @@ export class AccueilVitrine extends SectionVitrine {
   }
 
   getNomSection() {
-    return NOM_SECTION;
-  }
-
-  getDocumentLibelle() {
-    return ACCUEIL_LIBELLE;
-  }
-
-  getDocumentUrl() {
-    return ACCUEIL_URL;
+    return this.NOM_SECTION
   }
 
   render() {
@@ -39,7 +30,7 @@ export class AccueilVitrine extends SectionVitrine {
       this._renderJumbotron()
     ];
 
-    const contenuPage = this.state.contenu;
+    const contenuPage = this.state.accueil;
     if(contenuPage && contenuPage.portail) {
       for(let idx in contenuPage.portail) {
         const configPortlet = contenuPage.portail[idx];

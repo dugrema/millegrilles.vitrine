@@ -20,6 +20,7 @@ const NOEUDPUBLIC_LIBELLE = 'noeudPublic.configuration', NOEUDPUBLIC_URL = 'noeu
 // Application withTranslation sur l'application
 export default class _ApplicationVitrine extends React.Component {
 
+  // rootProps
   state = {
     configuration: null,
     noeudPublic: null,

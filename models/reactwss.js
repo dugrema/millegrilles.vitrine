@@ -1,9 +1,9 @@
 // WebSocket api pour l'application React Vitrine
+const debug = require('debug')('millegrilles:vitrine:reactwss')
 const os = require('os')
 const fs = require('fs')
 const path = require('path')
 
-const { SectionMessagesSockets } = require('./messageSockets')
 const { VitrineGlobal, SectionAccueil, SectionBlogs, SectionAnnonces } = require('./sectionsconfig')
 
 // const { maj_fichier_data, maj_collection } = require('../util/traitementFichiersData')
@@ -55,7 +55,6 @@ class GestionnaireDomaines {
       accueil: new SectionAccueil(),
       blogs: new SectionBlogs(),
       annonces: new SectionAnnonces(),
-      // messages: new SectionMessagesSockets(),
       // albums: new AlbumsSection(),
       // fichiers: new FichiersSection(),
       // senseurspassifs: new SectionSenseursPassifs(),
@@ -73,6 +72,19 @@ class GestionnaireDomaines {
     // Sur connexion, juste emettre message login true
     server.on('connection', socket => {
       socket.emit('pret', {'login': true})
+
+      socket.on('section.join', message => {
+        const section = message.section
+        debug("Socket %s join section %s", socket.id, section)
+        socket.join(section)
+      })
+
+      socket.on('section.leave', message => {
+        const section = message.section
+        debug("Socket %s leave section %s", socket.id, section)
+        socket.leave(section)
+      })
+
     })
 
     for(let domaine in this.domaines) {

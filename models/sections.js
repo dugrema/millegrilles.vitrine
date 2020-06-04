@@ -136,7 +136,7 @@ class SectionHandler {
 
         if(config.cleEmit) {
           const cleEmit = config.cleEmit
-          this.emit(cleEmit, message)
+          this.emit(cleEmit, {routingKey, message, cleEmit})
         }
 
       } else {

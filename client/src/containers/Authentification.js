@@ -6,6 +6,34 @@ import { WebSocketManager } from 'millegrilles.common/lib/webSocketManager'
 
 const SOCKET_IO = '/vitrine/socket.io'
 
+class WebSocketManagerVitrine extends WebSocketManager {
+
+  ecouterSection(section, clesEmit, cb) {
+    console.debug("Ecouter section %s", section)
+    console.debug(clesEmit)
+    this.socket.emit('section.join', {section})
+
+    // Enregistrer callback
+    for(let idx in clesEmit) {
+      const cle = clesEmit[idx]
+      this.socket.on(cle, cb)
+    }
+  }
+
+  arreterEcouteSection(section, clesEmit, cb) {
+    console.debug("Arret ecoute section %s", section)
+    console.debug(clesEmit)
+    this.socket.emit('section.leave', {section})
+
+    // Retirer listener callback
+    for(let idx in clesEmit) {
+      const cle = clesEmit[idx]
+      this.socket.on(cle, cb)
+    }
+  }
+
+}
+
 // ConnexionServeur sert a verifier que le serveur est accessible, set info de base en memoire
 // Transfere le controle a <ApplicationCoupdoeil /> via props.setInfoServeur
 export class VerificationInfoServeur extends React.Component {
@@ -96,7 +124,7 @@ export class ConnexionWebsocket extends React.Component {
       path: SOCKET_IO,
       reconnection: true,
     }
-    const websocketConnexion = new WebSocketManager(config)
+    const websocketConnexion = new WebSocketManagerVitrine(config)
     // websocketConnexion.disconnectHandler = this.props.desactiverProtege
 
     try {

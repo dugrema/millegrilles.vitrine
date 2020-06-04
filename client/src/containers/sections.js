@@ -2,7 +2,6 @@ import React from 'react'
 import axios from 'axios'
 import path from 'path'
 import { Trans } from 'react-i18next';
-// import { VitrineWebSocketHandler } from '../components/websocket'
 
 export class SectionVitrine extends React.Component {
 
@@ -26,21 +25,33 @@ export class SectionVitrine extends React.Component {
     throw new Error("Not implemented")
   }
 
+  getNomSection() {
+    throw new Error("Not implemented")
+  }
+
   componentDidMount() {
     const idmg = this.props.rootProps.idmg
     console.debug("Charger section avec idmg %s", idmg)
     _chargerDocuments(this.getConfigDocuments(), idmg)
-      .then(this.chargerDocuments)
+      .then(docs=>this.chargerDocuments(docs))
       .catch(this.erreurChargementDocuments)
   }
 
   componentWillUnmount() {
     // this.webSocketHandler.deconnecter();
+    const clesEmit = Object.keys(this.getConfigDocuments())
+    this.props.rootProps.websocketApp.arreterEcouteSection(this.getNomSection(), clesEmit)
   }
 
   chargerDocuments(docs) {
     console.debug("Documents charges")
     console.debug(docs)
+
+    // Faire expansion des documents sous state, conserver par "cleEmit"
+    this.setState({...docs})
+
+    const clesEmit = Object.keys(this.getConfigDocuments())
+    this.props.rootProps.websocketApp.ecouterSection(this.getNomSection(), clesEmit, r=>this.handleMessage(r))
   }
 
   erreurChargementDocuments(err) {
@@ -48,61 +59,19 @@ export class SectionVitrine extends React.Component {
     console.error(err)
   }
 
-  // Charge le fichier json qui s'occupe du contenu de cette page
-  // libelle: Nom dans localStorage (e.g. page.accueil)
-  // url: URL relatif sur le serveur (e.g. /defaut/accueil.json)
-  // _chargerPage(libelle, url) {
-  //   let contenuPageStr = localStorage.getItem(libelle);
-  //
-  //   const headers = {};
-  //   if(contenuPageStr) {
-  //     const contenu = JSON.parse(contenuPageStr);
-  //     this.setState({contenu: contenu.contenu});
-  //
-  //     let lastModified = contenu.lastModified;
-  //     if(lastModified) {
-  //       headers['If-Modified-Since'] = lastModified;
-  //     }
-  //   }
-  //
-  //   // Tenter de charger une version mise a jour a partir du serveur
-  //   axios.get('/data/' + url, {
-  //     headers,
-  //     validateStatus: status=>{return status === 200 || status === 304}
-  //   })
-  //   .then(resp=>{
-  //     // console.debug(resp);
-  //     if(resp.status === 200) {
-  //       // Sauvegarder le contenu mis a jour localement
-  //       const contenuPage = resp.data;
-  //       this.mettreAJourContenu(contenuPage, resp.headers['last-modified'])
-  //     }
-  //   })
-  //   .catch(err=>{
-  //     console.error("Erreur acces page " + libelle);
-  //     console.error(err);
-  //   })
-  //
-  // }
-  //
-  // mettreAJourContenu = (contenuPage, lastModified) => {
-  //   // console.debug("MAJ contenu")
-  //   let contenuExtrait = contenuPage.message || contenuPage;
-  //
-  //   // console.debug(contenuPage)
-  //   const libelle = 'page.' + this.getNomSection();
-  //   const contenu = {
-  //     contenu: contenuExtrait,
-  //     lastModified: lastModified,
-  //   }
-  //   this.setState({contenu: contenuExtrait}, ()=>this.hookContenuMaj());
-  //   localStorage.setItem(libelle, JSON.stringify(contenu));
-  // }
-  //
-  // hookContenuMaj() {
-  //   // Hook pour sous-classes
-  // }
-  //
+  handleMessage({message, routingKey, cleEmit}) {
+    console.debug(message)
+    console.debug("Message section %s recu, routingKey: %s, cleEmit", this.getNomSection(), routingKey, cleEmit)
+
+    const configKey = this.getConfigDocuments()[cleEmit]
+    if(configKey) {
+      this.setState({[cleEmit]: message})
+    } else {
+      console.error("Message cleEmit %s inconnu. Config : ", cleEmit)
+      console.debug(this.getConfigDocuments())
+    }
+  }
+
   // renderDateModifiee(dateModifieeEpoch) {
   //   const anneeCourante = new Date().getFullYear();
   //   const dateModifiee = new Date(dateModifieeEpoch * 1000);
@@ -185,19 +154,36 @@ export class SectionVitrine extends React.Component {
 
 async function _chargerDocuments(configuration, idmg) {
 
-  const docs = []
+  const docs = {}
+  try {
+    for(let cleEmit in configuration) {
+      const config = configuration[cleEmit]
+      var pathFichier = config.pathFichier
 
-  for(let cleEmit in configuration) {
-    const config = configuration[cleEmit]
-    var pathFichier = config.pathFichier
+      if(pathFichier) {
+        pathFichier = path.join('/vitrine/data', idmg, pathFichier)
+        console.debug("Chargement fichier %s", pathFichier)
 
-    if(pathFichier) {
-      pathFichier = path.join('/vitrine/data', idmg, pathFichier)
-      console.debug("Chargement fichier %s", pathFichier)
-      axios.get(pathFichier, response=>{
-        console.debug(response)
-        docs.push(response.data)
-      })
+        await axios.get(pathFichier)
+          .then(response=>{
+            if(response.status === 200) {
+              console.debug(response)
+              docs[cleEmit] = response.data
+            } else {
+              console.error("Erreur chargement fichier %s, status %d", path, response.status)
+            }
+          })
+          .catch(err=>{
+            console.error("Erreur chargement %s", pathFichier)
+            console.error(err)
+          })
+
+      }
     }
+  } catch(err) {
+    console.error("Erreur traitement configuration sous _chargerDocuments")
+    console.error(err)
   }
+
+  return docs
 }
