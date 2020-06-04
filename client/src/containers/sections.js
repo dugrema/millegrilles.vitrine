@@ -43,7 +43,8 @@ export class SectionVitrine extends React.Component {
     this.setState({...docs})
 
     const clesEmit = Object.keys(this.getConfigDocuments())
-    this.props.rootProps.websocketApp.ecouterSection(this.getNomSection(), clesEmit, r=>this.handleMessage(r))
+    const websocketApp = this.state.websocketApp || this.props.rootProps.websocketApp
+    websocketApp.ecouterSection(this.getNomSection(), clesEmit, r=>this.handleMessage(r))
   }
 
   erreurChargementDocuments(err) {

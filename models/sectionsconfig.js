@@ -17,6 +17,11 @@ class VitrineGlobal extends SectionHandler {
         requeteParametres: {uuidNoeud},
         cleEmit: 'configuration',
       },
+      'evenement.Principale.document.profil_millegrille': {
+        nomFichier: 'profilMillegrille.json',
+        requete: 'Principale.getProfilMillegrille',
+        cleEmit: 'profilMillegrille',
+      },
     }
 
     super.initialiser(server, amqpdao, uuidNoeud, opts)

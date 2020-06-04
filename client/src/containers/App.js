@@ -21,11 +21,12 @@ const NOEUDPUBLIC_LIBELLE = 'noeudPublic.configuration', NOEUDPUBLIC_URL = 'noeu
 // Application withTranslation sur l'application
 export default class _ApplicationVitrine extends SectionVitrine {
 
-  NOM_SECTION = 'globale'
+  NOM_SECTION = 'global'
 
   CONFIG_DOCUMENTS = {
-    'evenement.Principale.document.profil_millegrille': {pathFichier: '/global/profilMillegrille.json'},
-    'evenement.Principale.document.profil_usager': {pathFichier: '/global/profilUsager.json'},
+    'fichePublique': {pathFichier: '/global/fichePublique.json'},
+    'configuration': {pathFichier: '/global/configuration.json'},
+    'profilMillegrille': {pathFichier: '/global/profilMillegrille.json'},
   }
 
   // rootProps

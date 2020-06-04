@@ -48,14 +48,16 @@ export class AccueilVitrine extends SectionVitrine {
   }
 
   _renderJumbotron() {
+    console.debug(this.props.rootProps)
 
-    const nomMilleGrille = this.props.rootProps.nomMilleGrille;
-    const pageAccueil = this.state.accueil;
-
-    var descriptif, messageBienvenue, image;
-    if(nomMilleGrille) {
-      descriptif = (<p>{nomMilleGrille}</p>);
+    const profilMillegrille = this.props.rootProps.profilMillegrille
+    var nomMilleGrille = null
+    if(profilMillegrille) {
+      nomMilleGrille = profilMillegrille.nomMilleGrille
     }
+    const pageAccueil = this.state.accueil
+
+    var descriptif, messageBienvenue, image
     if(pageAccueil && pageAccueil.messageBienvenue) {
       let texte = traduire(pageAccueil, 'messageBienvenue', this.props.language, null);
       messageBienvenue = (<p>{texte}</p>);
@@ -72,7 +74,7 @@ export class AccueilVitrine extends SectionVitrine {
           <Container>
             <Row>
               <Col lg={9}>
-                <h1>{descriptif}</h1>
+                <h1>{nomMilleGrille}</h1>
                 <hr/>
                 {messageBienvenue}
               </Col>
