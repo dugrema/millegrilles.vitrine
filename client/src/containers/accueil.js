@@ -1,6 +1,6 @@
 import React from 'react';
 import {SectionVitrine} from './sections';
-import {Jumbotron, Card, CardDeck, Button, Image,
+import {Jumbotron, Card, CardDeck, Button,
         Container, Row, Col} from 'react-bootstrap';
 import {pathConsignation} from '../components/pathUtils';
 import { traduire } from '../components/langutils.js';
@@ -61,7 +61,7 @@ export class AccueilVitrine extends SectionVitrine {
       messageBienvenue = (<p>{texte}</p>);
 
       if(pageAccueil.thumbnail) {
-        image = (<img src={PREFIX_DATA_URL + pageAccueil.thumbnail}/>);
+        image = (<img alt="Thumbnail colonne" src={PREFIX_DATA_URL + pageAccueil.thumbnail}/>);
       }
     }
 
@@ -113,12 +113,6 @@ export class AccueilVitrine extends SectionVitrine {
       if(carte.texte) {
         // Traduire texte et generer paragraphes
         var texteColonne = traduire(carte, 'texte', this.props.language, this.props.millegrille);
-
-        // Card.Text est deja un <p>, on ne peut pas en imbriquer davantage
-        // texteColonne = texteColonne.split('\n\n').map((parag, idx)=>{
-        //   return (<p key={idx}>{parag}</p>);
-        // });
-
         texte = (<Card.Text>{texteColonne}</Card.Text>);
       }
       if(carte.bouton) {

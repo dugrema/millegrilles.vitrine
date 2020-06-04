@@ -1,21 +1,13 @@
 import React from 'react'
 import axios from 'axios'
 import path from 'path'
-import { Trans } from 'react-i18next';
+// import { Trans } from 'react-i18next';
 
 export class SectionVitrine extends React.Component {
 
   state = {
     contenu: null,
   }
-
-  // constructor(props) {
-  //   super(props);
-  //
-  //   this.state = {
-  //     contenu: null,
-  //   }
-  // }
 
   // Configuration des documents et evenements
   // 'cleEmit': {
@@ -161,10 +153,10 @@ async function _chargerDocuments(configuration, idmg) {
       var pathFichier = config.pathFichier
 
       if(pathFichier) {
-        pathFichier = path.join('/vitrine/data', idmg, pathFichier)
-        console.debug("Chargement fichier %s", pathFichier)
+        const pathFichierComplet = path.join('/vitrine/data', idmg, pathFichier)
+        console.debug("Chargement fichier %s", pathFichierComplet)
 
-        await axios.get(pathFichier)
+        await axios.get(pathFichierComplet)
           .then(response=>{
             if(response.status === 200) {
               console.debug(response)
@@ -174,7 +166,7 @@ async function _chargerDocuments(configuration, idmg) {
             }
           })
           .catch(err=>{
-            console.error("Erreur chargement %s", pathFichier)
+            console.error("Erreur chargement %s", pathFichierComplet)
             console.error(err)
           })
 
