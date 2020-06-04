@@ -22,7 +22,7 @@ export class SectionVitrine extends React.Component {
   }
 
   componentDidMount() {
-    const idmg = this.props.rootProps.idmg
+    const idmg = this.state.idmg || this.props.rootProps.idmg
     console.debug("Charger section avec idmg %s", idmg)
     _chargerDocuments(this.getConfigDocuments(), idmg)
       .then(docs=>this.chargerDocuments(docs))

@@ -49,15 +49,15 @@ export class AccueilVitrine extends SectionVitrine {
 
   _renderJumbotron() {
 
-    const configurationMilleGrille = this.props.millegrille;
-    const pageAccueil = this.state.contenu;
+    const nomMilleGrille = this.props.rootProps.nomMilleGrille;
+    const pageAccueil = this.state.accueil;
 
     var descriptif, messageBienvenue, image;
-    if(configurationMilleGrille && configurationMilleGrille.nomMilleGrille) {
-      descriptif = (<p>{traduire(configurationMilleGrille, 'nomMilleGrille', this.props.language, configurationMilleGrille)}</p>);
+    if(nomMilleGrille) {
+      descriptif = (<p>{nomMilleGrille}</p>);
     }
     if(pageAccueil && pageAccueil.messageBienvenue) {
-      let texte = traduire(pageAccueil, 'messageBienvenue', this.props.language, configurationMilleGrille);
+      let texte = traduire(pageAccueil, 'messageBienvenue', this.props.language, null);
       messageBienvenue = (<p>{texte}</p>);
 
       if(pageAccueil.thumbnail) {
@@ -66,20 +66,23 @@ export class AccueilVitrine extends SectionVitrine {
     }
 
     return (
-      <Jumbotron key='accueilHaut'>
-        <Container>
-          <Row>
-            <Col lg={9}>
-              <h1>{descriptif}</h1>
-              <hr/>
-              {messageBienvenue}
-            </Col>
-            <Col>
-              {image}
-            </Col>
-          </Row>
-        </Container>
-      </Jumbotron>
+      <div key='accueilHaut'>
+        <br/><br/><br/>
+        <Jumbotron>
+          <Container>
+            <Row>
+              <Col lg={9}>
+                <h1>{descriptif}</h1>
+                <hr/>
+                {messageBienvenue}
+              </Col>
+              <Col>
+                {image}
+              </Col>
+            </Row>
+          </Container>
+        </Jumbotron>
+      </div>
     );
   }
 

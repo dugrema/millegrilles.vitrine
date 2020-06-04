@@ -7,6 +7,7 @@ import { Layout } from './Layout'
 
 // Importer sections et domaines
 import AfficherSection from './mapSections'
+import { SectionVitrine } from './sections'
 
 import '../components/i18n';
 import { Trans, Translation, withTranslation } from 'react-i18next';
@@ -18,7 +19,14 @@ const MILLEGRILLE_LIBELLE = 'millegrille.configuration', MILLEGRILLE_URL = 'mill
 const NOEUDPUBLIC_LIBELLE = 'noeudPublic.configuration', NOEUDPUBLIC_URL = 'noeudPublic.json';
 
 // Application withTranslation sur l'application
-export default class _ApplicationVitrine extends React.Component {
+export default class _ApplicationVitrine extends SectionVitrine {
+
+  NOM_SECTION = 'globale'
+
+  CONFIG_DOCUMENTS = {
+    'evenement.Principale.document.profil_millegrille': {pathFichier: '/global/profilMillegrille.json'},
+    'evenement.Principale.document.profil_usager': {pathFichier: '/global/profilUsager.json'},
+  }
 
   // rootProps
   state = {
@@ -36,8 +44,21 @@ export default class _ApplicationVitrine extends React.Component {
 
   }
 
+  getConfigDocuments() {
+    return this.CONFIG_DOCUMENTS
+  }
+
+  getNomSection() {
+    return this.NOM_SECTION
+  }
+
   componentDidMount() {
-    axios.get('/vitrine/info.json').then(r=>this.setInfoJson(r)).catch(e=>this.erreurInfoJson(e))
+    axios.get('/vitrine/info.json').then(async r => {
+      await this.setInfoJson(r)
+      console.debug("App.js componentDidMount")
+      super.componentDidMount()  // Besoin IDMG
+    }).catch(e=>this.erreurInfoJson(e))
+
 
     // // Charger la configuration de la MilleGrille
     // this._chargerConfiguration()
@@ -52,6 +73,7 @@ export default class _ApplicationVitrine extends React.Component {
   }
 
   componentWillUnmount() {
+    super.componentWillUnmount()
     if(this.state.websocketApp) {
       this.state.websocketApp.deconnecter()
     }
@@ -62,7 +84,9 @@ export default class _ApplicationVitrine extends React.Component {
     console.debug(response)
     const infoServeur = response.data
     const idmg = infoServeur.idmg
-    this.setState({infoServeur, idmg})
+    return new Promise((resolve, reject) => {
+      this.setState({infoServeur, idmg}, ()=>resolve())
+    })
   }
 
   erreurInfoJson(err) {
