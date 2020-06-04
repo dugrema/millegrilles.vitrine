@@ -14,6 +14,14 @@ const PREFIX_DATA_URL = 'data:image/jpeg;base64,';
 
 export class AccueilVitrine extends SectionVitrine {
 
+  CONFIGURATION_DOCUMENTS = {
+    'accueil': {pathFichier: '/accueil/accueil.json'},
+  }
+
+  getConfigDocuments() {
+    return this.CONFIGURATION_DOCUMENTS
+  }
+
   getNomSection() {
     return NOM_SECTION;
   }

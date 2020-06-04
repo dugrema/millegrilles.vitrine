@@ -7,7 +7,7 @@ import Menu from './Menu'
 
 import './Layout.css'
 
-export function LayoutCoudpoeil(props) {
+export function Layout(props) {
 
   return (
     <div className="flex-wrapper">
@@ -25,7 +25,6 @@ function Entete(props) {
   return (
     <Container>
       <Menu changerPage={props.changerPage} rootProps={props.rootProps}/>
-      <h1>Coup D'Oeil</h1>
     </Container>
   )
 }

@@ -4,61 +4,29 @@ import { Route, Switch } from 'react-router-dom';
 import {Container, Row, Col} from 'react-bootstrap';
 
 import { AccueilVitrine } from './accueil';
-import { AlbumsVitrine } from './albums';
-import { MessagesVitrine } from './messages';
+// import { AlbumsVitrine } from './albums';
+import { AnnoncesVitrine } from './annonces';
 import { BlogsVitrine } from './blogs';
-import { PodcastsVitrine } from './podcasts';
-import { FichiersVitrine } from './fichiers';
-import { SenseursPassifsVitrine } from './senseursPassifs';
+// import { PodcastsVitrine } from './podcasts';
+// import { FichiersVitrine } from './fichiers';
+// import { SenseursPassifsVitrine } from './senseursPassifs';
 
 // La liste des sections supportees est limite a ce qui est charge dans ce fichier
 const sections = {
-  SenseursPassifs: SenseursPassifsVitrine,
+  AccueilVitrine, AnnoncesVitrine, BlogsVitrine
 }
 
-// Cette fonction effecute le mapping pour le menu de Vitrine
-export function getElementSection(section) {
-  return sections[section];
-}
+export default function AfficherSection(props) {
 
-export function listerSections() {
-  return Object.keys(sections);
-}
-
-export class AfficherSection extends React.Component {
-  render() {
-    return (
-      <Switch>
-        <Route exact path="/">
-          <AccueilVitrine {...this.props}/>
-        </Route>
-        <Route path="/albums">
-          <AlbumsVitrine {...this.props}/>
-        </Route>
-        <Route path="/messages">
-          <MessagesVitrine {...this.props}/>
-        </Route>
-        <Route path="/blogs">
-          <BlogsVitrine {...this.props}/>
-        </Route>
-        <Route path="/podcasts">
-          <PodcastsVitrine {...this.props}/>
-        </Route>
-        <Route path="/fichiers">
-          <FichiersVitrine {...this.props}/>
-        </Route>
-        <Route path="/files">
-          <FichiersVitrine {...this.props}/>
-        </Route>
-        <Route path="/senseursPassifs">
-          <SenseursPassifsVitrine {...this.props}/>
-        </Route>
-        <Route status={404}>
-          <NotFound/>
-        </Route>
-      </Switch>
-    );
+  const nomPage = props.rootProps.page
+  var Page = sections[nomPage]
+  if(!Page) {
+    Page = (<NotFound />)
   }
+
+  return (
+    <Page rootProps={props.rootProps} />
+  )
 }
 
 function NotFound(props) {

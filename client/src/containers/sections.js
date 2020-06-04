@@ -1,7 +1,8 @@
-import React from 'react';
-import axios from 'axios';
+import React from 'react'
+import axios from 'axios'
+import path from 'path'
 import { Trans } from 'react-i18next';
-import { VitrineWebSocketHandler } from '../components/websocket'
+// import { VitrineWebSocketHandler } from '../components/websocket'
 
 export class SectionVitrine extends React.Component {
 
@@ -17,149 +18,184 @@ export class SectionVitrine extends React.Component {
   //   }
   // }
 
-  componentDidMount() {
-    this._chargerPage(this.getDocumentLibelle(), this.getDocumentUrl());
-    this.webSocketHandler = new VitrineWebSocketHandler(this.getNomSection());
-    this.webSocketHandler.connecter();
+  // Configuration des documents et evenements
+  // 'cleEmit': {
+  //    pathFichier: 'annonces/annonces.json',
+  //  }
+  getConfigDocuments() {
+    throw new Error("Not implemented")
+  }
 
-    this.webSocketHandler.enregistrerCallback('contenu', this.mettreAJourContenu);
+  componentDidMount() {
+    _chargerDocuments(this.getConfigDocuments())
+      .then(this.chargerDocuments)
+      .catch(this.erreurChargementDocuments)
   }
 
   componentWillUnmount() {
-    this.webSocketHandler.deconnecter();
+    // this.webSocketHandler.deconnecter();
+  }
+
+  chargerDocuments(docs) {
+    console.debug("Documents charges")
+    console.debug(docs)
+  }
+
+  erreurChargementDocuments(err) {
+    console.error("Erreur chargement documents")
+    console.error(err)
   }
 
   // Charge le fichier json qui s'occupe du contenu de cette page
   // libelle: Nom dans localStorage (e.g. page.accueil)
   // url: URL relatif sur le serveur (e.g. /defaut/accueil.json)
-  _chargerPage(libelle, url) {
-    let contenuPageStr = localStorage.getItem(libelle);
-
-    const headers = {};
-    if(contenuPageStr) {
-      const contenu = JSON.parse(contenuPageStr);
-      this.setState({contenu: contenu.contenu});
-
-      let lastModified = contenu.lastModified;
-      if(lastModified) {
-        headers['If-Modified-Since'] = lastModified;
-      }
-    }
-
-    // Tenter de charger une version mise a jour a partir du serveur
-    axios.get('/data/' + url, {
-      headers,
-      validateStatus: status=>{return status === 200 || status === 304}
-    })
-    .then(resp=>{
-      // console.debug(resp);
-      if(resp.status === 200) {
-        // Sauvegarder le contenu mis a jour localement
-        const contenuPage = resp.data;
-        this.mettreAJourContenu(contenuPage, resp.headers['last-modified'])
-      }
-    })
-    .catch(err=>{
-      console.error("Erreur acces page " + libelle);
-      console.error(err);
-    })
-
-  }
-
-  mettreAJourContenu = (contenuPage, lastModified) => {
-    // console.debug("MAJ contenu")
-    let contenuExtrait = contenuPage.message || contenuPage;
-
-    // console.debug(contenuPage)
-    const libelle = 'page.' + this.getNomSection();
-    const contenu = {
-      contenu: contenuExtrait,
-      lastModified: lastModified,
-    }
-    this.setState({contenu: contenuExtrait}, ()=>this.hookContenuMaj());
-    localStorage.setItem(libelle, JSON.stringify(contenu));
-  }
-
-  hookContenuMaj() {
-    // Hook pour sous-classes
-  }
-
-  renderDateModifiee(dateModifieeEpoch) {
-    const anneeCourante = new Date().getFullYear();
-    const dateModifiee = new Date(dateModifieeEpoch * 1000);
-    let labelDate;
-    if(dateModifiee.getFullYear() === anneeCourante) {
-      labelDate = 'accueil.dateModifiee';
-    } else {
-      labelDate = 'accueil.dateAnneeModifiee';
-    }
-
-    var dateElement = (
-      <div className="date-message">
-        <div className="date-modifiee">
-          <Trans values={{date: dateModifiee}}>{labelDate}</Trans>
-        </div>
-        <div className="heure-modifiee">
-          <Trans values={{date: dateModifiee}}>accueil.heureModifiee</Trans>
-        </div>
-      </div>
-    )
-
-    return dateElement;
-  }
+  // _chargerPage(libelle, url) {
+  //   let contenuPageStr = localStorage.getItem(libelle);
+  //
+  //   const headers = {};
+  //   if(contenuPageStr) {
+  //     const contenu = JSON.parse(contenuPageStr);
+  //     this.setState({contenu: contenu.contenu});
+  //
+  //     let lastModified = contenu.lastModified;
+  //     if(lastModified) {
+  //       headers['If-Modified-Since'] = lastModified;
+  //     }
+  //   }
+  //
+  //   // Tenter de charger une version mise a jour a partir du serveur
+  //   axios.get('/data/' + url, {
+  //     headers,
+  //     validateStatus: status=>{return status === 200 || status === 304}
+  //   })
+  //   .then(resp=>{
+  //     // console.debug(resp);
+  //     if(resp.status === 200) {
+  //       // Sauvegarder le contenu mis a jour localement
+  //       const contenuPage = resp.data;
+  //       this.mettreAJourContenu(contenuPage, resp.headers['last-modified'])
+  //     }
+  //   })
+  //   .catch(err=>{
+  //     console.error("Erreur acces page " + libelle);
+  //     console.error(err);
+  //   })
+  //
+  // }
+  //
+  // mettreAJourContenu = (contenuPage, lastModified) => {
+  //   // console.debug("MAJ contenu")
+  //   let contenuExtrait = contenuPage.message || contenuPage;
+  //
+  //   // console.debug(contenuPage)
+  //   const libelle = 'page.' + this.getNomSection();
+  //   const contenu = {
+  //     contenu: contenuExtrait,
+  //     lastModified: lastModified,
+  //   }
+  //   this.setState({contenu: contenuExtrait}, ()=>this.hookContenuMaj());
+  //   localStorage.setItem(libelle, JSON.stringify(contenu));
+  // }
+  //
+  // hookContenuMaj() {
+  //   // Hook pour sous-classes
+  // }
+  //
+  // renderDateModifiee(dateModifieeEpoch) {
+  //   const anneeCourante = new Date().getFullYear();
+  //   const dateModifiee = new Date(dateModifieeEpoch * 1000);
+  //   let labelDate;
+  //   if(dateModifiee.getFullYear() === anneeCourante) {
+  //     labelDate = 'accueil.dateModifiee';
+  //   } else {
+  //     labelDate = 'accueil.dateAnneeModifiee';
+  //   }
+  //
+  //   var dateElement = (
+  //     <div className="date-message">
+  //       <div className="date-modifiee">
+  //         <Trans values={{date: dateModifiee}}>{labelDate}</Trans>
+  //       </div>
+  //       <div className="heure-modifiee">
+  //         <Trans values={{date: dateModifiee}}>accueil.heureModifiee</Trans>
+  //       </div>
+  //     </div>
+  //   )
+  //
+  //   return dateElement;
+  // }
 
 }
 
-export class CollectionVitrine extends React.Component {
+// export class CollectionVitrine extends React.Component {
+//
+//   state = {
+//     contenu: null,
+//   };
+//
+//   componentDidMount() {
+//     this._chargerCollection(this.getUuid());
+//   }
+//
+//   // Charge le fichier json qui s'occupe du contenu de cette page
+//   // libelle: Nom dans localStorage (e.g. page.accueil)
+//   // url: URL relatif sur le serveur (e.g. /defaut/accueil.json)
+//   _chargerCollection(libelle) {
+//     let contenuPageStr = sessionStorage.getItem(libelle);
+//
+//     const headers = {};
+//     if(contenuPageStr) {
+//       const contenu = JSON.parse(contenuPageStr);
+//       this.setState({contenu: contenu.contenu});
+//
+//       let lastModified = contenu.lastModified;
+//       if(lastModified) {
+//         headers['If-Modified-Since'] = lastModified;
+//       }
+//     }
+//
+//     // Tenter de charger une version mise a jour a partir du serveur
+//     axios.get('/data/collections/' + this.getUuid() + '.json', {
+//       headers,
+//       validateStatus: status=>{return status === 200 || status === 304}
+//     })
+//     .then(resp=>{
+//       // console.debug(resp);
+//       if(resp.status === 200) {
+//         // Sauvegarder le contenu mis a jour localement
+//         const contenuPage = resp.data;
+//         const contenu = {
+//           contenu: contenuPage,
+//           lastModified: resp.headers['last-modified'],
+//         }
+//         this.setState({contenu: contenuPage});
+//         sessionStorage.setItem(libelle, JSON.stringify(contenu));
+//       }
+//     })
+//     .catch(err=>{
+//       console.error("Erreur acces collection " + libelle);
+//       console.error(err);
+//     })
+//
+//   }
+//
+// }
 
-  state = {
-    contenu: null,
-  };
+async function _chargerDocuments(configuration) {
 
-  componentDidMount() {
-    this._chargerCollection(this.getUuid());
-  }
+  const docs = []
 
-  // Charge le fichier json qui s'occupe du contenu de cette page
-  // libelle: Nom dans localStorage (e.g. page.accueil)
-  // url: URL relatif sur le serveur (e.g. /defaut/accueil.json)
-  _chargerCollection(libelle) {
-    let contenuPageStr = sessionStorage.getItem(libelle);
+  for(let cleEmit in configuration) {
+    const config = configuration[cleEmit]
+    var pathFichier = config.pathFichier
 
-    const headers = {};
-    if(contenuPageStr) {
-      const contenu = JSON.parse(contenuPageStr);
-      this.setState({contenu: contenu.contenu});
-
-      let lastModified = contenu.lastModified;
-      if(lastModified) {
-        headers['If-Modified-Since'] = lastModified;
-      }
+    if(pathFichier) {
+      pathFichier = path.join('/vitrine/', pathFichier)
+      console.debug("Chargement fichier %s", pathFichier)
+      axios.get(pathFichier, response=>{
+        console.debug(response)
+        docs.push(response.data)
+      })
     }
-
-    // Tenter de charger une version mise a jour a partir du serveur
-    axios.get('/data/collections/' + this.getUuid() + '.json', {
-      headers,
-      validateStatus: status=>{return status === 200 || status === 304}
-    })
-    .then(resp=>{
-      // console.debug(resp);
-      if(resp.status === 200) {
-        // Sauvegarder le contenu mis a jour localement
-        const contenuPage = resp.data;
-        const contenu = {
-          contenu: contenuPage,
-          lastModified: resp.headers['last-modified'],
-        }
-        this.setState({contenu: contenuPage});
-        sessionStorage.setItem(libelle, JSON.stringify(contenu));
-      }
-    })
-    .catch(err=>{
-      console.error("Erreur acces collection " + libelle);
-      console.error(err);
-    })
-
   }
-
 }

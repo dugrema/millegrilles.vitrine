@@ -3,9 +3,10 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { Nav, Navbar, NavDropdown, Container, Row, Col} from 'react-bootstrap';
 import axios from 'axios';
 import { ConnexionWebsocket } from './Authentification'
+import { Layout } from './Layout'
 
 // Importer sections et domaines
-import { AfficherSection } from './mapSections';
+import AfficherSection from './mapSections'
 
 import '../components/i18n';
 import { Trans, Translation, withTranslation } from 'react-i18next';
@@ -23,11 +24,12 @@ export default class _ApplicationVitrine extends React.Component {
     configuration: null,
     noeudPublic: null,
     websocketApp: null,
-  }
 
-  setWebsocketApp = websocketApp => {
-    // Set la connexion Socket.IO. Par defaut, le mode est prive (lecture seule)
-    this.setState({websocketApp})
+    page: 'AccueilVitrine',
+    manifest: {
+      version: 'DUMMY',
+      date: 'DUMMY'
+    },
   }
 
   componentDidMount() {
@@ -80,7 +82,23 @@ export default class _ApplicationVitrine extends React.Component {
   componentDidUpdate() {
     const i18n = this.props.i18n
     const language = 'fr' //i18n.language;
-    _setTitre(language, this._milleGrille());
+    // _setTitre(language, this._milleGrille());
+  }
+
+  setWebsocketApp = websocketApp => {
+    // Set la connexion Socket.IO. Par defaut, le mode est prive (lecture seule)
+    this.setState({websocketApp})
+  }
+
+  changerPage = page => {
+    if(page === this.state.page) {
+      // Reset de la page
+      // console.debug("Reset page : %s", page)
+      this.setState({page: ''}, ()=>{this.setState({page})})
+    } else {
+      // console.debug("Page : %s", page)
+      this.setState({page})
+    }
   }
 
   render() {
@@ -95,102 +113,104 @@ export default class _ApplicationVitrine extends React.Component {
     // const language = i18n.language;
     const languageChangement = language==='fr'?'en':'fr';
 
-    const configurationNoeud = this._configuration(),
-          configurationMilleGrille = this._milleGrille();
+    // const configurationNoeud = this._configuration(),
+    //       configurationMilleGrille = this._milleGrille();
 
-    const parametresCommuns = {
-      millegrille: configurationMilleGrille,
-      configuration: configurationNoeud,
-      language
-    };
+    // const parametresCommuns = {
+    //   millegrille: configurationMilleGrille,
+    //   configuration: configurationNoeud,
+    //   language
+    // };
 
     let webSocketOpener = null
     if( ! this.state.websocketApp ) {
       webSocketOpener = <ConnexionWebsocket setWebsocketApp={this.setWebsocketApp} />
     }
 
+    // <ToggleMenu
+    //   millegrille={configurationMilleGrille}
+    //   configuration={configurationNoeud}
+    //   language={language}
+    //   languageChangement={languageChangement}
+    //   changeLanguage={changeLanguage}
+    //   menuActions={this.menuActions}
+    //   section={this.state.section}
+    //   />
+    //
+    // <AfficherSection
+    //   millegrille={configurationMilleGrille}
+    //   configuration={configurationNoeud}
+    //   language={language} />
+    //
+    // <Footer {...parametresCommuns} />
+
+    const page = (<AfficherSection rootProps={{...this.state}} />)
+
     return (
       <Router>
         <div className="App">
-
           { webSocketOpener }
-
-          <ToggleMenu
-            millegrille={configurationMilleGrille}
-            configuration={configurationNoeud}
-            language={language}
-            languageChangement={languageChangement}
-            changeLanguage={changeLanguage}
-            menuActions={this.menuActions}
-            section={this.state.section}
-            />
-
-          <AfficherSection
-            millegrille={configurationMilleGrille}
-            configuration={configurationNoeud}
-            language={language} />
-
-          <Footer {...parametresCommuns} />
+          <Layout changerPage={this.changerPage} page={page} rootProps={{...this.state}} />
         </div>
       </Router>
     );
   }
 
-  _chargerConfiguration() {
-    this._chargerFichierConfiguration(MILLEGRILLE_URL, MILLEGRILLE_LIBELLE);
-    this._chargerFichierConfiguration(NOEUDPUBLIC_URL, NOEUDPUBLIC_LIBELLE);
-  }
+  // _chargerConfiguration() {
+  //   this._chargerFichierConfiguration(MILLEGRILLE_URL, MILLEGRILLE_LIBELLE);
+  //   this._chargerFichierConfiguration(NOEUDPUBLIC_URL, NOEUDPUBLIC_LIBELLE);
+  // }
 
-  _chargerFichierConfiguration(url, libelle) {
-    const headers = {};
-    let contenuStr = localStorage.getItem(libelle);
-    if(contenuStr) {
-      const configuration = JSON.parse(contenuStr);
-      let maj = {};
-      maj[libelle] = configuration.contenu;
-      this.setState(maj);
+  // _chargerFichierConfiguration(url, libelle) {
+  //   const headers = {};
+  //   let contenuStr = localStorage.getItem(libelle);
+  //   if(contenuStr) {
+  //     const configuration = JSON.parse(contenuStr);
+  //     let maj = {};
+  //     maj[libelle] = configuration.contenu;
+  //     this.setState(maj);
+  //
+  //     let lastModified = configuration.lastModified;
+  //     if(lastModified) {
+  //       headers['If-Modified-Since'] = lastModified;
+  //     }
+  //   }
 
-      let lastModified = configuration.lastModified;
-      if(lastModified) {
-        headers['If-Modified-Since'] = lastModified;
-      }
-    }
+  //   axios.get('/data/' + url, {
+  //     headers,
+  //     validateStatus: status=>{return status === 200 || status === 304}
+  //   })
+  //   .then(resp=>{
+  //     // console.debug(resp);
+  //     if(resp.status === 200) {
+  //       // Sauvegarder la configuration
+  //       const contenuPage = resp.data;
+  //       const maj = {};
+  //       maj[libelle] = contenuPage;
+  //       this.setState(maj);
+  //
+  //       const contenuJson = {
+  //         contenu: contenuPage,
+  //         lastModified: resp.headers['last-modified'],
+  //       }
+  //       localStorage.setItem(libelle, JSON.stringify(contenuJson));
+  //     }
+  //   })
+  //   .catch(err=>{
+  //     console.error("Erreur acces config defaut " + url);
+  //     console.error(err);
+  //   })
+  // }
 
-    axios.get('/data/' + url, {
-      headers,
-      validateStatus: status=>{return status === 200 || status === 304}
-    })
-    .then(resp=>{
-      // console.debug(resp);
-      if(resp.status === 200) {
-        // Sauvegarder la configuration
-        const contenuPage = resp.data;
-        const maj = {};
-        maj[libelle] = contenuPage;
-        this.setState(maj);
-
-        const contenuJson = {
-          contenu: contenuPage,
-          lastModified: resp.headers['last-modified'],
-        }
-        localStorage.setItem(libelle, JSON.stringify(contenuJson));
-      }
-    })
-    .catch(err=>{
-      console.error("Erreur acces config defaut " + url);
-      console.error(err);
-    })
-  }
-
-  _milleGrille() {
-    if(this.state[MILLEGRILLE_LIBELLE])
-      return this.state[MILLEGRILLE_LIBELLE];
-  }
-
-  _configuration() {
-    if(this.state[NOEUDPUBLIC_LIBELLE])
-      return this.state[NOEUDPUBLIC_LIBELLE];
-  }
+  // _milleGrille() {
+  //   if(this.state[MILLEGRILLE_LIBELLE])
+  //     return this.state[MILLEGRILLE_LIBELLE];
+  // }
+  //
+  // _configuration() {
+  //   if(this.state[NOEUDPUBLIC_LIBELLE])
+  //     return this.state[NOEUDPUBLIC_LIBELLE];
+  // }
 
 } const ApplicationVitrine = withTranslation()(_ApplicationVitrine)
 
