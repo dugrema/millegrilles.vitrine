@@ -58,7 +58,7 @@ class SectionHandler {
     const nomSection = this.getNomSection()
     const routingKeys = this.getRoutingKeys()
 
-    this.pathData = opts.pathData || path.join('/tmp/vitrine/', this.idmg, nomSection)
+    this.pathData = path.join(opts.pathData, this.idmg, nomSection)
     const modeErreur = opts.modeErreur || false
 
     debug("Section %s, modeErreur: %s, pathData: %s, routing keys :", nomSection, modeErreur, this.pathData)
@@ -96,6 +96,7 @@ class SectionHandler {
             debug(reponse)
 
             const pathFichier = path.join(this.pathData, config.nomFichier)
+            debug("MAJ Fichier %s", pathFichier)
             await maj_fichier_data(pathFichier, JSON.stringify(reponse));
           } catch(err) {
             console.error("Erreur transmission requete %s", routingKey)

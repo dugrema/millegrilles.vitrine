@@ -27,7 +27,9 @@ export class SectionVitrine extends React.Component {
   }
 
   componentDidMount() {
-    _chargerDocuments(this.getConfigDocuments())
+    const idmg = this.props.rootProps.idmg
+    console.debug("Charger section avec idmg %s", idmg)
+    _chargerDocuments(this.getConfigDocuments(), idmg)
       .then(this.chargerDocuments)
       .catch(this.erreurChargementDocuments)
   }
@@ -181,7 +183,7 @@ export class SectionVitrine extends React.Component {
 //
 // }
 
-async function _chargerDocuments(configuration) {
+async function _chargerDocuments(configuration, idmg) {
 
   const docs = []
 
@@ -190,7 +192,7 @@ async function _chargerDocuments(configuration) {
     var pathFichier = config.pathFichier
 
     if(pathFichier) {
-      pathFichier = path.join('/vitrine/', pathFichier)
+      pathFichier = path.join('/vitrine/data', idmg, pathFichier)
       console.debug("Chargement fichier %s", pathFichier)
       axios.get(pathFichier, response=>{
         console.debug(response)

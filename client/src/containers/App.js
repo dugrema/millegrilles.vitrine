@@ -24,15 +24,20 @@ export default class _ApplicationVitrine extends React.Component {
     configuration: null,
     noeudPublic: null,
     websocketApp: null,
+    infoServeur: null,
 
     page: 'AccueilVitrine',
+
     manifest: {
       version: 'DUMMY',
       date: 'DUMMY'
     },
+
   }
 
   componentDidMount() {
+    axios.get('/vitrine/info.json').then(r=>this.setInfoJson(r)).catch(e=>this.erreurInfoJson(e))
+
     // // Charger la configuration de la MilleGrille
     // this._chargerConfiguration()
     //
@@ -49,6 +54,19 @@ export default class _ApplicationVitrine extends React.Component {
     if(this.state.websocketApp) {
       this.state.websocketApp.deconnecter()
     }
+  }
+
+  setInfoJson(response) {
+    console.debug("Info serveur")
+    console.debug(response)
+    const infoServeur = response.data
+    const idmg = infoServeur.idmg
+    this.setState({infoServeur, idmg})
+  }
+
+  erreurInfoJson(err) {
+    console.error("Erreur chargement info.json")
+    console.error(err)
   }
 
   majConfigurationMilleGrille(enveloppe, lastModified) {
@@ -122,59 +140,23 @@ export default class _ApplicationVitrine extends React.Component {
     //   language
     // };
 
-    let webSocketOpener = null
+    let page
     if( ! this.state.websocketApp ) {
-      webSocketOpener = <ConnexionWebsocket setWebsocketApp={this.setWebsocketApp} />
+      page = <ConnexionWebsocket setWebsocketApp={this.setWebsocketApp} />
+    } else if( ! this.state.infoServeur ) {
+      page = <p>Chargement information sur la millegrille</p>
+    } else {
+      page = <AfficherSection rootProps={{...this.state}} />
     }
-
-    // <ToggleMenu
-    //   millegrille={configurationMilleGrille}
-    //   configuration={configurationNoeud}
-    //   language={language}
-    //   languageChangement={languageChangement}
-    //   changeLanguage={changeLanguage}
-    //   menuActions={this.menuActions}
-    //   section={this.state.section}
-    //   />
-    //
-    // <AfficherSection
-    //   millegrille={configurationMilleGrille}
-    //   configuration={configurationNoeud}
-    //   language={language} />
-    //
-    // <Footer {...parametresCommuns} />
-
-    const page = (<AfficherSection rootProps={{...this.state}} />)
 
     return (
       <Router>
         <div className="App">
-          { webSocketOpener }
           <Layout changerPage={this.changerPage} page={page} rootProps={{...this.state}} />
         </div>
       </Router>
     );
   }
-
-  // _chargerConfiguration() {
-  //   this._chargerFichierConfiguration(MILLEGRILLE_URL, MILLEGRILLE_LIBELLE);
-  //   this._chargerFichierConfiguration(NOEUDPUBLIC_URL, NOEUDPUBLIC_LIBELLE);
-  // }
-
-  // _chargerFichierConfiguration(url, libelle) {
-  //   const headers = {};
-  //   let contenuStr = localStorage.getItem(libelle);
-  //   if(contenuStr) {
-  //     const configuration = JSON.parse(contenuStr);
-  //     let maj = {};
-  //     maj[libelle] = configuration.contenu;
-  //     this.setState(maj);
-  //
-  //     let lastModified = configuration.lastModified;
-  //     if(lastModified) {
-  //       headers['If-Modified-Since'] = lastModified;
-  //     }
-  //   }
 
   //   axios.get('/data/' + url, {
   //     headers,

@@ -31,8 +31,8 @@ class WebSocketVitrineApp {
     server.on('disconnect', this.disconnectedHandler)
   }
 
-  initialiserDomaines() {
-    this.domaines = new GestionnaireDomaines()
+  initialiserDomaines(opts) {
+    this.domaines = new GestionnaireDomaines(opts)
     this.domaines.initialiser(this.server, this.amqpdao, this.nodeId, this.modeErreur)
   }
 
@@ -48,7 +48,8 @@ class WebSocketVitrineApp {
 
 class GestionnaireDomaines {
 
-  constructor() {
+  constructor(opts) {
+    this.opts = opts || {}
     this.domaines = {
       vitrineGlobal: new VitrineGlobal(),
       accueil: new SectionAccueil(),
@@ -60,7 +61,7 @@ class GestionnaireDomaines {
       // senseurspassifs: new SectionSenseursPassifs(),
     }
 
-    this.pathData = process.env.DATA_FOLDER;
+    this.pathData = this.opts.pathData || process.env.DATA_FOLDER || '/tmp/vitrine';
     this.webUrl = process.env.WEB_URL;
 
     // this.initialiser = this.initialiser.bind(this);

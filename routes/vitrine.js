@@ -25,6 +25,7 @@ function initialiser(fctRabbitMQParIdmg, opts) {
   }
 
   const app = express();
+  app.get('/info.json', routeInfo)
 
   // Ajouter route pour application React
   ajouterStaticRoute(app)
