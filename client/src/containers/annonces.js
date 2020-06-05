@@ -8,8 +8,9 @@ import { traduire } from '../components/langutils.js';
 import './annonces.css';
 
 const NOM_SECTION = 'annonces';
-const ANNONCES_LIBELLE = 'page.' + NOM_SECTION,
-      MESSAGES_URL = NOM_SECTION + '.json';
+const CONFIGURATION_DOCUMENTS = {
+  'annonces': {pathFichier: '/annonces/annonces.json'},
+}
 
 export class AnnoncesVitrine extends SectionVitrine {
 
@@ -17,12 +18,8 @@ export class AnnoncesVitrine extends SectionVitrine {
     return NOM_SECTION;
   }
 
-  getDocumentLibelle() {
-    return ANNONCES_LIBELLE;
-  }
-
-  getDocumentUrl() {
-    return MESSAGES_URL;
+  getConfigDocuments() {
+    return CONFIGURATION_DOCUMENTS
   }
 
   render() {
@@ -34,7 +31,7 @@ export class AnnoncesVitrine extends SectionVitrine {
             <hr/>
           </Col>
         </Row>
-        <RenderAnnonces />
+        <RenderAnnonces annonces={this.state.annonces} />
       </Container>
     );
   }
@@ -42,10 +39,10 @@ export class AnnoncesVitrine extends SectionVitrine {
 }
 
 function RenderAnnonces(props) {
-  var messagesElements;
+  var messagesElements = null;
 
-  if(props.contenu && props.contenu.annonces) {
-    const messages = props.contenu.annonces;
+  if(props.annonces) {
+    const messages = props.annonces.annonces;
     if(messages && messages.length > 0) {
       messagesElements = [];
 
@@ -74,28 +71,29 @@ function Annonce(props) {
   if(message.sujet) {
     sujet = (
       <h3 className="sujet-message">
-        {traduire(message, 'sujet', this.props.language)}
+        {traduire(message, 'sujet', props.language)}
       </h3>
     );
   }
   if(message.texte) {
     texte = (
       <p className="texte-message">
-        {traduire(message, 'texte', this.props.language)}
+        {traduire(message, 'texte', props.language)}
       </p>
     );
   }
   if(message['_mg-creation']) {
-    dateElement = this.renderDateModifiee(message['_mg-creation']);
+    // dateElement = renderDateModifiee(message['_mg-creation']);
+    dateElement = message['_mg-creation']
   }
 
   return (
     <Row className="message">
       <Col sm={2}>
-        {props.dateElement}
+        {dateElement}
       </Col>
       <Col sm={10}>
-        {props.sujet}
+        {sujet}
         {texte}
       </Col>
     </Row>

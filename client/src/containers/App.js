@@ -74,6 +74,7 @@ export default class _ApplicationVitrine extends SectionVitrine {
   }
 
   componentWillUnmount() {
+    console.debug("Unmount de l'application")
     super.componentWillUnmount()
     if(this.state.websocketApp) {
       this.state.websocketApp.deconnecter()

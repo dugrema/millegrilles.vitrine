@@ -35,17 +35,17 @@ function MenuItems(props) {
   return (
     <Nav className="mr-auto" activeKey={props.section} onSelect={props.changerPage}>
       <Nav.Item>
-        <Nav.Link eventKey='accueil'>
+        <Nav.Link eventKey='AccueilVitrine'>
           <Trans>menu.Accueil</Trans>
         </Nav.Link>
       </Nav.Item>
       <Nav.Item>
-        <Nav.Link eventKey='annonces'>
+        <Nav.Link eventKey='AnnoncesVitrine'>
           <Trans>menu.Annonces</Trans>
         </Nav.Link>
       </Nav.Item>
       <Nav.Item>
-        <Nav.Link eventKey='blogs'>
+        <Nav.Link eventKey='BlogsVitrine'>
           <Trans>menu.Blogs</Trans>
         </Nav.Link>
       </Nav.Item>

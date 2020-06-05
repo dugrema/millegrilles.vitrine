@@ -30,9 +30,10 @@ export class SectionVitrine extends React.Component {
   }
 
   componentWillUnmount() {
-    // this.webSocketHandler.deconnecter();
     const clesEmit = Object.keys(this.getConfigDocuments())
-    this.props.rootProps.websocketApp.arreterEcouteSection(this.getNomSection(), clesEmit)
+    const websocketApp = this.state.websocketApp || this.props.rootProps.websocketApp
+    console.debug(websocketApp)
+    websocketApp.arreterEcouteSection(this.getNomSection(), clesEmit)
   }
 
   chargerDocuments(docs) {
