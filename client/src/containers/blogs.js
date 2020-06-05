@@ -7,22 +7,20 @@ import { traduire } from '../components/langutils.js';
 import './blogs.css';
 
 const NOM_SECTION = 'blogs';
-const BLOGS_LIBELLE = 'page.' + NOM_SECTION, BLOGS_URL = NOM_SECTION + '.json';
+const CONFIGURATION_DOCUMENTS = {
+  'blogs': {pathFichier: '/blogs/blogs.json'},
+}
 
 const PREFIX_DATA_URL = 'data:image/jpeg;base64,';
 
 export class BlogsVitrine extends SectionVitrine {
 
   getNomSection() {
-    return NOM_SECTION;
+    return NOM_SECTION
   }
 
-  getDocumentLibelle() {
-    return BLOGS_LIBELLE;
-  }
-
-  getDocumentUrl() {
-    return BLOGS_URL;
+  getConfigDocuments() {
+    return CONFIGURATION_DOCUMENTS
   }
 
   render() {
@@ -42,8 +40,9 @@ export class BlogsVitrine extends SectionVitrine {
   _renderBlogs() {
     var blogpostsElements;
 
-    if(this.state.contenu && this.state.contenu.blogposts) {
-      const blogposts = this.state.contenu.blogposts?Object.values(this.state.contenu.blogposts):null;
+    if(this.state.blogs) {
+      const blogsResultats = this.state.blogs.resultats
+      const blogposts = Object.values(blogsResultats)
       // console.debug("Blogposts")
       // console.debug(blogposts);
       if(blogposts && blogposts.length > 0) {
@@ -69,7 +68,8 @@ export class BlogsVitrine extends SectionVitrine {
             });
           }
           if(blogpost.datePublication) {
-            dateElement = this.renderDateModifiee(blogpost.datePublication);
+            // dateElement = this.renderDateModifiee(blogpost.datePublication);
+            dateElement = blogpost.datePublication
           }
           if(blogpost.image) {
             image = (

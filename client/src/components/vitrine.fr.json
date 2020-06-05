@@ -12,8 +12,9 @@
       "facebookGroupe": "Groupe Facebook :"
     },
     "menu": {
+      "accueil": "Accueil",
       "albums": "Albums",
-      "messages": "Messages",
+      "annonces": "Annonces",
       "blogs": "Blog",
       "podcasts": "Podcasts",
       "fichiers": "Fichiers",

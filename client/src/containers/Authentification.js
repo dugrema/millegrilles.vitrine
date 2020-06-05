@@ -23,12 +23,15 @@ class WebSocketManagerVitrine extends WebSocketManager {
   arreterEcouteSection(section, clesEmit, cb) {
     console.debug("Arret ecoute section %s", section)
     console.debug(clesEmit)
-    this.socket.emit('section.leave', {section})
 
-    // Retirer listener callback
-    for(let idx in clesEmit) {
-      const cle = clesEmit[idx]
-      this.socket.on(cle, cb)
+    if(this.socket) {
+      this.socket.emit('section.leave', {section})
+
+      // Retirer listener callback
+      for(let idx in clesEmit) {
+        const cle = clesEmit[idx]
+        this.socket.on(cle, cb)
+      }
     }
   }
 

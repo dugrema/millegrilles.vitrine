@@ -14,13 +14,15 @@ export default function Menu(props) {
   const iconeHome = <span><i className="fa fa-home"/> {props.rootProps.nomMilleGrille}</span>
 
   return (
-    <Navbar collapseOnSelect expand="md" bg="info" variant="dark" fixed="top">
-    <Nav.Link className="navbar-brand" onClick={props.changerPage} eventKey='A'>
-      <Trans>application.nom</Trans>
-    </Nav.Link>
+    <Navbar collapseOnSelect expand="md" bg="info" variant="dark" fixed="top" onSelect={props.changerPage}>
+      <Nav.Item>
+        <Nav.Link className="navbar-brand" onClick={props.changerPage} eventKey='AccueilVitrine'>
+          <Trans>application.nom</Trans>
+        </Nav.Link>
+      </Nav.Item>
       <Navbar.Toggle aria-controls="responsive-navbar-menu" />
       <Navbar.Collapse id="responsive-navbar-menu">
-        <MenuItems changerPage={props.changerPage} />
+        <MenuItems changerPage={props.changerPage} rootProps={props.rootProps} />
         <Nav className="justify-content-end">
           <Nav.Link href='/'>{iconeHome}</Nav.Link>
           <Nav.Link href='/millegrilles'>{boutonProtege}</Nav.Link>
@@ -33,20 +35,15 @@ export default function Menu(props) {
 
 function MenuItems(props) {
   return (
-    <Nav className="mr-auto" activeKey={props.section} onSelect={props.changerPage}>
-      <Nav.Item>
-        <Nav.Link eventKey='AccueilVitrine'>
-          <Trans>menu.Accueil</Trans>
-        </Nav.Link>
-      </Nav.Item>
+    <Nav className="mr-auto" activeKey={props.rootProps.page}>
       <Nav.Item>
         <Nav.Link eventKey='AnnoncesVitrine'>
-          <Trans>menu.Annonces</Trans>
+          <Trans>menu.annonces</Trans>
         </Nav.Link>
       </Nav.Item>
       <Nav.Item>
         <Nav.Link eventKey='BlogsVitrine'>
-          <Trans>menu.Blogs</Trans>
+          <Trans>menu.blogs</Trans>
         </Nav.Link>
       </Nav.Item>
     </Nav>
