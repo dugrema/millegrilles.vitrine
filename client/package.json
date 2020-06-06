@@ -1,6 +1,6 @@
 {
   "name": "vitrine-client",
-  "version": "1.27.1",
+  "version": "1.28.0",
   "private": true,
   "dependencies": {
     "axios": "^0.19.0",
@@ -9,7 +9,7 @@
     "history": "^4.10.0",
     "i18next": "^19.0.2",
     "i18next-browser-languagedetector": "^4.0.1",
-    "millegrilles.common": "git+ssh://git.maceroc.com/git/millegrilles.common.nodejs#1.27",
+    "millegrilles.common": "git+ssh://git.maceroc.com/git/millegrilles.common.nodejs#1.28",
     "moment": "^2.24.0",
     "qrcode.react": "^1.0.0",
     "react": "^16.9.0",
