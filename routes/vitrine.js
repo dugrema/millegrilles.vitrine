@@ -1,82 +1,62 @@
-const debug = require('debug')('millegrilles:vitrine:route')
+const debug = require('debug')('millegrilles:vitrine:route');
 const express = require('express')
+const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser')
+const { v4: uuidv4 } = require('uuid')
 
-const {WebSocketVitrineApp} = require('../models/reactwss')
+const sessionsUsager = require('../models/sessions')
 
-const _info = {
-  nodeId: 'DUMMY_CHANGE_MOI',
-  modeHebergement: false,
-}
+// Generer mot de passe temporaire pour chiffrage des cookies
+const secretCookiesPassword = uuidv4()
 
-var _fctRabbitMQParIdmg = null
+var idmg = null, proprietairePresent = null;
 
 function initialiser(fctRabbitMQParIdmg, opts) {
   if(!opts) opts = {}
+  const idmg = opts.idmg
+  const amqpdao = fctRabbitMQParIdmg(idmg)
 
-  _fctRabbitMQParIdmg = fctRabbitMQParIdmg
+  debug("IDMG: %s, AMQPDAO : %s", idmg, amqpdao !== undefined)
 
-  if(opts.idmg) {
-    // Pour mode sans hebergement, on conserve le IDMG de reference local
-    const idmg = opts.idmg
-    _info.idmg = idmg
-  } else {
-    // Pas d'IDMG de reference, on est en mode hebergement
-    _info.modeHebergement = true
-  }
+  const route = express();
 
-  const app = express();
-  app.get('/info.json', routeInfo)
+  route.use(cookieParser(secretCookiesPassword))
+  route.use(sessionsUsager.init())   // Extraction nom-usager, session
 
-  // Ajouter route pour application React
-  ajouterStaticRoute(app)
+  // Fonctions sous /millegrilles/api
+  route.get('/info.json', infoMillegrille)
 
-  // catch 404
-  app.use(function(req, res, next) {
-    res.status(404);
-    res.end()
-  });
+  // Exposer le certificat de la MilleGrille (CA)
+  route.use('/millegrille.pem', express.static(process.env.MG_MQ_CAFILE))
+  route.use('/certificat.pem', express.static(process.env.MG_MQ_CERTFILE))
 
-  // error handler
-  app.use(function(err, req, res, next) {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
+  ajouterStaticRoute(route)
 
-    console.error(" ************** Unhandled error begin ************** ");
-    console.error(err);
-    console.error(" ************** Unhandled error end   ************** ");
+  debug("Route /vitrine est initialisee")
 
-    res.status(err.status || 500);
-    res.end()
-  });
-
-  // Retourner hooks pour la configuration de la route
-  return {route: app, socketio: {configurerServer: configurerSocketIO}}
+  // Retourner dictionnaire avec route pour server.js
+  return {route}
 }
 
 function ajouterStaticRoute(route) {
   var folderStatic =
-    process.env.MG_COUPDOEIL_STATIC_RES ||
+    process.env.MG_VITRINE_STATIC_RES ||
+    process.env.MG_STATIC_RES ||
     'static/vitrine'
-
-  debug("Folder static pour vitrine : %s", folderStatic)
 
   route.use(express.static(folderStatic))
 }
 
-function configurerSocketIO(server) {
-  const amqpdao = _fctRabbitMQParIdmg(_info.idmg)
-  const nodeId = _info.nodeId
-  const vitrineSocketIO = new WebSocketVitrineApp(server, amqpdao, nodeId)
-  vitrineSocketIO.initialiserDomaines()
+async function infoMillegrille(req, res, next) {
+  // Verifie si la MilleGrille est initialisee. Conserve le IDMG
+
+  if( ! idmg ) {
+    idmg = req.amqpdao.pki.idmg
+  }
+
+  const reponse = { idmg }
+
+  res.send(reponse)
 }
 
-function routeInfo(req, res, next) {
-
-  const reponse = JSON.stringify(_info);
-  res.setHeader('Content-Type', 'application/json');
-  res.end(reponse);
-
-};
-
-module.exports = {initialiser};
+module.exports = {initialiser}

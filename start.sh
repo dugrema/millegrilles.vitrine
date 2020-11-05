@@ -3,26 +3,34 @@
 CERT_FOLDER=/home/mathieu/mgdev/certs
 # export MG_IDMG=vPXTaPjpUErFjV5d8pKrAHHqKhFUr7GSEruCL7
 # export MG_CONSIGNATION_PATH=/var/opt/millegrilles/$IDMG/mounts/consignation
-export HOST=`hostname`
 
-# CERT_FOLDER=/opt/millegrilles/$MG_NOM_MILLEGRILLE/pki/deployeur
-CERT_FOLDER=/home/mathieu/mgdev/certs
+# Host pour cookies (idealement domaine complet)
+export HOST=`hostname --fqdn`
+
+# Host pour MQ, doit correspondre au cert (generalement nodename)
+#export HOSTMQ=`hostname -s`
+export HOSTMQ=mg-dev4.maple.maceroc.com
 
 # export COUPDOEIL_SESSION_TIMEOUT=15000
 export MG_MQ_CAFILE=$CERT_FOLDER/pki.millegrille.cert
-export MG_MQ_CERTFILE=$CERT_FOLDER/pki.vitrineweb.cert
-export MG_MQ_KEYFILE=$CERT_FOLDER/pki.vitrineweb.key
+export MG_MQ_CERTFILE=$CERT_FOLDER/pki.monitor.cert
+export MG_MQ_KEYFILE=$CERT_FOLDER/pki.monitor.key
+# export MG_MQ_EXCHANGE_DEFAUT=1.public
 
-export DATA_FOLDER=/var/opt/millegrilles/2DE28fU9miADsNV9MdgV26NZ76CLZMrcM9hrCoD/nginx/data
+# export WEB_CERT=~/.acme.sh/mg-dev3.maple.maceroc.com/fullchain.cer
+# export WEB_KEY=~/.acme.sh/mg-dev3.maple.maceroc.com/mg-dev3.maple.maceroc.com.key
+export MG_MQ_URL=amqps://$HOSTMQ:5673
+export PORT=3000
 
-export MG_MQ_URL=amqps://$HOST:5673
-export PORT=3007
+export MG_HTTPPROXY_SECURE=false
+export MG_CONSIGNATION_HTTP=https://$HOST:3003
 
-export SERVER_TYPE=spdy
-
-export NODE_ENV=development
+# export SERVER_TYPE=spdy
 
 # Parametre module logging debug
 export DEBUG=millegrilles:*
+export NODE_ENV=dev
+export DEV=1
+export IDMG=JPtGcNcFSkfSdw49YsDpQHKxqTHMitpbPZW17a2JC54T
 
 npm start

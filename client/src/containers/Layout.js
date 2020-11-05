@@ -3,28 +3,49 @@ import { Nav, Navbar, NavDropdown, Container, Row, Col} from 'react-bootstrap'
 import { Trans, Translation, withTranslation } from 'react-i18next'
 import QRCode from 'qrcode.react'
 
-import Menu from './Menu'
+import { Menu, MenuItems } from './Menu'
 
 import './Layout.css'
 
-export function Layout(props) {
+export class LayoutCoudpoeil extends React.Component {
 
-  return (
-    <div className="flex-wrapper">
-      <div>
-        <Entete changerPage={props.changerPage} rootProps={props.rootProps}/>
-        <Contenu page={props.page}/>
-      </div>
-      <Footer rootProps={props.rootProps}/>
-    </div>
-  )
+  componentDidMount() {
+    console.debug("App props:\n%O", this.props)
 
+    if(this.props.appProps.sousApplication) {
+      // Integration de l'application dans une autre application
+
+      if(this.props.appProps.setSousMenuApplication) {
+        // Integrer le sous-menu specifique a l'application
+        this.props.appProps.setSousMenuApplication(<MenuItems />)
+      }
+    }
+
+  }
+
+  render() {
+    if(this.props.appProps.sousApplication) {
+      return <Contenu page={this.props.page}/>
+    } else {
+      // Application independante (probablement pour DEV)
+      return (
+        <div className="flex-wrapper">
+          <div>
+            <Entete changerPage={this.props.changerPage} rootProps={this.props.rootProps}/>
+            <Contenu page={this.props.page}/>
+          </div>
+          <Footer rootProps={this.props.rootProps}/>
+        </div>
+      )
+    }
+  }
 }
 
 function Entete(props) {
   return (
     <Container>
       <Menu changerPage={props.changerPage} rootProps={props.rootProps}/>
+      <h1>Coup D'Oeil</h1>
     </Container>
   )
 }
@@ -54,9 +75,9 @@ function Footer(props) {
           <div className="millegrille-footer">
             <div>IDMG : {idmg}</div>
             <div>
-              <Trans>application.advert</Trans>{' '}
+              <Trans>application.coupdoeilAdvert</Trans>{' '}
               <span title={props.rootProps.manifest.date}>
-                <Trans values={{version: props.rootProps.manifest.version}}>application.version</Trans>
+                <Trans values={{version: props.rootProps.manifest.version}}>application.coupdoeilVersion</Trans>
               </span>
             </div>
           </div>

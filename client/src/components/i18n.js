@@ -5,8 +5,8 @@ import moment from 'moment';
 
 // the translations
 import 'moment/locale/fr'
-import fr from './vitrine.fr.json';
-import en from './vitrine.en.json';
+import fr from './coupdoeil.fr.json';
+import en from './coupdoeil.en.json';
 const resources = {fr, en};
 
 function formatterValeur(value, format, lng) {
