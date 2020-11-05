@@ -7,37 +7,22 @@ import { Menu, MenuItems } from './Menu'
 
 import './Layout.css'
 
-export class LayoutCoudpoeil extends React.Component {
+export class LayoutMillegrilles extends React.Component {
 
   componentDidMount() {
     console.debug("App props:\n%O", this.props)
-
-    if(this.props.appProps.sousApplication) {
-      // Integration de l'application dans une autre application
-
-      if(this.props.appProps.setSousMenuApplication) {
-        // Integrer le sous-menu specifique a l'application
-        this.props.appProps.setSousMenuApplication(<MenuItems />)
-      }
-    }
-
   }
 
   render() {
-    if(this.props.appProps.sousApplication) {
-      return <Contenu page={this.props.page}/>
-    } else {
-      // Application independante (probablement pour DEV)
-      return (
-        <div className="flex-wrapper">
-          <div>
-            <Entete changerPage={this.props.changerPage} rootProps={this.props.rootProps}/>
-            <Contenu page={this.props.page}/>
-          </div>
-          <Footer rootProps={this.props.rootProps}/>
+    return (
+      <div className="flex-wrapper">
+        <div>
+          <Entete changerPage={this.props.changerPage} rootProps={this.props.rootProps}/>
+          <Contenu page={this.props.page}/>
         </div>
-      )
-    }
+        <Footer rootProps={this.props.rootProps}/>
+      </div>
+    )
   }
 }
 

@@ -4,11 +4,14 @@ import path from 'path'
 import {Jumbotron, Container, Row, Col} from 'react-bootstrap'
 import axios from 'axios'
 import openSocket from 'socket.io-client'
-import {WebSocketApp} from '../components/webSocketApp'
+// import {WebSocketApp} from '../components/webSocketApp'
 
 import '../components/i18n'
 
 import { LayoutMillegrilles } from './Layout'
+
+const MG_URL_API = '/vitrine/api'
+const MG_SOCKETIO_URL = '/vitrine/socket.io'
 
 export default class App extends React.Component {
 
@@ -38,15 +41,15 @@ export default class App extends React.Component {
       socket.on('modeProtege', reponse => {this.setEtatProtege(reponse)})
 
       // Ajouter wrapper pour l'application (dao)
-      const webSocketApp = new WebSocketApp(socket)
-
-      this.setState({connexionSocketIo: socket}, ()=>{
-        socket.emit('getInfoIdmg', {}, reponse=>{
-          // console.debug("Info idmg compte")
-          // console.debug(reponse)
-          this.setState({...reponse, webSocketApp})
-        })
-      })
+      // const webSocketApp = new WebSocketApp(socket)
+      //
+      // this.setState({connexionSocketIo: socket}, ()=>{
+      //   socket.emit('getInfoIdmg', {}, reponse=>{
+      //     // console.debug("Info idmg compte")
+      //     // console.debug(reponse)
+      //     this.setState({...reponse, webSocketApp})
+      //   })
+      // })
     }
   }
 
@@ -61,22 +64,16 @@ export default class App extends React.Component {
       ...this.state,
     }
 
-    let affichage = (
-      <Applications
-        page={this.state.page}
-        rootProps={rootProps} />
-    )
+    // let affichage = (
+    //   <Applications
+    //     page={this.state.page}
+    //     rootProps={rootProps} />
+    // )
 
-    const modalAuthentificationRender = modalAuthentification({
-      rootProps,
-      authUrl: MG_URL_AUTHENTIFICATION,
-      show: this.state.showModalAuthentification,
-      fermer: this.fermerModalAuthentification,
-    })
+    const affichage = <p>Allo</p>
 
     return (
       <>
-        {modalAuthentificationRender}
         <BaseLayout
           changerPage={this.changerPage}
           affichage={affichage}
@@ -93,11 +90,6 @@ export default class App extends React.Component {
 // Layout general de l'application
 function LayoutAccueil(props) {
 
-  var qrCode = null
-  if(props.rootProps.idmgCompte) {
-    qrCode = <QRCode value={'idmg:' + props.rootProps.idmgCompte} size={75} />
-  }
-
   const pageAffichee = (
     <div>
 
@@ -108,7 +100,7 @@ function LayoutAccueil(props) {
             <p className='idmg'>{props.rootProps.idmgCompte}</p>
             <p>{props.rootProps.nomUsager}</p>
           </Col>
-          <Col sm={2} className="footer-right">{qrCode}</Col>
+          <Col sm={2} className="footer-right">QR Code</Col>
         </Row>
       </Jumbotron>
 
