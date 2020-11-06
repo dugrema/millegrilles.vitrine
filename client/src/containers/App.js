@@ -1,16 +1,14 @@
 import React from 'react'
 import './App.css'
-import path from 'path'
-import {Jumbotron, Container, Row, Col} from 'react-bootstrap'
-import axios from 'axios'
+import {Jumbotron, Row, Col} from 'react-bootstrap'
 import openSocket from 'socket.io-client'
+import axios from 'axios'
 // import {WebSocketApp} from '../components/webSocketApp'
 
 import '../components/i18n'
 
 import { LayoutMillegrilles } from './Layout'
 
-const MG_URL_API = '/vitrine/api'
 const MG_SOCKETIO_URL = '/vitrine/socket.io'
 
 export default class App extends React.Component {
@@ -23,6 +21,8 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
+    const nomDomaine = window.location.href.split('/')[2]
+    console.debug("Nom domaine serveur : %s", nomDomaine)
   }
 
   connecterSocketIo = () => {
@@ -119,21 +119,21 @@ function LayoutAccueil(props) {
   )
 }
 
-// Layout general de l'application
-function LayoutApplication(props) {
+// // Layout general de l'application
+// function LayoutApplication(props) {
+//
+//   const pageAffichee = props.affichage
+//
+//   return (
+//     <LayoutMillegrilles
+//       changerPage={props.changerPage}
+//       page={pageAffichee}
+//       goHome={props.goHome}
+//       sousMenuApplication={props.sousMenuApplication}
+//       rootProps={props.rootProps} />
+//   )
+// }
 
-  const pageAffichee = props.affichage
-
-  return (
-    <LayoutMillegrilles
-      changerPage={props.changerPage}
-      page={pageAffichee}
-      goHome={props.goHome}
-      sousMenuApplication={props.sousMenuApplication}
-      rootProps={props.rootProps} />
-  )
-}
-
-function _setTitre(titre) {
-  document.title = titre
-}
+// function _setTitre(titre) {
+//   document.title = titre
+// }

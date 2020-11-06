@@ -1,2 +1,2 @@
-import {ApplicationCoupdoeil} from './containers/App';
-export default ApplicationCoupdoeil
+import App from './containers/App';
+export default App
