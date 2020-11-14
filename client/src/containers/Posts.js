@@ -10,13 +10,13 @@ export class Post extends React.Component {
 
   componentDidMount() {
     // Charger contenu du post
-    console.debug("Charger post %O", this.props)
+    // console.debug("Charger post %O", this.props)
     const informationRangee = this.props
     const postId = informationRangee.post_id
     const subFolder = postId.substring(0, 2) + '/'
     const urlPost = '/vitrine/posts/' + subFolder + postId + '.json'
     axios.get(urlPost).then(reponse=>{
-      console.debug("Reponse detail post id : %O", postId, reponse)
+      // console.debug("Reponse detail post id : %O", postId, reponse)
       this.setState({detailPost: reponse.data})
     }).catch(err=>{console.error("Erreur chargement post")})
   }
@@ -28,7 +28,7 @@ export class Post extends React.Component {
     const language = this.props.rootProps.language,
           html = detailPost.html[language]
 
-    console.debug("Render html %s", html)
+    // console.debug("Render html %s", html)
 
     const renderingContenu = parse(html)
 

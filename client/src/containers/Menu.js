@@ -54,13 +54,6 @@ export class MenuItems extends React.Component {
           </Nav.Link>
         </Nav.Item>
 
-        <Dropdown as={NavItem}>
-          <Dropdown.Toggle as={NavLink}><Trans>menu.Favoris</Trans></Dropdown.Toggle>
-          <Dropdown.Menu>
-            <Dropdown.Item eventKey="GererFavoris"><Trans>menu.GererFavoris</Trans></Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-
       </Nav>
     )
   }

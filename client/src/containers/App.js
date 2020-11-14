@@ -17,7 +17,7 @@ export default class App extends React.Component {
   state = {
     nomDomaine: '',
     siteConfiguration: '',
-    language: 'fr',
+    language: '',
 
     page: '',
 
@@ -31,9 +31,17 @@ export default class App extends React.Component {
   componentDidMount() {
     const nomDomaine = window.location.href.split('/')[2].split(':')[0]
     console.debug("Nom domaine serveur : %s", nomDomaine)
+
+    // Verifier si le language est auto-detecte / charge localement
+    var language = ''
+
     this.setState({nomDomaine}, async _ =>{
-      const siteConfiguration = await chargerSite(nomDomaine, this.state.language)
-      this.setState({siteConfiguration})
+      const siteConfiguration = await chargerSite(nomDomaine)
+      if(!language) {
+        language = siteConfiguration.languages[0]  // Utiliser le language par defaut (1er dans la liste)
+      }
+      document.title = siteConfiguration.titre[language]
+      this.setState({siteConfiguration, language})
     })
   }
 
@@ -53,6 +61,10 @@ export default class App extends React.Component {
 
   deconnexionSocketIo = () => {
     console.debug("Deconnexion Socket.IO")
+  }
+
+  changerPage = event => {
+    console.debug("Changer page %O", event)
   }
 
   render() {
@@ -105,10 +117,6 @@ async function chargerSite(domaineUrl, language) {
   console.debug("Reponse site : %O", reponse)
 
   const siteConfiguration = reponse.data
-
-  if(language) {
-    document.title = siteConfiguration.titre[language]
-  }
 
   return siteConfiguration
 }
