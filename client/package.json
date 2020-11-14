@@ -22,7 +22,7 @@
     "socket.io-client": "^3.0.1"
   },
   "scripts": {
-    "start": "export WDS_SOCKET_PATH=/coupdoeil/sockjs-node && react-scripts start",
+    "start": "export WDS_SOCKET_PATH=/vitrine/sockjs-node && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
