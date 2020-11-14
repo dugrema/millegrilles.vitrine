@@ -3,13 +3,16 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const { v4: uuidv4 } = require('uuid')
-
-const sessionsUsager = require('../models/sessions')
+const {chargerSites} = require('../models/siteDao')
+const {sauvegarderSites} = require('../models/filesystemDao')
 
 // Generer mot de passe temporaire pour chiffrage des cookies
 const secretCookiesPassword = uuidv4()
 
 var idmg = null, proprietairePresent = null;
+
+const noeudId = process.env.MG_NOEUD_ID
+if(!noeudId) throw new Error("Il faut fournir MG_NOEUD_ID")
 
 function initialiser(fctRabbitMQParIdmg, opts) {
   if(!opts) opts = {}
@@ -21,7 +24,6 @@ function initialiser(fctRabbitMQParIdmg, opts) {
   const route = express();
 
   route.use(cookieParser(secretCookiesPassword))
-  route.use(sessionsUsager.init())   // Extraction nom-usager, session
 
   // Fonctions sous /millegrilles/api
   route.get('/info.json', infoMillegrille)
@@ -33,6 +35,9 @@ function initialiser(fctRabbitMQParIdmg, opts) {
   ajouterStaticRoute(route)
 
   debug("Route /vitrine est initialisee")
+
+  // Lancer chargement async des sites (si echec, va reessayer durant la maintenance)
+  _chargerSites(amqpdao, noeudId)
 
   // Retourner dictionnaire avec route pour server.js
   return {route}
@@ -57,6 +62,11 @@ async function infoMillegrille(req, res, next) {
   const reponse = { idmg }
 
   res.send(reponse)
+}
+
+async function _chargerSites(amqpdao, noeudId) {
+  const messageSites = await chargerSites(amqpdao, noeudId)
+  await sauvegarderSites(noeudId, messageSites, amqpdao)
 }
 
 module.exports = {initialiser}
