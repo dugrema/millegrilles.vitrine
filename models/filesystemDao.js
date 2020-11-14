@@ -146,7 +146,6 @@ function _sauvegarderCollection(collection, pathDataCollections, amqpdao, certif
   })
 }
 
-
 function _mkdirs(pathRepertoire) {
   return new Promise((resolve, reject)=>{
     fs.mkdir(pathRepertoire, {recursive: true}, err=>{

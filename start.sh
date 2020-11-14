@@ -20,7 +20,7 @@ export MG_MQ_KEYFILE=$CERT_FOLDER/pki.monitor.key
 # export WEB_CERT=~/.acme.sh/mg-dev3.maple.maceroc.com/fullchain.cer
 # export WEB_KEY=~/.acme.sh/mg-dev3.maple.maceroc.com/mg-dev3.maple.maceroc.com.key
 export MG_MQ_URL=amqps://$HOSTMQ:5673
-export PORT=3021
+export PORT=3025
 
 export MG_HTTPPROXY_SECURE=false
 export MG_CONSIGNATION_HTTP=https://$HOST:3003

@@ -3,13 +3,13 @@
   "version": "1.35.0",
   "private": true,
   "dependencies": {
+    "@dugrema/millegrilles.common": "git+ssh://git.maceroc.com/git/millegrilles.common.nodejs#1.35",
     "axios": "^0.21.0",
     "bootstrap": "^4.5.3",
     "font-awesome": "^4.7.0",
     "history": "^4.10.0",
     "i18next": "^19.8.3",
     "i18next-browser-languagedetector": "^6.0.1",
-    "millegrilles.common": "git+ssh://git.maceroc.com/git/millegrilles.common.nodejs#1.35",
     "moment": "^2.29.1",
     "qrcode.react": "^1.0.0",
     "react": "^17.0.1",
@@ -42,6 +42,6 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "https://localhost:3021",
+  "proxy": "https://localhost:3025",
   "homepage": "/vitrine"
 }

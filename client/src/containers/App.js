@@ -14,6 +14,7 @@ const MG_SOCKETIO_URL = '/vitrine/socket.io'
 export default class App extends React.Component {
 
   state = {
+    nomDomaine: '',
     manifest: {
       version: 'DUMMY',
       date: 'DUMMY'
@@ -21,13 +22,13 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    const nomDomaine = window.location.href.split('/')[2]
+    const nomDomaine = window.location.href.split('/')[2].split(':')[0]
     console.debug("Nom domaine serveur : %s", nomDomaine)
+    this.setState({nomDomaine})
   }
 
   connecterSocketIo = () => {
     if( ! this.state.connexionSocketIo ) {
-      // console.debug("Connecter socket.io sur %s", MG_SOCKETIO_URL)
       const socket = openSocket('/', {
         path: MG_SOCKETIO_URL,
         reconnection: true,
@@ -36,26 +37,12 @@ export default class App extends React.Component {
         reconnectionDelayMax: 30000,
         randomizationFactor: 0.5
       })
-
       socket.on('disconnect', () => {this.deconnexionSocketIo()})
-      socket.on('modeProtege', reponse => {this.setEtatProtege(reponse)})
-
-      // Ajouter wrapper pour l'application (dao)
-      // const webSocketApp = new WebSocketApp(socket)
-      //
-      // this.setState({connexionSocketIo: socket}, ()=>{
-      //   socket.emit('getInfoIdmg', {}, reponse=>{
-      //     // console.debug("Info idmg compte")
-      //     // console.debug(reponse)
-      //     this.setState({...reponse, webSocketApp})
-      //   })
-      // })
     }
   }
 
   deconnexionSocketIo = () => {
-    // console.debug("Deconnexion Socket.IO")
-    this.setState({modeProtege: false})
+    console.debug("Deconnexion Socket.IO")
   }
 
   render() {
@@ -70,7 +57,7 @@ export default class App extends React.Component {
     //     rootProps={rootProps} />
     // )
 
-    const affichage = <p>Allo</p>
+    const affichage = <p>Connexion en cours</p>
 
     return (
       <>
@@ -118,21 +105,6 @@ function LayoutAccueil(props) {
       rootProps={props.rootProps} />
   )
 }
-
-// // Layout general de l'application
-// function LayoutApplication(props) {
-//
-//   const pageAffichee = props.affichage
-//
-//   return (
-//     <LayoutMillegrilles
-//       changerPage={props.changerPage}
-//       page={pageAffichee}
-//       goHome={props.goHome}
-//       sousMenuApplication={props.sousMenuApplication}
-//       rootProps={props.rootProps} />
-//   )
-// }
 
 // function _setTitre(titre) {
 //   document.title = titre
