@@ -1,6 +1,6 @@
 {
   "name": "vitrine",
-  "version": "1.30.0",
+  "version": "1.35.0",
   "private": true,
   "main": "index.js",
   "scripts": {
@@ -8,17 +8,14 @@
     "client": "export WDS_SOCKET_PATH=/vitrine/sockjs-node && node ./bin/start-client"
   },
   "dependencies": {
-    "bittorrent-tracker": "^9.14.4",
-    "debug": "^2.6.9",
-    "express": "~4.16.1",
+    "debug": "^4.2.0",
+    "express": "~4.17.1",
     "json-stable-stringify": "^1.0.1",
-    "millegrilles.common": "git+ssh://git.maceroc.com/git/millegrilles.common.nodejs#1.30",
-    "node-forge": "^0.9.1",
-    "socket.io": "^2.2.0",
-    "spdy": "^4.0.1",
-    "uuid": "^3.3.3"
-  },
-  "devDependencies": {
-    "morgan": "~1.9.1"
+    "millegrilles.common": "git+ssh://git.maceroc.com/git/millegrilles.common.nodejs#1.35",
+    "node-forge": "^0.10.0",
+    "socket.io": "^3.0.1",
+    "spdy": "^4.0.2",
+    "uuid": "^3.3.3",
+    "morgan": "~1.10.0"
   }
 }
