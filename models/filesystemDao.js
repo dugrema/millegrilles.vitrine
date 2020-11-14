@@ -16,7 +16,6 @@ async function sauvegarderSites(noeudId, messageSites, amqpdao, opts) {
     const site = sitesParUrl[url]
     await _sauvegarderSite(url, site, pathDataSites, amqpdao)
   }
-
 }
 
 async function sauvegarderPosts(messagePosts, amqpdao, opts) {
@@ -31,7 +30,21 @@ async function sauvegarderPosts(messagePosts, amqpdao, opts) {
     const post = messagePosts.liste_posts[idx]
     await _sauvegarderPost(post, pathDataPosts, amqpdao, messagePosts._certificat)
   }
+}
 
+async function sauvegarderCollections(messageCollections, amqpdao, opts) {
+  if(!opts) opts = {}
+  const pathData = opts.pathData || '/var/opt/millegrilles/nginx/data'
+  const pathDataCollections = opts.pathDataCollections || path.join(pathData, 'vitrine/collections')
+
+  debug("Sauvegarde collections sous %s :\n%O", pathDataCollections, messageCollections.liste_collections)
+  await _mkdirs(pathDataCollections)
+
+  for(const idx in messageCollections.liste_collections) {
+    const collection = messageCollections.liste_collections[idx]
+    await _sauvegarderCollection(
+      collection, pathDataCollections, amqpdao, messageCollections._certificat)
+  }
 }
 
 function _mapperSitesParUrl(noeudId, messageSites) {
@@ -104,6 +117,36 @@ function _sauvegarderPost(post, pathDataPosts, amqpdao, certificat) {
   })
 }
 
+function _sauvegarderCollection(collection, pathDataCollections, amqpdao, certificat) {
+  const pki = amqpdao.pki
+
+  debug("Sauvegarder collection %O", collection)
+
+  const uuidCollection = collection.uuid
+  const subFolder = path.join(pathDataCollections, uuidCollection.substring(0, 2))
+  const collectionJsonFile = path.join(subFolder, uuidCollection + '.json')
+
+  return new Promise(async (resolve, reject)=>{
+    // S'assurer que le repertoire du site existe
+    await _mkdirs(subFolder)
+
+    const collectionCopy = {...collection, _certificat: certificat}
+
+    // Valider le message
+    if( ! pki.verifierSignatureMessage(collectionCopy) ) {
+      return reject(new Error("Signature de la collection %s est invalide", uuidCollection))
+    }
+
+    // Conserver le contenu du site
+    const jsonContent = JSON.stringify(collectionCopy)
+    fs.writeFile(collectionJsonFile, jsonContent, {encoding: 'utf8'}, err=>{
+      if(err) return reject(err)
+      resolve()
+    })
+  })
+}
+
+
 function _mkdirs(pathRepertoire) {
   return new Promise((resolve, reject)=>{
     fs.mkdir(pathRepertoire, {recursive: true}, err=>{
@@ -113,4 +156,4 @@ function _mkdirs(pathRepertoire) {
   })
 }
 
-module.exports = {sauvegarderSites, sauvegarderPosts}
+module.exports = {sauvegarderSites, sauvegarderPosts, sauvegarderCollections}
