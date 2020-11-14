@@ -18,16 +18,14 @@
   },
   "homepage": "/millegrilles",
   "dependencies": {
-    "axios": "^0.20.0",
-    "express": "^4.17.1",
-    "millegrilles.common": "git+ssh://git.maceroc.com/git/millegrilles.common.nodejs#1.34",
-    "millegrilles.maitrecomptes": "git+ssh://git.maceroc.com/git/millegrilles.maitrecomptes.git#1.34",
-    "millegrilles.coupdoeil": "git+ssh://git.maceroc.com/git/millegrilles.coupdoeil.git#1.34",
-    "millegrilles.senseurspassifs": "git+ssh://git.maceroc.com/git/millegrilles.senseurspassifs.git#1.34",
-    "millegrilles.grosfichiers": "git+ssh://git.maceroc.com/git/millegrilles.grosfichiers.git#1.34"
-  },
-  "devDependencies": {
-    "react-scripts": "^3.4.1"
-  },
-  "proxy": "https://localhost:3003"
+    "debug": "^4.2.0",
+    "express": "~4.17.1",
+    "json-stable-stringify": "^1.0.1",
+    "millegrilles.common": "git+ssh://git.maceroc.com/git/millegrilles.common.nodejs#1.35",
+    "node-forge": "^0.10.0",
+    "socket.io": "^3.0.1",
+    "spdy": "^4.0.2",
+    "uuid": "^3.3.3",
+    "morgan": "~1.10.0"
+  }
 }
