@@ -3,8 +3,9 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const { v4: uuidv4 } = require('uuid')
-const {chargerSites} = require('../models/siteDao')
-const {sauvegarderSites} = require('../models/filesystemDao')
+const {chargerSites, chargerPosts} = require('../models/siteDao')
+const {sauvegarderSites, sauvegarderPosts} = require('../models/filesystemDao')
+const {extrairePostids, extraireCollectionsRecursif} = require('../models/siteModel')
 
 // Generer mot de passe temporaire pour chiffrage des cookies
 const secretCookiesPassword = uuidv4()
@@ -67,6 +68,38 @@ async function infoMillegrille(req, res, next) {
 async function _chargerSites(amqpdao, noeudId) {
   const messageSites = await chargerSites(amqpdao, noeudId)
   await sauvegarderSites(noeudId, messageSites, amqpdao)
+
+  // Extraire post ids
+  const postIdMap = {}
+  var toutesCollections = false,
+      collectionIds = {}
+  messageSites.liste_sites.forEach(site=>{
+    const postIds = extrairePostids(site)
+    debug("Post ids du site %s : %O", site.site_id, postIds)
+    postIds.forEach(postId=>postIdMap[postId]=true)  // Conserver postIds et faire dedupe
+
+    if( ! toutesCollections ) {
+      const collectionsInfo = extraireCollectionsRecursif(site)
+      if(collectionsInfo.toutesCollections) {
+        toutesCollections = true
+      } else {
+        debug("Collections du site %s : %O", site.site_id, collectionsInfo)
+        collectionsInfo.collections.forEach(id=>{collectionIds[id]=true})  // Conserver Ids, dedupe
+      }
+    }
+  })
+
+  const messagePosts = await chargerPosts(amqpdao, Object.keys(postIdMap))
+  debug("Posts recus : %O", messagePosts)
+  await sauvegarderPosts(messagePosts, amqpdao)
+
+  if(toutesCollections) {
+    debug("Charger toutes les collections publiques")
+  } else {
+    const collections = Object.keys(collectionIds)
+    debug("Charger collections publiques : %O", collections)
+  }
+
 }
 
 module.exports = {initialiser}
