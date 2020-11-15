@@ -5,6 +5,8 @@ import openSocket from 'socket.io-client'
 import axios from 'axios'
 // import {WebSocketApp} from '../components/webSocketApp'
 
+import {preparerCertificateStore, verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
+
 import '../components/i18n'
 import { useTranslation, withTranslation } from 'react-i18next';
 
@@ -20,6 +22,7 @@ class _App extends React.Component {
     nomDomaine: '',
     siteConfiguration: '',
     language: '',
+    certificateStore: '',
 
     page: 'SiteAccueil',
 
@@ -37,8 +40,19 @@ class _App extends React.Component {
     // Verifier si le language est auto-detecte / charge localement
     var language = this.props.i18n.language
 
+    // Preparer le certificate store avec le CA pour valider tous les .json telecharges
+    axios.get('/vitrine/millegrille.pem').then(reponse=>{
+      const caPem = reponse.data
+      console.debug("PEM certificat de millegrille : \n%s", caPem)
+      const certificateStore = preparerCertificateStore(caPem)
+      this.setState({certificateStore})
+    })
+
     this.setState({nomDomaine}, async _ =>{
+      // Charger configuration du site associe au domaine
       const siteConfiguration = await chargerSite(nomDomaine)
+
+      // Identifier le language de depart pour afficher la page
       if(!language) {
         language = siteConfiguration.languages[0]  // Utiliser le language par defaut (1er dans la liste)
         this.props.i18n.changeLanguage(language)
@@ -53,6 +67,7 @@ class _App extends React.Component {
       document.title = siteConfiguration.titre[language]
       this.setState({siteConfiguration, language})
     })
+
   }
 
   connecterSocketIo = () => {
@@ -115,7 +130,7 @@ class _App extends React.Component {
     }
 
     var affichage = <p>Connexion en cours</p>
-    if(this.state.siteConfiguration && this.state.page) {
+    if(this.state.siteConfiguration && this.state.certificateStore && this.state.page) {
       // BaseLayout = LayoutAccueil
       const Page = MAPPING_PAGES[this.state.page]
       affichage = <Page rootProps={rootProps} />

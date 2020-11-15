@@ -2,6 +2,8 @@ import React from 'react'
 import axios from 'axios'
 import parse from 'html-react-parser'
 
+import {verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
+
 export class Post extends React.Component {
 
   state = {
@@ -16,9 +18,19 @@ export class Post extends React.Component {
     const subFolder = postId.substring(0, 2) + '/'
     const urlPost = '/vitrine/posts/' + subFolder + postId + '.json'
     axios.get(urlPost).then(reponse=>{
-      // console.debug("Reponse detail post id : %O", postId, reponse)
-      this.setState({detailPost: reponse.data})
-    }).catch(err=>{console.error("Erreur chargement post")})
+      const detailPost = reponse.data
+      console.debug("Reponse detail post id : %O", postId, detailPost)
+
+      const certificateStore = this.props.rootProps.certificateStore
+
+      // Valider contenu avec le certificat, idmg
+      if ( ! verifierSignatureMessage(detailPost, detailPost._certificat, certificateStore) ) {
+        throw new Error("Post recu est invalide")
+      } else {
+        this.setState({detailPost})
+      }
+
+    }).catch(err=>{console.error("Erreur chargement post : %O", err)})
   }
 
   render() {
