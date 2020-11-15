@@ -67,7 +67,7 @@ export class MenuItems extends React.Component {
       <Nav className="mr-auto" activeKey={this.props.section} onSelect={this.changerPage}>
 
         <Nav.Item>
-          <Nav.Link eventKey='Accueil'>
+          <Nav.Link eventKey='SiteAccueil'>
             <Trans>menu.Accueil</Trans>
           </Nav.Link>
         </Nav.Item>

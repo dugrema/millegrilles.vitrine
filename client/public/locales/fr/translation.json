@@ -4,19 +4,9 @@
     "dateModifiee": "{{date, D MMM}}",
     "dateAnneeModifiee": "{{date, D MMM YYYY}}",
     "heureModifiee": "{{date, HH:mm}}",
-    "securite": {
-      "secure": "Sécure",
-      "protege": "Protégé",
-      "prive": "Privé",
-      "public": "Public"
-    },
     "retour": "Retour",
     "url": "URL",
     "rafraichir": "Rafraichir"
-  },
-  "langues": {
-    "fr": "Français",
-    "en": "Anglais"
   },
   "menu": {
     "Accueil": "Accueil",

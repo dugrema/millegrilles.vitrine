@@ -1,6 +1,15 @@
 {
+  "global": {
+    "dateHeure": "{{date, YYYY-MM-DD HH:mm:ss}}",
+    "dateModifiee": "{{date, D MMM}}",
+    "dateAnneeModifiee": "{{date, D MMM YYYY}}",
+    "heureModifiee": "{{date, HH:mm}}",
+    "retour": "Back",
+    "url": "URL",
+    "rafraichir": "Refresh"
+  },
   "menu": {
     "Accueil": "Home",
-    "changerLangue": "Francais"
+    "changerLangue": "Français"
   }
 }

@@ -11,7 +11,8 @@ import { useTranslation, withTranslation } from 'react-i18next';
 import { SiteAccueil } from './Site'
 import { LayoutMillegrilles } from './Layout'
 
-const MG_SOCKETIO_URL = '/vitrine/socket.io'
+const MG_SOCKETIO_URL = '/vitrine/socket.io',
+      MAPPING_PAGES = {SiteAccueil}
 
 class _App extends React.Component {
 
@@ -20,7 +21,7 @@ class _App extends React.Component {
     siteConfiguration: '',
     language: '',
 
-    page: '',
+    page: 'SiteAccueil',
 
     manifest: {
       version: 'DUMMY',
@@ -73,7 +74,13 @@ class _App extends React.Component {
   }
 
   changerPage = event => {
-    console.debug("Changer page %O", event)
+    const value = event.currentTarget.value
+    console.debug("Changer page %s", value)
+    if(MAPPING_PAGES[value]) {
+      this.setState({page: value})
+    } else {
+      throw new Error("Page inconnue : " + value)
+    }
   }
 
   changerLanguage = event => {
@@ -108,10 +115,10 @@ class _App extends React.Component {
     }
 
     var affichage = <p>Connexion en cours</p>
-    if(this.state.page) {
+    if(this.state.siteConfiguration && this.state.page) {
       // BaseLayout = LayoutAccueil
-    } else if(this.state.siteConfiguration) {
-      affichage = <SiteAccueil rootProps={rootProps} />
+      const Page = MAPPING_PAGES[this.state.page]
+      affichage = <Page rootProps={rootProps} />
     }
 
     return (
