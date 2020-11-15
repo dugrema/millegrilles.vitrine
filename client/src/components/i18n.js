@@ -1,13 +1,15 @@
 import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
+import Backend from 'i18next-http-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import { initReactI18next } from "react-i18next";
+
 import moment from 'moment';
 
 // the translations
 import 'moment/locale/fr'
-import fr from './coupdoeil.fr.json';
-import en from './coupdoeil.en.json';
-const resources = {fr, en};
+// import fr from './vitrine.fr.json';
+// import en from './vitrine.en.json';
+// const resources = {fr, en};
 
 function formatterValeur(value, format, lng) {
   if(value instanceof Date) {
@@ -20,13 +22,20 @@ function formatterValeur(value, format, lng) {
 }
 
 i18n
+  .use(Backend)
   .use(LanguageDetector)
   .use(initReactI18next) // passes i18n down to react-i18next
   .init({
-    resources,
+    // resources,
     fallbackLng: 'fr',
 
+    // debug: true,
+
     keySeparator: '.', // we use keys in form messages.welcome
+
+    backend: {
+      loadPath: '/vitrine/locales/{{lng}}/{{ns}}.json',
+    },
 
     interpolation: {
       escapeValue: false, // react is already safe from xss,

@@ -1,18 +1,36 @@
 import React from 'react'
 import { Nav, Navbar, NavLink, NavItem, Dropdown } from 'react-bootstrap';
 
-import { Trans } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 
 export function Menu(props) {
+  const { t, i18n } = useTranslation()
+
+  const rootProps = props.rootProps
+
+  var titreSite = '', changerLangue = ''
+  if(rootProps.siteConfiguration) {
+    if(rootProps.language && rootProps.siteConfiguration.titre) {
+      titreSite = rootProps.siteConfiguration.titre[rootProps.language]
+    }
+
+    const languages = rootProps.siteConfiguration.languages
+    if(languages && languages.length > 1) {
+      changerLangue = <Nav.Link onClick={props.rootProps.changerLanguage}>{t('menu.changerLangue')}</Nav.Link>
+    }
+  }
 
   return (
     <Navbar collapseOnSelect expand="md" bg="info" variant="dark" fixed="top">
-      <Navbar.Brand href='/'><i className="fa fa-home"/></Navbar.Brand>
+      <Navbar.Brand href='/'>
+        {titreSite}{' '}
+        <i className="fa fa-home"/>
+      </Navbar.Brand>
       <Navbar.Toggle aria-controls="responsive-navbar-menu" />
       <Navbar.Collapse id="responsive-navbar-menu">
         <MenuItems changerPage={props.changerPage} rootProps={props.rootProps}/>
         <Nav className="justify-content-end">
-          <Nav.Link onClick={props.rootProps.changerLanguage}><Trans>menu.changerLangue</Trans></Nav.Link>
+          {changerLangue}
         </Nav>
       </Navbar.Collapse>
     </Navbar>

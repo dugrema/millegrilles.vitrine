@@ -14,15 +14,7 @@ export class SiteAccueil extends React.Component {
       return <RangeeAccueil key={idx} rootProps={rootProps} rangee={rangee} />
     })
 
-    return (
-      <>
-        <Jumbotron>
-          <h1><ChampMultilingue contenu={siteConfiguration.titre} rootProps={rootProps} /></h1>
-        </Jumbotron>
-
-        {rangees}
-      </>
-    )
+    return rangees
   }
 }
 

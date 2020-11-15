@@ -23,12 +23,15 @@ export class Post extends React.Component {
 
   render() {
     const detailPost = this.state.detailPost
-    if(!detailPost) return ''
+    if(!detailPost) return <p></p>
 
     const language = this.props.rootProps.language,
           html = detailPost.html[language]
 
     // console.debug("Render html %s", html)
+    if(!html) {
+      return <p>... EMPTY POST / POST VIDE ...</p>
+    }
 
     const renderingContenu = parse(html)
 

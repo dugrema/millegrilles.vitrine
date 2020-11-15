@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {Suspense} from 'react'
 import './App.css'
 import {Jumbotron, Row, Col} from 'react-bootstrap'
 import openSocket from 'socket.io-client'
@@ -6,13 +6,14 @@ import axios from 'axios'
 // import {WebSocketApp} from '../components/webSocketApp'
 
 import '../components/i18n'
+import { useTranslation, withTranslation } from 'react-i18next';
 
 import { SiteAccueil } from './Site'
 import { LayoutMillegrilles } from './Layout'
 
 const MG_SOCKETIO_URL = '/vitrine/socket.io'
 
-export default class App extends React.Component {
+class _App extends React.Component {
 
   state = {
     nomDomaine: '',
@@ -33,12 +34,20 @@ export default class App extends React.Component {
     console.debug("Nom domaine serveur : %s", nomDomaine)
 
     // Verifier si le language est auto-detecte / charge localement
-    var language = ''
+    var language = this.props.i18n.language
 
     this.setState({nomDomaine}, async _ =>{
       const siteConfiguration = await chargerSite(nomDomaine)
       if(!language) {
         language = siteConfiguration.languages[0]  // Utiliser le language par defaut (1er dans la liste)
+        this.props.i18n.changeLanguage(language)
+      } else {
+        // S'assurer que le language detecte existe pour le site
+        if( ! siteConfiguration.languages.includes(language) ) {
+          console.debug("Forcer changement de language, celui detecte dans le navigateur n'existe pas")
+          language = siteConfiguration.languages[0]  // Utiliser le language par defaut (1er dans la liste)
+          this.props.i18n.changeLanguage(language)
+        }
       }
       document.title = siteConfiguration.titre[language]
       this.setState({siteConfiguration, language})
@@ -67,11 +76,34 @@ export default class App extends React.Component {
     console.debug("Changer page %O", event)
   }
 
+  changerLanguage = event => {
+    console.debug("Changer language : %O\n%O", event, this.props)
+    const i18n = this.props.i18n,
+          siteConfiguration = this.state.siteConfiguration
+    const langueCourante = i18n.language
+    var langueProchaine = ''
+
+    // Trouver les language dans le site, toggle si juste 2
+    const languagesSite = siteConfiguration.languages
+    const languesDifferentes = languagesSite.filter(langue=>langue!==langueCourante)
+    if(languesDifferentes.length === 1) {
+      // Une seule langue differente, on la choisit
+      langueProchaine = languesDifferentes[0]
+    } else {
+      throw new Error("Langue switch - plusieurs langues candidates, il faut choisir")
+      return
+    }
+
+    this.props.i18n.changeLanguage(langueProchaine)
+    this.setState({language: langueProchaine})
+  }
+
   render() {
     var BaseLayout = LayoutAccueil
 
     const rootProps = {
       ...this.state,
+      changerLanguage: this.changerLanguage,
     }
 
     var affichage = <p>Connexion en cours</p>
@@ -82,15 +114,23 @@ export default class App extends React.Component {
     }
 
     return (
-      <>
-        <BaseLayout
-          changerPage={this.changerPage}
-          affichage={affichage}
-          goHome={this.goHome}
-          rootProps={rootProps} />
-      </>
+      <BaseLayout
+        changerPage={this.changerPage}
+        affichage={affichage}
+        goHome={this.goHome}
+        rootProps={rootProps} />
     )
   }
+}
+
+const AppWithTranslation = withTranslation()(_App)
+
+export default function App(props) {
+  return (
+    <Suspense fallback={<p>Loading</p>}>
+      <AppWithTranslation />
+    </Suspense>
+  )
 }
 
 // Layout general de l'application
