@@ -75,7 +75,7 @@ class _App extends React.Component {
 
   changerPage = event => {
     const value = event.currentTarget.value
-    console.debug("Changer page %s", value)
+    // console.debug("Changer page %s", value)
     if(MAPPING_PAGES[value]) {
       this.setState({page: value})
     } else {
@@ -84,7 +84,7 @@ class _App extends React.Component {
   }
 
   changerLanguage = event => {
-    console.debug("Changer language : %O\n%O", event, this.props)
+    // console.debug("Changer language : %O\n%O", event, this.props)
     const i18n = this.props.i18n,
           siteConfiguration = this.state.siteConfiguration
     const langueCourante = i18n.language
