@@ -3,7 +3,9 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const { v4: uuidv4 } = require('uuid')
-const {chargerSites, chargerPosts} = require('../models/siteDao')
+
+const { chargerSites, chargerPosts } = require('../models/siteDao')
+const { configurationEvenements } = require('../models/appSocketIo')
 
 // Generer mot de passe temporaire pour chiffrage des cookies
 const secretCookiesPassword = uuidv4()
@@ -38,8 +40,14 @@ function initialiser(fctRabbitMQParIdmg, opts) {
   // Lancer chargement async des sites (si echec, va reessayer durant la maintenance)
   chargerSites(amqpdao, noeudId)
 
+  function middlewareSocketio(socket, next) {
+    debug("Middleware vitrine socket.io")
+    next()
+  }
+  const socketio = {middleware: middlewareSocketio, configurationEvenements}
+
   // Retourner dictionnaire avec route pour server.js
-  return {route}
+  return {route, socketio}
 }
 
 function ajouterStaticRoute(route) {

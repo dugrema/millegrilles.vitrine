@@ -94,7 +94,7 @@ function preconfigSocketioCallback(socketIo, instAmqpdao) {
   debug("Callback, preconfig socket.io avec middleware")
   socketIo.use((socket, next)=>{
     debug("Ajout dev params dans req sur socket.io")
-    socket.handshake.session.idmgCompte = instAmqpdao.pki.idmg
+    instAmqpdao.routingKeyManager.socketio = socketIo
     next()
   })
 }

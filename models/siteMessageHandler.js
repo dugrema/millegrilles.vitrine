@@ -38,7 +38,7 @@ class SiteMessageHandler {
 
 }
 
-function majSite(mq, routingKeys, message, noeudId, opts) {
+async function majSite(mq, routingKeys, message, noeudId, opts) {
   debug("MAJ site %O = %O", routingKeys, message)
 
   if(message.noeuds_urls[noeudId]) {
@@ -48,29 +48,40 @@ function majSite(mq, routingKeys, message, noeudId, opts) {
       _certificat: message._certificat,
     }
     // La signature du message a deja ete validee - sauvegarder la maj
-    sauvegarderSites(noeudId, params, mq)
+    await sauvegarderSites(noeudId, params, mq)
 
     // Importer tous les posts, collections du site
     // Raccourci - On recharge le noeud au complet
-    chargerSites(mq, noeudId)
+    await chargerSites(mq, noeudId)
+
+    // Emettre evenement pour les clients
+    await mq.routingKeyManager.socketio.emit('majSite', message)
 
   } else {
     debug("Site recu sur exchange public, ne correspond pas au noeudId %s : %O", noeudId, message.noeuds_urls)
   }
 }
 
-function majPost(mq, routingKeys, message, opts) {
+async function majPost(mq, routingKeys, message, opts) {
   debug("MAJ post %O = %O", routingKeys, message)
-  sauvegarderPosts(message, mq, {majSeulement: true})
+  await sauvegarderPosts(message, mq, {majSeulement: true})
+
+  // Emettre evenement pour les clients
+  await mq.routingKeyManager.socketio.emit('majPost', message)
+
 }
 
-function majCollection(mq, routingKeys, message, opts) {
+async function majCollection(mq, routingKeys, message, opts) {
   debug("MAJ collection %O = %O", routingKeys, message)
   const params = {
     _certificat: message._certificat,
     liste_collections: [message]
   }
-  sauvegarderCollections(params, mq)
+  await sauvegarderCollections(params, mq)
+
+  // Emettre evenement pour les clients
+  await mq.routingKeyManager.socketio.emit('majCollection', message)
+
 }
 
 module.exports = {SiteMessageHandler};

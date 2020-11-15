@@ -28,6 +28,8 @@ class _App extends React.Component {
     err: '',
     page: 'SiteAccueil',
 
+    socket: '',
+
     manifest: {
       version: 'DUMMY',
       date: 'DUMMY'
@@ -38,6 +40,7 @@ class _App extends React.Component {
   componentDidMount() {
     this.chargerSite()
     this.chargerCertificateStore()
+    this.connecterSocketIo()
   }
 
   async chargerSite() {
@@ -108,7 +111,28 @@ class _App extends React.Component {
         randomizationFactor: 0.5
       })
       socket.on('disconnect', () => {this.deconnexionSocketIo()})
+
+      socket.on('majSite', this.eventMajSite)
+      socket.on('majPost', this.eventMajPost)
+      socket.on('majCollection', this.eventMajCollection)
+
+      // Conserve socket, permet d'enregistrer listeners par component (post, collections, etc.)
+      this.setState({socket})
+
     }
+  }
+
+  eventMajSite = site => {
+    console.debug("MAJ site %O", site)
+    this.setState({siteConfiguration: site})
+  }
+
+  eventMajPost = post => {
+    console.debug("MAJ post %O", post)
+  }
+
+  eventMajCollection = collection => {
+    console.debug("MAJ collection %O", collection)
   }
 
   deconnexionSocketIo = () => {
