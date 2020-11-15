@@ -54,11 +54,14 @@ function ajouterStaticRoute(route) {
 async function infoMillegrille(req, res, next) {
   // Verifie si la MilleGrille est initialisee. Conserve le IDMG
 
+  const amqpdao = req.amqpdao
+
   if( ! idmg ) {
-    idmg = req.amqpdao.pki.idmg
+    idmg = amqpdao.pki.idmg
   }
 
   const reponse = { idmg }
+  amqpdao.formatterTransaction('Vitrine.information', reponse, {attacherCertificat: true})
 
   res.send(reponse)
 }
