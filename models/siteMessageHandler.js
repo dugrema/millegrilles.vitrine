@@ -1,4 +1,7 @@
+const debug = require('debug')('millegrilles:vitrine:siteMessageHandler');
 const {sauvegarderSites, sauvegarderPosts, sauvegarderCollections} = require('./filesystemDao')
+const {extrairePostids, extraireCollectionsRecursif} = require('./siteModel')
+const {chargerSites} = require('../models/siteDao')
 
 class SiteMessageHandler {
 
@@ -32,16 +35,23 @@ class SiteMessageHandler {
 
 function majSite(mq, routingKeys, message, noeudId, opts) {
   console.debug("MAJ site %O = %O", routingKeys, message)
-  const params = {
-    noeud_id: noeudId,
-    liste_sites: [message],
-    _certificat: message._certificat,
+
+  if(message.noeuds_urls[noeudId]) {
+    const params = {
+      noeud_id: noeudId,
+      liste_sites: [message],
+      _certificat: message._certificat,
+    }
+    // La signature du message a deja ete validee - sauvegarder la maj
+    sauvegarderSites(noeudId, params, mq)
+
+    // Importer tous les posts, collections du site
+    // Raccourci - On recharge le noeud au complet
+    chargerSites(mq, noeudId)
+
+  } else {
+    debug("Site recu sur exchange public, ne correspond pas au noeudId %s : %O", noeudId, message.noeuds_urls)
   }
-  // La signature du message a deja ete validee - sauvegarder la maj
-  sauvegarderSites(noeudId, params, mq)
-
-  // Importer tous les posts, collections du site
-
 }
 
 function majPost(mq, routingKeys, message, opts) {
