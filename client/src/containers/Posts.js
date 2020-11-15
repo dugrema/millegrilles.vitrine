@@ -36,6 +36,26 @@ export class Post extends React.Component {
       console.error("Erreur chargement post : %O", err)
       this.setState({err: 'Post invalide ' + postId + ' : ' + err})
     })
+
+    const socket = this.props.rootProps.socket
+    socket.on('majPost', this.eventMajPost)
+  }
+
+  componentWillUnmount() {
+    const socket = this.props.rootProps.socket
+    socket.off('majPost', this.eventMajPost)
+  }
+
+  eventMajPost = messagePosts => {
+    // console.debug("Post, une maj : %O", messagePosts)
+    const postId = this.props.post_id
+    const postList = messagePosts.liste_posts.filter(item=>item.post_id === postId)
+    // console.debug("Reception post, post_id = %s, recu length correspond = %s", postId, postList.length)
+
+    if(postList.length === 1) {
+      const post = postList[0]
+      this.setState({detailPost: post})
+    }
   }
 
   render() {

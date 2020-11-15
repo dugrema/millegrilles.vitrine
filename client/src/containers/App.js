@@ -113,7 +113,6 @@ class _App extends React.Component {
       socket.on('disconnect', () => {this.deconnexionSocketIo()})
 
       socket.on('majSite', this.eventMajSite)
-      socket.on('majPost', this.eventMajPost)
       socket.on('majCollection', this.eventMajCollection)
 
       // Conserve socket, permet d'enregistrer listeners par component (post, collections, etc.)
@@ -125,10 +124,6 @@ class _App extends React.Component {
   eventMajSite = site => {
     console.debug("MAJ site %O", site)
     this.setState({siteConfiguration: site})
-  }
-
-  eventMajPost = post => {
-    console.debug("MAJ post %O", post)
   }
 
   eventMajCollection = collection => {
