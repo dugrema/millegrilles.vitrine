@@ -123,7 +123,10 @@ class _App extends React.Component {
 
   eventMajSite = site => {
     console.debug("MAJ site %O", site)
-    this.setState({siteConfiguration: site})
+    const certificateStore = this.state.certificateStore
+    if( verifierSignatureMessage(site, site._certificat, certificateStore) ) {
+      this.setState({siteConfiguration: site})
+    }
   }
 
   eventMajCollection = collection => {

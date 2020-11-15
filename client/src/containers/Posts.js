@@ -54,7 +54,10 @@ export class Post extends React.Component {
 
     if(postList.length === 1) {
       const post = postList[0]
-      this.setState({detailPost: post})
+      const certificateStore = this.props.rootProps.certificateStore
+      if( verifierSignatureMessage(post, messagePosts._certificat, certificateStore) ) {
+        this.setState({detailPost: post})
+      }
     }
   }
 
