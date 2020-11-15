@@ -94,6 +94,7 @@ class _App extends React.Component {
       return
     }
 
+    document.title = siteConfiguration.titre[langueProchaine]
     this.props.i18n.changeLanguage(langueProchaine)
     this.setState({language: langueProchaine})
   }
@@ -145,10 +146,6 @@ function LayoutAccueil(props) {
       rootProps={props.rootProps} />
   )
 
-}
-
-function _setTitre(titre) {
-  document.title = titre
 }
 
 async function chargerSite(domaineUrl, language) {
