@@ -29,7 +29,7 @@ function Entete(props) {
   return (
     <Container>
       <Menu changerPage={props.changerPage} rootProps={props.rootProps}/>
-      <h1>Coup D'Oeil</h1>
+      <div className="body-top-padding"></div>
     </Container>
   )
 }
