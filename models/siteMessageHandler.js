@@ -39,7 +39,7 @@ class SiteMessageHandler {
 }
 
 function majSite(mq, routingKeys, message, noeudId, opts) {
-  console.debug("MAJ site %O = %O", routingKeys, message)
+  debug("MAJ site %O = %O", routingKeys, message)
 
   if(message.noeuds_urls[noeudId]) {
     const params = {
@@ -60,12 +60,12 @@ function majSite(mq, routingKeys, message, noeudId, opts) {
 }
 
 function majPost(mq, routingKeys, message, opts) {
-  console.debug("MAJ post %O = %O", routingKeys, message)
+  debug("MAJ post %O = %O", routingKeys, message)
   sauvegarderPosts(message, mq, {majSeulement: true})
 }
 
 function majCollection(mq, routingKeys, message, opts) {
-  console.debug("MAJ collection %O = %O", routingKeys, message)
+  debug("MAJ collection %O = %O", routingKeys, message)
   const params = {
     _certificat: message._certificat,
     liste_collections: [message]
