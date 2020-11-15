@@ -1,14 +1,12 @@
 import React, {Suspense} from 'react'
 import './App.css'
-import {Jumbotron, Row, Col} from 'react-bootstrap'
 import openSocket from 'socket.io-client'
 import axios from 'axios'
-// import {WebSocketApp} from '../components/webSocketApp'
 
-import {preparerCertificateStore, verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
+import {preparerCertificateStore} from '@dugrema/millegrilles.common/lib/pki2'
 
 import '../components/i18n'
-import { useTranslation, withTranslation } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 import { SiteAccueil } from './Site'
 import { LayoutMillegrilles } from './Layout'
@@ -35,7 +33,7 @@ class _App extends React.Component {
 
   componentDidMount() {
     const nomDomaine = window.location.href.split('/')[2].split(':')[0]
-    console.debug("Nom domaine serveur : %s", nomDomaine)
+    // console.debug("Nom domaine serveur : %s", nomDomaine)
 
     // Verifier si le language est auto-detecte / charge localement
     var language = this.props.i18n.language
@@ -43,7 +41,7 @@ class _App extends React.Component {
     // Preparer le certificate store avec le CA pour valider tous les .json telecharges
     axios.get('/vitrine/millegrille.pem').then(reponse=>{
       const caPem = reponse.data
-      console.debug("PEM certificat de millegrille : \n%s", caPem)
+      // console.debug("PEM certificat de millegrille : \n%s", caPem)
       const certificateStore = preparerCertificateStore(caPem)
       this.setState({certificateStore})
     })
@@ -113,7 +111,6 @@ class _App extends React.Component {
       langueProchaine = languesDifferentes[0]
     } else {
       throw new Error("Langue switch - plusieurs langues candidates, il faut choisir")
-      return
     }
 
     document.title = siteConfiguration.titre[langueProchaine]
@@ -173,7 +170,7 @@ function LayoutAccueil(props) {
 async function chargerSite(domaineUrl, language) {
   const url = '/vitrine/sites/' + domaineUrl + '/index.json'
   const reponse = await axios({method: 'get', url})
-  console.debug("Reponse site : %O", reponse)
+  // console.debug("Reponse site : %O", reponse)
 
   const siteConfiguration = reponse.data
 

@@ -9,7 +9,7 @@ import './Layout.css'
 export class LayoutMillegrilles extends React.Component {
 
   componentDidMount() {
-    console.debug("App props:\n%O", this.props)
+    // console.debug("App props:\n%O", this.props)
   }
 
   render() {
