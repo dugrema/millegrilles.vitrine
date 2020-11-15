@@ -25,12 +25,16 @@ export class Post extends React.Component {
     const detailPost = this.state.detailPost
     if(!detailPost) return <p></p>
 
-    const language = this.props.rootProps.language,
-          html = detailPost.html[language]
+    var language = this.props.rootProps.language
+    var html = detailPost.html[language]
 
     // console.debug("Render html %s", html)
     if(!html) {
-      return <p>... EMPTY POST / POST VIDE ...</p>
+      // Voir si on peut obtenir le contenu dans langue par defaut
+      const languages = this.props.rootProps.siteConfiguration.languages
+      language = languages[0]
+      html = detailPost.html[language]
+      if(!html) return <p> ... NO POST / PAS DE CONTENU ... </p>
     }
 
     const renderingContenu = parse(html)
