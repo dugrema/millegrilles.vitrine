@@ -22,7 +22,7 @@ export function Menu(props) {
 
   return (
     <Navbar collapseOnSelect expand="md" bg="info" variant="dark" fixed="top">
-      <Navbar.Brand href='/'>
+      <Navbar.Brand href='/vitrine'>
         {titreSite}{' '}
         <i className="fa fa-home"/>
       </Navbar.Brand>
