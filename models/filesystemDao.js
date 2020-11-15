@@ -58,7 +58,7 @@ function _mapperSitesParUrl(noeudId, messageSites) {
         sitesParUrl[url] = {...site, _certificat: certs}
       })
     } catch(err) {
-      debug("Erreur chargement urls pour site %s", site.site_id)
+      debug("Erreur chargement urls pour site %s : %O", site.site_id, err)
     }
   })
 
