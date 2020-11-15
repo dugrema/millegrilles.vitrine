@@ -92,9 +92,9 @@ function devRouteStub(instAmqpdao, opts) {
 
 function preconfigSocketioCallback(socketIo, instAmqpdao) {
   debug("Callback, preconfig socket.io avec middleware")
+  instAmqpdao.routingKeyManager.socketio = socketIo
   socketIo.use((socket, next)=>{
     debug("Ajout dev params dans req sur socket.io")
-    instAmqpdao.routingKeyManager.socketio = socketIo
     next()
   })
 }
