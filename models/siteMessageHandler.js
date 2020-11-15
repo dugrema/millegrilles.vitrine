@@ -29,6 +29,11 @@ class SiteMessageHandler {
       ['evenement.Publication.confirmationMajPost']
     )
 
+    this.mq.routingKeyManager.addRoutingKeyCallback(
+      function(routingKeys, message, opts) {majCollection(mq, routingKeys, message, opts)},
+      ['evenement.GrosFichiers.confirmationMajCollectionPublique']
+    )
+
   }
 
 }
@@ -57,6 +62,15 @@ function majSite(mq, routingKeys, message, noeudId, opts) {
 function majPost(mq, routingKeys, message, opts) {
   console.debug("MAJ post %O = %O", routingKeys, message)
   sauvegarderPosts(message, mq, {majSeulement: true})
+}
+
+function majCollection(mq, routingKeys, message, opts) {
+  console.debug("MAJ collection %O = %O", routingKeys, message)
+  const params = {
+    _certificat: message._certificat,
+    liste_collections: [message]
+  }
+  sauvegarderCollections(params, mq)
 }
 
 module.exports = {SiteMessageHandler};
