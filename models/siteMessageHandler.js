@@ -5,7 +5,6 @@ class SiteMessageHandler {
   constructor(mq, noeudId) {
     this.mq = mq
     this.noeudId = noeudId
-    this.routingKeys = null
   }
 
   // Appele lors d'une reconnexion MQ
@@ -14,11 +13,6 @@ class SiteMessageHandler {
   }
 
   enregistrerChannel() {
-    this.routingKeys = [
-      'evenement.Publication.confirmationMajSite',
-      'evenement.Publication.confirmationMajPost',
-    ]
-
     const mq = this.mq,
           noeudId = this.noeudId
 
