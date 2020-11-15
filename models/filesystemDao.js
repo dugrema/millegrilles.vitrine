@@ -28,7 +28,7 @@ async function sauvegarderPosts(messagePosts, amqpdao, opts) {
 
   for(const idx in messagePosts.liste_posts) {
     const post = messagePosts.liste_posts[idx]
-    await _sauvegarderPost(post, pathDataPosts, amqpdao, messagePosts._certificat)
+    await _sauvegarderPost(post, pathDataPosts, amqpdao, messagePosts._certificat, opts)
   }
 }
 
@@ -88,7 +88,8 @@ function _sauvegarderSite(urlDomain, site, pathDataSites, amqpdao) {
   })
 }
 
-function _sauvegarderPost(post, pathDataPosts, amqpdao, certificat) {
+function _sauvegarderPost(post, pathDataPosts, amqpdao, certificat, opts) {
+  if(!opts) opts = {}
   const pki = amqpdao.pki
 
   debug("Sauvegarder post %O", post)
@@ -100,6 +101,19 @@ function _sauvegarderPost(post, pathDataPosts, amqpdao, certificat) {
   return new Promise(async (resolve, reject)=>{
     // S'assurer que le repertoire du site existe
     await _mkdirs(subFolder)
+
+    if(opts.majSeulement) {
+      // Sauvegarder le fichier uniquement si c'est un remplacement
+      // Utile lorsqu'on recoit un post sur l'exchange public sans info du site/noeud
+      const fichierExiste = await new Promise((resolve, reject)=>{
+        fs.stat(postJsonFile, err=>{
+          if(err) return resolve(false)
+          resolve(true)
+        })
+      })
+      debug("Le post id: %s est nouveau, mode majSeulement. Ignorer le fichier.", postId)
+      if(!fichierExiste) return  // Abort, on ne sauvegarde pas le fichier (nouveau)
+    }
 
     const postCopy = {...post, _certificat: certificat}
 

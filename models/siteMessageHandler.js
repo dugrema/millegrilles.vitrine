@@ -39,11 +39,14 @@ function majSite(mq, routingKeys, message, noeudId, opts) {
   }
   // La signature du message a deja ete validee - sauvegarder la maj
   sauvegarderSites(noeudId, params, mq)
+
+  // Importer tous les posts, collections du site
+
 }
 
 function majPost(mq, routingKeys, message, opts) {
   console.debug("MAJ post %O = %O", routingKeys, message)
-  sauvegarderPosts(message, mq)
+  sauvegarderPosts(message, mq, {majSeulement: true})
 }
 
 module.exports = {SiteMessageHandler};
