@@ -11,6 +11,7 @@ import { withTranslation } from 'react-i18next';
 
 import { SiteAccueil } from './Site'
 import { LayoutMillegrilles } from './Layout'
+import { Section } from './Sections'
 
 const MG_SOCKETIO_URL = '/vitrine/socket.io',
       MAPPING_PAGES = {SiteAccueil}
@@ -26,6 +27,7 @@ class _App extends React.Component {
     infoVitrine: '',
 
     err: '',
+    section: '',
     page: 'SiteAccueil',
 
     socket: '',
@@ -49,6 +51,7 @@ class _App extends React.Component {
 
     // Charger configuration du site associe au domaine
     const siteConfiguration = await _chargerSite(nomDomaine)
+    console.debug("Configuration site : %O", siteConfiguration)
 
     // Identifier le language de depart pour afficher la page
     if(!language) {
@@ -140,8 +143,16 @@ class _App extends React.Component {
   changerPage = event => {
     const value = event.currentTarget.value
     // console.debug("Changer page %s", value)
-    if(MAPPING_PAGES[value]) {
-      this.setState({page: value})
+
+    if(value.startsWith('section:')) {
+      const idx = Number(value.split(':')[1])
+      const section = this.state.siteConfiguration.sections[idx]
+      // Toggle la section, force le rechargement si on a plusieurs sections de meme type
+      this.setState({section: ''}, _=>{
+        this.setState({section})
+      })
+    } else if(MAPPING_PAGES[value]) {
+      this.setState({page: value, section: ''})
     } else {
       throw new Error("Page inconnue : " + value)
     }
@@ -180,8 +191,13 @@ class _App extends React.Component {
     var affichage = <p>Connexion en cours</p>
     if(this.state.siteConfiguration && this.state.certificateStore && this.state.page) {
       // BaseLayout = LayoutAccueil
-      const Page = MAPPING_PAGES[this.state.page]
-      affichage = <Page rootProps={rootProps} />
+
+      if(this.state.section) {
+        affichage = <Section section={this.state.section} rootProps={rootProps} />
+      } else {
+        const Page = MAPPING_PAGES[this.state.page]
+        affichage = <Page rootProps={rootProps} />
+      }
     }
 
     return (

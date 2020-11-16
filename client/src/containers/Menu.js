@@ -3,6 +3,8 @@ import { Nav, Navbar, NavLink, NavItem, Dropdown } from 'react-bootstrap';
 
 import { useTranslation, Trans } from 'react-i18next';
 
+import {ChampMultilingue} from '../components/ChampMultilingue'
+
 export function Menu(props) {
   const { t, i18n } = useTranslation()
 
@@ -23,8 +25,7 @@ export function Menu(props) {
   return (
     <Navbar collapseOnSelect expand="md" bg="info" variant="dark" fixed="top">
       <Navbar.Brand href='/vitrine'>
-        {titreSite}{' '}
-        <i className="fa fa-home"/>
+        {titreSite}
       </Navbar.Brand>
       <Navbar.Toggle aria-controls="responsive-navbar-menu" />
       <Navbar.Collapse id="responsive-navbar-menu">
@@ -41,21 +42,21 @@ export class MenuItems extends React.Component {
 
   changerPage = param => {
 
-    const params_split = param.split('/')
-    var paramsAdditionnels = {}
-    if(params_split.length > 1) {
-      for(let idx in params_split) {
-        if(idx === 0) continue
-        var paramCombine = params_split[idx]
-        var keyValue = paramCombine.split(':')
-        paramsAdditionnels[keyValue[0]] = keyValue[1]
-      }
-    }
+    // const params_split = param.split('/')
+    // var paramsAdditionnels = {}
+    // if(params_split.length > 1) {
+    //   for(let idx in params_split) {
+    //     if(idx === 0) continue
+    //     var paramCombine = params_split[idx]
+    //     var keyValue = paramCombine.split(':')
+    //     paramsAdditionnels[keyValue[0]] = keyValue[1]
+    //   }
+    // }
 
     // Simuler un event avec value et dataset
     const info = {
-      value: params_split[0],
-      dataset: paramsAdditionnels,
+      value: param,
+      // dataset: paramsAdditionnels,
     }
     this.props.changerPage({currentTarget: info})
 
@@ -63,16 +64,43 @@ export class MenuItems extends React.Component {
 
   render() {
 
+    const siteConfiguration = this.props.rootProps.siteConfiguration
+    const language = this.props.language
+
+    var mappingSections = ''
+    if(siteConfiguration.sections) {
+      mappingSections = siteConfiguration.sections.map((section, idx)=>{
+        return <MenuItemSection key={idx}
+                                section={section}
+                                sectionIdx={idx}
+                                rootProps={this.props.rootProps} />
+      })
+    }
+
     return (
       <Nav className="mr-auto" activeKey={this.props.section} onSelect={this.changerPage}>
 
         <Nav.Item>
           <Nav.Link eventKey='SiteAccueil'>
-            <Trans>menu.Accueil</Trans>
+            <i className="fa fa-home"/>{' '}<Trans>menu.Accueil</Trans>
           </Nav.Link>
         </Nav.Item>
+
+        {mappingSections}
 
       </Nav>
     )
   }
+}
+
+function MenuItemSection(props) {
+
+  return (
+    <Nav.Item>
+      <Nav.Link eventKey={'section:' + props.sectionIdx}>
+          <ChampMultilingue rootProps={props.rootProps} contenu={props.section.entete} />
+      </Nav.Link>
+    </Nav.Item>
+  )
+
 }
