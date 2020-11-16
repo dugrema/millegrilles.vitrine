@@ -64,13 +64,13 @@ async function chargerPosts(amqpdao, postIds) {
   return await amqpdao.transmettreRequete(domaineAction, requete, {decoder: true})
 }
 
-async function chargerCollection(amqpdao, collectionIds) {
-  debug("Charger collections ids : %O", collectionIds)
+async function chargerCollection(amqpdao, collectionsIds) {
+  debug("Charger collections ids : %O", collectionsIds)
 
   const domaineAction = 'GrosFichiers.detailCollectionsPubliques',
         requete = {}
 
-  if(collectionIds) {
+  if(collectionsIds) {
     requete.collections = collectionsIds
   }
 

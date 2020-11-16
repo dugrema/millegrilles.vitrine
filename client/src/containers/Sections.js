@@ -85,11 +85,9 @@ function AfficherCollection(props) {
 
   return (
     <>
-      <Row>
-        <Col>
-          {collection.nom_collection}
-        </Col>
-      </Row>
+      <h2>
+        {collection.nom_collection}
+      </h2>
       {fichiersRendered}
     </>
   )
@@ -100,13 +98,13 @@ function Fichier(props) {
   const url = '/fichiers/' + fichier.fuuid
   return (
     <Row>
-      <Col md={1}></Col>
-      <Col md={6}>
+      <Col md={0} lg={1}></Col>
+      <Col sm={12} lg={6}>
         <a href={url}>
           {fichier.nom_fichier}
         </a>
       </Col>
-      <Col md={5}>{fichier.taille} bytes, {fichier.date_version} (s epoch)</Col>
+      <Col sm={12} lg={5}>{fichier.taille} bytes, {fichier.date_version} (s epoch)</Col>
     </Row>
   )
 }
