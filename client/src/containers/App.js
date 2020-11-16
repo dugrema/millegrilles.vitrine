@@ -51,7 +51,7 @@ class _App extends React.Component {
 
     // Charger configuration du site associe au domaine
     const siteConfiguration = await _chargerSite(nomDomaine)
-    console.debug("Configuration site : %O", siteConfiguration)
+    // console.debug("Configuration site : %O", siteConfiguration)
 
     // Identifier le language de depart pour afficher la page
     if(!language) {

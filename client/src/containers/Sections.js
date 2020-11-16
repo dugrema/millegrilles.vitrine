@@ -21,7 +21,7 @@ class SectionFichiers extends React.Component {
 
   componentDidMount() {
     const section = this.props.section
-    console.debug("Section : %O", section)
+    // console.debug("Section : %O", section)
 
     chargerCollections(section, this.props.rootProps).then(collections=>{
       this.setState({collections})
@@ -116,7 +116,7 @@ async function chargerCollections(section, rootProps) {
       collections = section.collections
 
   if(toutesCollections) {
-    console.debug("Charger toutes les collections")
+    // console.debug("Charger toutes les collections")
     const reponseToutesCollections = await axios.get('/vitrine/listeCollections.json')
     const messageToutesCollections = reponseToutesCollections.data
     const certificateStore = rootProps.certificateStore
@@ -127,7 +127,7 @@ async function chargerCollections(section, rootProps) {
     collections = reponseToutesCollections.data.liste_collections
   }
 
-  console.debug("Charger collections %O", collections)
+  // console.debug("Charger collections %O", collections)
   var promises = []
   collections.forEach(c=>{
     const subfolder = c.substring(0, 2)
@@ -136,6 +136,6 @@ async function chargerCollections(section, rootProps) {
   const resultatsAxios = await Promise.all(promises)
   const resultats = resultatsAxios.map(c=>c.data)
 
-  console.debug("Resultats : %O", resultats)
+  // console.debug("Resultats : %O", resultats)
   return resultats
 }
