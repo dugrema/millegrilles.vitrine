@@ -6,6 +6,7 @@ const { v4: uuidv4 } = require('uuid')
 
 const { chargerSites, chargerPosts } = require('../models/siteDao')
 const { configurationEvenements } = require('../models/appSocketIo')
+const { listerCollections } = require('../models/filesystemDao')
 
 // Generer mot de passe temporaire pour chiffrage des cookies
 const secretCookiesPassword = uuidv4()
@@ -26,8 +27,9 @@ function initialiser(fctRabbitMQParIdmg, opts) {
 
   route.use(cookieParser(secretCookiesPassword))
 
-  // Fonctions sous /millegrilles/api
+  // Fonctions sous /vitrine
   route.get('/info.json', infoMillegrille)
+  route.get('/listeCollections.json', listeCollections)
 
   // Exposer le certificat de la MilleGrille (CA)
   route.use('/millegrille.pem', express.static(process.env.MG_MQ_CAFILE))
@@ -72,6 +74,19 @@ async function infoMillegrille(req, res, next) {
   amqpdao.formatterTransaction('Vitrine.information', reponse, {attacherCertificat: true})
 
   res.send(reponse)
+}
+
+async function listeCollections(req, res) {
+  // Charger la liste des collections, retourner sous un meme stream
+  const collections = await listerCollections()
+  const reponse = {
+    liste_collections: collections,
+  }
+
+  const amqpdao = req.amqpdao
+  amqpdao.formatterTransaction('Vitrine.listeCollections', reponse, {attacherCertificat: true})
+
+  res.status(200).send(reponse)
 }
 
 module.exports = {initialiser}

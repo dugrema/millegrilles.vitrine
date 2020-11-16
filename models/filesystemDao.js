@@ -1,6 +1,7 @@
 const debug = require('debug')('millegrilles:vitrine:filesystemDao')
 const path = require('path')
 const fs = require('fs')
+const readdirp = require('readdirp')
 
 async function sauvegarderSites(noeudId, messageSites, amqpdao, opts) {
   if(!opts) opts = {}
@@ -45,6 +46,28 @@ async function sauvegarderCollections(messageCollections, amqpdao, opts) {
     await _sauvegarderCollection(
       collection, pathDataCollections, amqpdao, messageCollections._certificat)
   }
+}
+
+async function listerCollections() {
+  // Fait une liste de toutes les collections (ids)
+  const pathData = '/var/opt/millegrilles/nginx/data'
+  const pathDataCollections = path.join(pathData, 'vitrine/collections')
+
+  const collections = []
+  await new Promise((resolve, reject)=>{
+    readdirp(pathDataCollections, {type: 'files', depth: 1})
+    .on('data', entry=>{
+      const basename = entry.basename
+      const uuidCollection = basename.split('.')[0]
+      collections.push(uuidCollection)
+    })
+    .on('end', _=>{resolve()})
+    .on('error', err=>{reject(err)})
+    .on('warn', err=>{reject(err)})
+  })
+
+  debug("Collections : %O", collections)
+  return collections
 }
 
 function _mapperSitesParUrl(noeudId, messageSites) {
@@ -169,4 +192,4 @@ function _mkdirs(pathRepertoire) {
   })
 }
 
-module.exports = {sauvegarderSites, sauvegarderPosts, sauvegarderCollections}
+module.exports = {sauvegarderSites, sauvegarderPosts, sauvegarderCollections, listerCollections}

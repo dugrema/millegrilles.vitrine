@@ -3,6 +3,7 @@ import axios from 'axios'
 import {Row, Col} from 'react-bootstrap'
 
 import {ChampMultilingue} from '../components/ChampMultilingue'
+import {verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
 
 export function Section(props) {
   if(props.section.type === 'fichiers') {
@@ -22,7 +23,7 @@ class SectionFichiers extends React.Component {
     const section = this.props.section
     console.debug("Section : %O", section)
 
-    chargerCollections(section).then(collections=>{
+    chargerCollections(section, this.props.rootProps).then(collections=>{
       this.setState({collections})
     })
 
@@ -72,7 +73,7 @@ function AfficherCollection(props) {
   // Retirer les sous-collections (non supporte)
   const copieFichiers = fichiers.filter(f=>f.nom_fichier)
 
-  // Trier fichiers par nom 
+  // Trier fichiers par nom
   copieFichiers.sort((a,b)=>{
     const na=a.nom_fichier, nb=b.nom_fichier
     return na.localeCompare(nb)
@@ -110,24 +111,31 @@ function Fichier(props) {
   )
 }
 
-async function chargerCollections(section) {
+async function chargerCollections(section, rootProps) {
   var toutesCollections = section.toutes_collections === true,
       collections = section.collections
 
   if(toutesCollections) {
     console.debug("Charger toutes les collections")
-    return []
-  } else {
-    console.debug("Charger collections %O", collections)
-    var promises = []
-    collections.forEach(c=>{
-      const subfolder = c.substring(0, 2)
-      promises.push(axios.get('/vitrine/collections/' + subfolder + '/' + c + '.json'))
-    })
-    const resultatsAxios = await Promise.all(promises)
-    const resultats = resultatsAxios.map(c=>c.data)
-
-    console.debug("Resultats : %O", resultats)
-    return resultats
+    const reponseToutesCollections = await axios.get('/vitrine/listeCollections.json')
+    const messageToutesCollections = reponseToutesCollections.data
+    const certificateStore = rootProps.certificateStore
+    // Valider contenu avec le certificat, idmg
+    if ( ! verifierSignatureMessage(messageToutesCollections, messageToutesCollections._certificat, certificateStore) ) {
+      throw new Error("Signature invalide")
+    }
+    collections = reponseToutesCollections.data.liste_collections
   }
+
+  console.debug("Charger collections %O", collections)
+  var promises = []
+  collections.forEach(c=>{
+    const subfolder = c.substring(0, 2)
+    promises.push(axios.get('/vitrine/collections/' + subfolder + '/' + c + '.json'))
+  })
+  const resultatsAxios = await Promise.all(promises)
+  const resultats = resultatsAxios.map(c=>c.data)
+
+  console.debug("Resultats : %O", resultats)
+  return resultats
 }
