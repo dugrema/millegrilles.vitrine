@@ -293,9 +293,10 @@ function AffichageImageSimpleAlbum(props) {
 
 function AffichageBlogposts(props) {
   console.debug("Props info : %O", props)
+  const section = props.section
   return (
     <>
-      <p>Affichage blog posts</p>
+      <h2><ChampMultilingue contenu={section.entete} rootProps={props.rootProps}/></h2>
       <SiteBlogPost {...props} />
     </>
   )

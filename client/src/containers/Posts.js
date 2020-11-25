@@ -3,6 +3,7 @@ import axios from 'axios'
 import parse from 'html-react-parser'
 import {Alert, Row, Col} from 'react-bootstrap'
 
+import {DateTimeFormatter, DateTimeAfficher} from '../components/ReactFormatters'
 import {verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
 
 export class Post extends React.Component {
@@ -89,7 +90,10 @@ export class Post extends React.Component {
       return (
         <Row>
           <Col md={2}>
-            Date {estampille}
+            <DateTimeFormatter date={estampille} />
+            <div>
+              <DateTimeAfficher date={estampille}/>
+            </div>
           </Col>
           <Col>{contenuPost}</Col>
         </Row>
