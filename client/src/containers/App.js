@@ -13,6 +13,8 @@ import { SiteAccueil } from './Site'
 import { LayoutMillegrilles } from './Layout'
 import { Section } from './Sections'
 
+import manifest from '../manifest.build.js'
+
 const MG_SOCKETIO_URL = '/vitrine/socket.io',
       MAPPING_PAGES = {SiteAccueil}
 
@@ -32,14 +34,10 @@ class _App extends React.Component {
 
     socket: '',
 
-    manifest: {
-      version: 'DUMMY',
-      date: 'DUMMY'
-    }
-
   }
 
   componentDidMount() {
+    console.debug("Chargement app %O", manifest)
     this.chargerSite()
     this.chargerCertificateStore()
     this.connecterSocketIo()
@@ -186,6 +184,7 @@ class _App extends React.Component {
     const rootProps = {
       ...this.state,
       changerLanguage: this.changerLanguage,
+      manifest,
     }
 
     var affichage = <p>Connexion en cours</p>

@@ -51,6 +51,11 @@ function Footer(props) {
     // qrCode = <QRCode value={'idmg:' + idmg} size={75} />;
   }
 
+  var manifest = ''
+  if(props.rootProps && props.rootProps.manifest) {
+    manifest = props.rootProps.manifest
+  }
+
   return (
     <Container fluid className="footer bg-info">
       <Row>
@@ -59,9 +64,9 @@ function Footer(props) {
           <div className="millegrille-footer">
             <div>IDMG : {idmg}</div>
             <div>
-              <Trans>application.coupdoeilAdvert</Trans>{' '}
-              <span title={props.rootProps.manifest.date}>
-                <Trans values={{version: props.rootProps.manifest.version}}>application.coupdoeilVersion</Trans>
+              <Trans>layout.coupdoeilAdvert</Trans>{' '}
+              <span title={manifest.date}>
+                <Trans values={{version: manifest.version}}>layout.coupdoeilVersion</Trans>
               </span>
             </div>
           </div>

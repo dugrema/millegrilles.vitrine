@@ -8,6 +8,10 @@
     "url": "URL",
     "rafraichir": "Rafraichir"
   },
+  "layout": {
+    "coupdoeilAdvert": "Vitrine pour MilleGrilles",
+    "coupdoeilVersion": "version {{version}}"
+  },
   "menu": {
     "Accueil": "Accueil",
     "changerLangue": "English"

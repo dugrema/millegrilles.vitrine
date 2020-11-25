@@ -67,3 +67,7 @@ div.table div.table-header {
 .card {
   width: 18rem;
 }
+
+.image-fullsize {
+  max-width: 100%;
+}

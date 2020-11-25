@@ -1,9 +1,10 @@
 import React from 'react'
 import axios from 'axios'
-import {Row, Col, CardColumns, Card} from 'react-bootstrap'
+import {Row, Col, CardColumns, Card, Button} from 'react-bootstrap'
 
 import {ChampMultilingue} from '../components/ChampMultilingue'
 import {verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
+import { useTranslation, Trans } from 'react-i18next';
 
 export function Section(props) {
   if(props.section.type === 'fichiers') {
@@ -56,6 +57,7 @@ class SectionAlbums extends React.Component {
   state = {
     collections: '',
     collectionId: '',  // Id collection courante (affichee)
+    imageFuuid: '',
   }
 
   componentDidMount() {
@@ -74,13 +76,43 @@ class SectionAlbums extends React.Component {
     this.setState({collectionId})
   }
 
+  setImageFuuid = event => {
+    const imageFuuid = event.currentTarget.value || event.currentTarget.dataset.fuuid
+    console.debug("Set image fuuid : %s", imageFuuid)
+    this.setState({imageFuuid})
+  }
+
   render() {
     const section = this.props.section
 
     var contenu = ''
-    if(this.state.collectionId) {
+    if(this.state.imageFuuid) {
+      contenu = (
+        <>
+          <div>
+            <Button onClick={this.setImageFuuid}><Trans>global.retour</Trans></Button>
+            <br/>
+            <br/>
+          </div>
+          <AffichageImageSimpleAlbum rootProps={this.props.rootProps}
+                                     fuuid={this.state.imageFuuid} />
+        </>
+      )
+    } else if(this.state.collectionId) {
       const collection = this.state.collections.filter(item=>item.uuid === this.state.collectionId)
-      contenu = <AffichageImagesAlbum rootProps={this.props.rootProps} collection={collection[0]} />
+      contenu = (
+        <>
+          <div>
+            <Button onClick={this.setCollectionId}><Trans>global.retour</Trans></Button>
+            <br/>
+            <br/>
+          </div>
+          <AffichageImagesAlbum rootProps={this.props.rootProps}
+                                collection={collection[0]}
+                                setCollectionId={this.setCollectionId}
+                                setImageFuuid={this.setImageFuuid} />
+        </>
+      )
     } else {
       contenu = <AfficherAlbums rootProps={this.props.rootProps}
                       collections={this.state.collections}
@@ -218,7 +250,8 @@ function AffichageImagesAlbum(props) {
   if(fichiers) {
     const imagesRendered = fichiers.map((f, idx)=>{
       return <AfficherImageAlbum key={idx} rootProps={props.rootProps}
-                                 fichier={f} />
+                                 fichier={f}
+                                 setImageFuuid={props.setImageFuuid} />
     })
 
     return (
@@ -237,12 +270,21 @@ function AfficherImageAlbum(props) {
 
   return (
     <Card border="secondary"
-          data-uuid={fichier.uuid}>
+          data-fuuid={fichier.fuuid}
+          onClick={props.setImageFuuid}>
       <Card.Img variant="top" src={"/fichiers/" + fuuidPreview + "?preview=1"} />
       <Card.Body>
         <Card.Title>{fichier.nom_fichier}</Card.Title>
       </Card.Body>
     </Card>
+  )
+}
+
+function AffichageImageSimpleAlbum(props) {
+  const fuuidPreview = props.fuuid
+
+  return (
+    <img className="image-fullsize" src={"/fichiers/" + fuuidPreview} />
   )
 }
 
