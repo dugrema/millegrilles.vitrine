@@ -63,3 +63,7 @@ div.table div.table-header {
     display: none;
   }
 }
+
+.card {
+  width: 18rem;
+}
