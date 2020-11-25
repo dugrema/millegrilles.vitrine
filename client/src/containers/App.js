@@ -37,7 +37,7 @@ class _App extends React.Component {
   }
 
   componentDidMount() {
-    console.debug("Chargement app %O", manifest)
+    console.debug("Vitrine version %s, %s", manifest.version, manifest.date)
     this.chargerSite()
     this.chargerCertificateStore()
     this.connecterSocketIo()
