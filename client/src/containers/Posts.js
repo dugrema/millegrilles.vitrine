@@ -1,7 +1,7 @@
 import React from 'react'
 import axios from 'axios'
 import parse from 'html-react-parser'
-import {Alert} from 'react-bootstrap'
+import {Alert, Row, Col} from 'react-bootstrap'
 
 import {verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
 
@@ -82,6 +82,20 @@ export class Post extends React.Component {
       if(!html) return <p> ... NO POST / PAS DE CONTENU ... </p>
     }
 
-    return parse(html)
+    const contenuPost = parse(html)
+
+    if(this.props.afficherDate) {
+      const estampille = detailPost['en-tete'].estampille
+      return (
+        <Row>
+          <Col md={2}>
+            Date {estampille}
+          </Col>
+          <Col>{contenuPost}</Col>
+        </Row>
+      )
+    } else {
+      return contenuPost
+    }
   }
 }

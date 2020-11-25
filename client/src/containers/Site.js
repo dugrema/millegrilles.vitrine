@@ -18,12 +18,28 @@ export class SiteAccueil extends React.Component {
   }
 }
 
+export function SiteBlogPost(props) {
+  const rootProps = props.rootProps
+
+  const siteConfiguration = rootProps.siteConfiguration,
+        section = props.section,
+        postsSection = props.section.posts
+
+  const rangees = postsSection.map((rangee, idx)=>{
+    return (
+      <RangeeAccueil key={idx} rootProps={rootProps} rangee={rangee} afficherDate={true} />
+    )
+  })
+
+  return rangees
+}
+
 function RangeeAccueil(props) {
   // Determine le type de rangee, charge le component approprie
   const rangee = props.rangee
   if(rangee.layout === 'CardDeck') {
     return <CardDeckMapping rootProps={props.rootProps} {...props.rangee} />
   } else if(rangee.post_id) {
-    return <Post rootProps={props.rootProps} {...props.rangee} />
+    return <Post rootProps={props.rootProps} {...props.rangee} afficherDate={props.afficherDate} />
   }
 }

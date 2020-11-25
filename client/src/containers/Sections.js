@@ -4,13 +4,16 @@ import {Row, Col, CardColumns, Card, Button} from 'react-bootstrap'
 
 import {ChampMultilingue} from '../components/ChampMultilingue'
 import {verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next'
+import {SiteBlogPost} from './Site'
 
 export function Section(props) {
   if(props.section.type === 'fichiers') {
     return <SectionFichiers {...props} />
   } else if(props.section.type === 'album') {
     return <SectionAlbums {...props} />
+  } else if(props.section.type === 'blogposts') {
+    return <AffichageBlogposts {...props} />
   }
   return 'Section inconnue : ' + props.type
 }
@@ -285,6 +288,16 @@ function AffichageImageSimpleAlbum(props) {
 
   return (
     <img className="image-fullsize" src={"/fichiers/" + fuuidPreview} />
+  )
+}
+
+function AffichageBlogposts(props) {
+  console.debug("Props info : %O", props)
+  return (
+    <>
+      <p>Affichage blog posts</p>
+      <SiteBlogPost {...props} />
+    </>
   )
 }
 
