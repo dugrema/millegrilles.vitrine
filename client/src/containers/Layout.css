@@ -70,3 +70,7 @@ i.protege {
 }
 
 .body-top-padding {padding-top: 4em;}
+
+.col-filesize {
+  text-align: right;
+}

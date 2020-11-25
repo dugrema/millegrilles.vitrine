@@ -6,6 +6,7 @@ import {ChampMultilingue} from '../components/ChampMultilingue'
 import {verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
 import { useTranslation, Trans } from 'react-i18next'
 import {SiteBlogPost} from './Site'
+import {DateTimeAfficher, FileSizeFormatter} from '../components/ReactFormatters'
 
 export function Section(props) {
   if(props.section.type === 'fichiers') {
@@ -189,7 +190,8 @@ function Fichier(props) {
           {fichier.nom_fichier}
         </a>
       </Col>
-      <Col sm={12} lg={5}>{fichier.taille} bytes, {fichier.date_version} (s epoch)</Col>
+      <Col sm={5} lg={2} className="col-filesize"><FileSizeFormatter nb={fichier.taille} /></Col>
+      <Col sm={7} lg={3}><DateTimeAfficher date={fichier.date_version}/></Col>
     </Row>
   )
 }

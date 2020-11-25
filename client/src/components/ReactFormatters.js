@@ -35,38 +35,48 @@ class DateFormatter {
 //   }
 // }
 
-// class FileSizeFormatter {
-//
-//   constructor() {
-//     this.kb = 1024;
-//     this.mb = this.kb*1024;
-//     this.gb = this.mb*1024;
-//     this.tb = this.gb*1024;
-//     this.precision = 3;
-//   }
-//
-//   format(nbBytes) {
-//     let result, unite;
-//     if(nbBytes > this.tb) {
-//       result = (nbBytes/this.tb).toPrecision(this.precision);
-//       unite = 'Tb';
-//     } else if(nbBytes > this.gb) {
-//       result = (nbBytes/this.gb).toPrecision(this.precision);
-//       unite = 'Gb';
-//     } else if(nbBytes > this.mb) {
-//       result = (nbBytes/this.mb).toPrecision(this.precision);
-//       unite = 'Mb';
-//     } else if(nbBytes > this.kb) {
-//       result = (nbBytes/this.kb).toPrecision(this.precision);
-//       unite = 'kb';
-//     } else {
-//       result = nbBytes;
-//       unite = 'bytes';
-//     }
-//
-//     return result + ' ' + unite;
-//   }
-// }
+export class FileSizeFormatter extends React.Component {
+
+  constructor() {
+    super()
+    this.kb = 1024;
+    this.mb = this.kb*1024;
+    this.gb = this.mb*1024;
+    this.tb = this.gb*1024;
+    this.precision = 3;
+  }
+
+  format(nbBytes) {
+    let result, unite;
+    if(nbBytes > this.tb) {
+      result = (nbBytes/this.tb).toPrecision(this.precision);
+      unite = 'Tb';
+    } else if(nbBytes > this.gb) {
+      result = (nbBytes/this.gb).toPrecision(this.precision);
+      unite = 'Gb';
+    } else if(nbBytes > this.mb) {
+      result = (nbBytes/this.mb).toPrecision(this.precision);
+      unite = 'Mb';
+    } else if(nbBytes > this.kb) {
+      result = (nbBytes/this.kb).toPrecision(this.precision);
+      unite = 'kb';
+    } else {
+      result = nbBytes;
+      unite = 'bytes';
+    }
+
+    return result + ' ' + unite;
+  }
+
+  render() {
+    const nb = this.props.nb
+    return (
+      <span className="filesize">
+        {this.format(nb)}
+      </span>
+    );
+  }
+}
 
 export class DateTimeFormatter extends React.Component {
 
