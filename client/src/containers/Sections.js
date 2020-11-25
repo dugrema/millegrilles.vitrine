@@ -69,12 +69,23 @@ class SectionAlbums extends React.Component {
   }
 
   setCollectionId = event => {
-    const collectionId = event.currentTarget.value
+    const collectionId = event.currentTarget.value || event.currentTarget.dataset.uuid
+    console.debug("Set collection ID : %s", collectionId)
     this.setState({collectionId})
   }
 
   render() {
     const section = this.props.section
+
+    var contenu = ''
+    if(this.state.collectionId) {
+      const collection = this.state.collections.filter(item=>item.uuid === this.state.collectionId)
+      contenu = <AffichageImagesAlbum rootProps={this.props.rootProps} collection={collection[0]} />
+    } else {
+      contenu = <AfficherAlbums rootProps={this.props.rootProps}
+                      collections={this.state.collections}
+                      setCollectionId={this.setCollectionId} />
+    }
 
     return (
       <>
@@ -82,7 +93,7 @@ class SectionAlbums extends React.Component {
           <ChampMultilingue rootProps={this.props.rootProps} contenu={section.entete} />
         </h1>
 
-        <AfficherAlbums rootProps={this.props.rootProps} collections={this.state.collections}/>
+        {contenu}
       </>
     )
   }
@@ -159,7 +170,9 @@ function AfficherAlbums(props) {
     })
 
     const collectionsRendered = props.collections.map((c, idx)=>{
-      return <AfficherCollectionAlbum key={idx} rootProps={props.rootProps} collection={c} />
+      return <AfficherCollectionAlbum key={idx} rootProps={props.rootProps}
+                                      collection={c}
+                                      setCollectionId={props.setCollectionId} />
     })
 
     return (
@@ -182,10 +195,52 @@ function AfficherCollectionAlbum(props) {
   }
 
   return (
-    <Card border="secondary">
+    <Card border="secondary"
+          onClick={props.setCollectionId}
+          data-uuid={collection.uuid}>
       <Card.Img variant="top" src={"/fichiers/" + fuuidPreview + "?preview=1"} />
       <Card.Body>
         <Card.Title>{collection.nom_collection}</Card.Title>
+      </Card.Body>
+    </Card>
+  )
+}
+
+function AffichageImagesAlbum(props) {
+  const collection = props.collection
+  const fichiers = collection.fichiers.filter(item=>{return item.mimetype && item.mimetype.startsWith('image/')})
+  fichiers.sort((a,b)=>{
+    const na=a.nom_fichier, nb=b.nom_fichier
+    return na.localeCompare(nb)
+  })
+
+  console.debug("Collection %O\nImages dans la collection : %O", collection, fichiers)
+  if(fichiers) {
+    const imagesRendered = fichiers.map((f, idx)=>{
+      return <AfficherImageAlbum key={idx} rootProps={props.rootProps}
+                                 fichier={f} />
+    })
+
+    return (
+      <CardColumns>
+        {imagesRendered}
+      </CardColumns>
+    )
+  }
+  return ''
+}
+
+function AfficherImageAlbum(props) {
+  const fichier = props.fichier
+
+  var fuuidPreview = fichier.fuuid
+
+  return (
+    <Card border="secondary"
+          data-uuid={fichier.uuid}>
+      <Card.Img variant="top" src={"/fichiers/" + fuuidPreview + "?preview=1"} />
+      <Card.Body>
+        <Card.Title>{fichier.nom_fichier}</Card.Title>
       </Card.Body>
     </Card>
   )
