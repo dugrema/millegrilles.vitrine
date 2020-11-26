@@ -21,8 +21,8 @@ build_app() {
   npm run build
 
   echo "Copier le build React vers $REP_STATIC"
-  mkdir -p $REP_STATIC
-  cp -r ./build/* $REP_STATIC
+  mkdir -p $REP_STATIC/vitrine
+  cp -r ./build/* $REP_STATIC/vitrine
 }
 
 build_react() {
