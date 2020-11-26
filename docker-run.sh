@@ -20,13 +20,16 @@ export MG_MQ_KEYFILE=/certs/pki.web_protege.key
 export MG_MQ_URL=amqps://$HOST_MQ:5673
 export PORT=3000
 
+export MG_NOEUD_ID=4af8f982-bf70-45c8-9be4-92a862419ec0
+
 # export DEBUG=millegrilles:*,coupdoeil:*
-export DEBUG=millegrilles:common:server3,millegrilles:maitrecomptes:authentification
+export DEBUG=millegrilles:common:server3,millegrilles:vitrine
 
 docker run --rm -it \
   --network host \
   -v /home/mathieu/mgdev/certs:/certs \
+  -v /var/opt/millegrilles/nginx/data:/var/opt/millegrilles/nginx/data \
   -e MG_MQ_CAFILE -e MG_MQ_CERTFILE -e MG_MQ_KEYFILE \
-  -e MG_MQ_URL -e HOST -e PORT \
-  -e DEBUG \
+  -e MG_MQ_URL -e HOST -e PORT -e MG_NOEUD_ID \
+  -e DEBUG -e DEV=1 \
   $IMAGE_DOCKER

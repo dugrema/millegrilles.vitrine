@@ -223,24 +223,28 @@ function AfficherAlbums(props) {
 
 function AfficherCollectionAlbum(props) {
   const collection = props.collection
-  const fichiers = collection.fichiers.filter(item=>{return item.mimetype && item.mimetype.startsWith('image/')})
-  console.debug("Collection %O\nImages dans la collection : %O", collection, fichiers)
+  if(collection.fichiers) {
+    const fichiers = collection.fichiers.filter(item=>{return item.mimetype && item.mimetype.startsWith('image/')})
+    console.debug("Collection %O\nImages dans la collection : %O", collection, fichiers)
 
-  var fuuidPreview = collection.fuuid_preview
-  if( !fuuidPreview && fichiers && fichiers.length > 0) {
-    fuuidPreview = fichiers[0].fuuid
+    var fuuidPreview = collection.fuuid_preview
+    if( !fuuidPreview && fichiers && fichiers.length > 0) {
+      fuuidPreview = fichiers[0].fuuid
+    }
+
+    return (
+      <Card border="secondary"
+            onClick={props.setCollectionId}
+            data-uuid={collection.uuid}>
+        <Card.Img variant="top" src={"/fichiers/" + fuuidPreview + "?preview=1"} />
+        <Card.Body>
+          <Card.Title>{collection.nom_collection}</Card.Title>
+        </Card.Body>
+      </Card>
+    )
   }
 
-  return (
-    <Card border="secondary"
-          onClick={props.setCollectionId}
-          data-uuid={collection.uuid}>
-      <Card.Img variant="top" src={"/fichiers/" + fuuidPreview + "?preview=1"} />
-      <Card.Body>
-        <Card.Title>{collection.nom_collection}</Card.Title>
-      </Card.Body>
-    </Card>
-  )
+  return ''
 }
 
 function AffichageImagesAlbum(props) {
