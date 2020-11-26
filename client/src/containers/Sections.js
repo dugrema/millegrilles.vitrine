@@ -157,26 +157,31 @@ function AfficherCollection(props) {
   const fichiers = collection.fichiers
 
   // Retirer les sous-collections (non supporte)
-  const copieFichiers = fichiers.filter(f=>f.nom_fichier)
+  if(fichiers) {
+    const copieFichiers = fichiers.filter(f=>f.nom_fichier)
 
-  // Trier fichiers par nom
-  copieFichiers.sort((a,b)=>{
-    const na=a.nom_fichier, nb=b.nom_fichier
-    return na.localeCompare(nb)
-  })
+    // Trier fichiers par nom
+    copieFichiers.sort((a,b)=>{
+      const na=a.nom_fichier, nb=b.nom_fichier
+      return na.localeCompare(nb)
+    })
 
-  const fichiersRendered = copieFichiers.map(f=>{
-    return <Fichier key={f.uuid} rootProps={props.rootProps} fichier={f} />
-  })
+    const fichiersRendered = copieFichiers.map(f=>{
+      return <Fichier key={f.uuid} rootProps={props.rootProps} fichier={f} />
+    })
 
-  return (
-    <>
-      <h2>
-        {collection.nom_collection}
-      </h2>
-      {fichiersRendered}
-    </>
-  )
+    return (
+      <>
+        <h2>
+          {collection.nom_collection}
+        </h2>
+        {fichiersRendered}
+      </>
+    )
+  }
+
+  // Par defaut, pas de fichiers
+  return ''
 }
 
 function Fichier(props) {
