@@ -1,0 +1,8 @@
+{
+  "short_name": "Vitrine",
+  "name": "Vitrine - MilleGrilles",
+  "start_url": "/vitrine",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
