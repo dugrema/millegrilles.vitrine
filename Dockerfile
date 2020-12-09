@@ -2,8 +2,7 @@ FROM node:12
 
 ENV APP_FOLDER=/usr/src/app \
     NODE_ENV=production \
-    PORT=443 \
-    MG_MQ_URL=amqps://mq:5673
+    PORT=443
 
 EXPOSE 80 443
 
