@@ -22,8 +22,15 @@ async function init() {
 
   // Connecter a MilleGrilles avec AMQP DAO
   const amqpdao = new MilleGrillesAmqpDAO(instPki, {exchange: '1.public'})
-  const mqConnectionUrl = process.env.MG_MQ_URL,
-        noeudId = process.env.MG_NOEUD_ID
+  const noeudId = process.env.MG_NOEUD_ID
+
+  var mqConnectionUrl = process.env.MG_MQ_URL
+  if( ! mqConnectionUrl ) {
+    var host = process.env.MQ_HOST,
+        port = process.env.MQ_PORT
+    mqConnectionUrl = 'amqps://' + host + ':' + port
+  }
+
   await amqpdao.connect(mqConnectionUrl)
 
   initialiserRoutingKeys(amqpdao, noeudId)
