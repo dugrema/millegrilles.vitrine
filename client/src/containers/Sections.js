@@ -82,8 +82,9 @@ class SectionAlbums extends React.Component {
 
   setImageFuuid = event => {
     const imageFuuid = event.currentTarget.value || event.currentTarget.dataset.fuuid
+    const imageMimetype = event.currentTarget.dataset.mimetype
     console.debug("Set image fuuid : %s", imageFuuid)
-    this.setState({imageFuuid})
+    this.setState({imageFuuid, imageMimetype})
   }
 
   render() {
@@ -91,15 +92,37 @@ class SectionAlbums extends React.Component {
 
     var contenu = ''
     if(this.state.imageFuuid) {
+      console.debug("Etat, props pour afficher image : state: %O, \nprops: %O", this.state, this.props)
+      const collection = this.state.collections.filter(item=>item.uuid === this.state.collectionId)
+      var fichierInfo = collection[0].fichiers.filter(item=>item.fuuid === this.state.imageFuuid)
+      fichierInfo = fichierInfo[0]
+
+      var ElementMedia = null
+      if(this.state.imageMimetype.startsWith('video/')) {
+        ElementMedia = AffichageVideoAlbum
+      } else if(this.state.imageMimetype.startsWith('image/')) {
+        ElementMedia = AffichageImageSimpleAlbum
+      }
+
       contenu = (
         <>
           <div>
-            <Button onClick={this.setImageFuuid}><Trans>global.retour</Trans></Button>
-            <br/>
+            <Row>
+              <Col>
+                <Button onClick={this.setImageFuuid}><Trans>global.retour</Trans></Button>
+                {" "}
+                <Button href={"/fichiers/public/" + this.state.imageFuuid}>
+                  <i className="fa fa-download" />
+                </Button>
+              </Col>
+            </Row>
+
             <br/>
           </div>
-          <AffichageImageSimpleAlbum rootProps={this.props.rootProps}
-                                     fuuid={this.state.imageFuuid} />
+          <ElementMedia rootProps={this.props.rootProps}
+                        fuuid={this.state.imageFuuid}
+                        mimetype={this.state.imageMimetype}
+                        fichierInfo={fichierInfo} />
         </>
       )
     } else if(this.state.collectionId) {
@@ -186,7 +209,7 @@ function AfficherCollection(props) {
 
 function Fichier(props) {
   const fichier = props.fichier
-  const url = '/fichiers/' + fichier.fuuid
+  const url = '/fichiers/public/' + fichier.fuuid
   return (
     <Row>
       <Col md={0} lg={1}></Col>
@@ -229,7 +252,12 @@ function AfficherAlbums(props) {
 function AfficherCollectionAlbum(props) {
   const collection = props.collection
   if(collection.fichiers) {
-    const fichiers = collection.fichiers.filter(item=>{return item.mimetype && item.mimetype.startsWith('image/')})
+    const fichiers = collection.fichiers.filter(
+      item=>{
+        return item.mimetype &&
+              (item.mimetype.startsWith('image/') || item.mimetype.startsWith('video/'))
+      }
+    )
     console.debug("Collection %O\nImages dans la collection : %O", collection, fichiers)
 
     var fuuidPreview = collection.fuuid_preview
@@ -241,7 +269,7 @@ function AfficherCollectionAlbum(props) {
       <Card border="secondary"
             onClick={props.setCollectionId}
             data-uuid={collection.uuid}>
-        <Card.Img variant="top" src={"/fichiers/" + fuuidPreview + "?preview=1"} />
+        <Card.Img variant="top" src={"/fichiers/public/" + fuuidPreview + "?preview=1"} />
         <Card.Body>
           <Card.Title>{collection.nom_collection}</Card.Title>
         </Card.Body>
@@ -254,7 +282,12 @@ function AfficherCollectionAlbum(props) {
 
 function AffichageImagesAlbum(props) {
   const collection = props.collection
-  const fichiers = collection.fichiers.filter(item=>{return item.mimetype && item.mimetype.startsWith('image/')})
+  const fichiers = collection.fichiers.filter(
+    item=>{
+      return item.mimetype &&
+             (item.mimetype.startsWith('image/') || item.mimetype.startsWith('video/'))
+    }
+  )
   fichiers.sort((a,b)=>{
     const na=a.nom_fichier, nb=b.nom_fichier
     return na.localeCompare(nb)
@@ -263,6 +296,7 @@ function AffichageImagesAlbum(props) {
   console.debug("Collection %O\nImages dans la collection : %O", collection, fichiers)
   if(fichiers) {
     const imagesRendered = fichiers.map((f, idx)=>{
+      const mimetype = f.mimetype
       return <AfficherImageAlbum key={idx} rootProps={props.rootProps}
                                  fichier={f}
                                  setImageFuuid={props.setImageFuuid} />
@@ -285,8 +319,9 @@ function AfficherImageAlbum(props) {
   return (
     <Card border="secondary"
           data-fuuid={fichier.fuuid}
+          data-mimetype={fichier.mimetype}
           onClick={props.setImageFuuid}>
-      <Card.Img variant="top" src={"/fichiers/" + fuuidPreview + "?preview=1"} />
+      <Card.Img variant="top" src={"/fichiers/public/" + fuuidPreview + "?preview=1"} />
       <Card.Body>
         <Card.Title>{fichier.nom_fichier}</Card.Title>
       </Card.Body>
@@ -298,8 +333,37 @@ function AffichageImageSimpleAlbum(props) {
   const fuuidPreview = props.fuuid
 
   return (
-    <img className="image-fullsize" src={"/fichiers/" + fuuidPreview} />
+    <>
+      <img className="image-fullsize" src={"/fichiers/public/" + fuuidPreview + "?nofile=1"} />
+    </>
   )
+}
+
+function AffichageVideoAlbum(props) {
+  const fuuid = props.fuuid,
+        fichierInfo = props.fichierInfo
+
+  var video = fichierInfo.video
+  if(video && video['480p']) {
+    var info480p = video['480p']
+    return (
+      <>
+        <video controls>
+          <source src={'/fichiers/public/' + fuuid + '?video=480p'} type={info480p.mimetype}/>
+            Your browser does not support the video tag.
+        </video>
+      </>
+    )
+  } else {
+    return (
+      <>
+        <img className="image-fullsize" src={"/fichiers/public/" + fuuid + "?preview=1"} />
+        <p>Video preview not available - click <i className="fa fa-download"/> to download.</p>
+        <p>Previsualisation non disponible - cliquez <i className="fa fa-download"/> pour telecharger.</p>
+      </>
+    )
+  }
+  return ''
 }
 
 function AffichageBlogposts(props) {
