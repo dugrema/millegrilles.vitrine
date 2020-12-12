@@ -70,7 +70,13 @@ class SectionAlbums extends React.Component {
     // console.debug("Section : %O", section)
 
     chargerCollections(section, this.props.rootProps).then(collections=>{
-      this.setState({collections})
+      this.setState({collections}, _=>{
+        if(collections.length === 1) {
+          // Forcer ouverture de la (seule) collection recue
+          const collectionId = collections[0].uuid
+          this.setState({collectionId})
+        }
+      })
     })
 
   }
@@ -141,11 +147,18 @@ class SectionAlbums extends React.Component {
       if(collection.titre && collection.titre[langue]) {
         titreCollection = collection.titre[langue]
       }
+
+      var boutonBack = <Button onClick={this.setCollectionId}><Trans>global.retour</Trans></Button>
+      if(this.state.collections.length === 1) {
+        // On a une seule collection a afficher dans la section, pas de back
+        boutonBack = ''
+      }
+
       contenu = (
         <>
           <div>
             <h1>{titreCollection}</h1>
-            <Button onClick={this.setCollectionId}><Trans>global.retour</Trans></Button>
+            {boutonBack}
             <br/>
             <br/>
           </div>
