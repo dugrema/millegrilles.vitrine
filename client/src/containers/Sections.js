@@ -100,7 +100,7 @@ class SectionAlbums extends React.Component {
 
     var contenu = ''
     if(this.state.imageFuuid) {
-      console.debug("Etat, props pour afficher image : state: %O, \nprops: %O", this.state, this.props)
+      // console.debug("Etat, props pour afficher image : state: %O, \nprops: %O", this.state, this.props)
       const collection = this.state.collections.filter(item=>item.uuid === this.state.collectionId)
       var fichierInfo = collection[0].fichiers.filter(item=>item.fuuid === this.state.imageFuuid)
       fichierInfo = fichierInfo[0]
@@ -112,7 +112,7 @@ class SectionAlbums extends React.Component {
         ElementMedia = AffichageImageSimpleAlbum
       }
 
-      console.debug("Chargement fichier (langue: %s): %O", langue, fichierInfo)
+      // console.debug("Chargement fichier (langue: %s): %O", langue, fichierInfo)
       var titreFichier = fichierInfo.nom_fichier
       if(fichierInfo.titre && fichierInfo.titre[langue]) {
         titreFichier = fichierInfo.titre[langue]
@@ -142,7 +142,7 @@ class SectionAlbums extends React.Component {
       )
     } else if(this.state.collectionId) {
       const collection = this.state.collections.filter(item=>item.uuid === this.state.collectionId)[0]
-      console.debug("Charger collection %O", collection)
+      // console.debug("Charger collection %O", collection)
       var titreCollection = collection.nom_collection
       if(collection.titre && collection.titre[langue]) {
         titreCollection = collection.titre[langue]
@@ -291,7 +291,7 @@ function AfficherCollectionAlbum(props) {
               (item.mimetype.startsWith('image/') || item.mimetype.startsWith('video/'))
       }
     )
-    console.debug("Collection %O\nImages dans la collection : %O", collection, fichiers)
+    // console.debug("Collection %O\nImages dans la collection : %O", collection, fichiers)
 
     var fuuidPreview = collection.fuuid_preview
     if( !fuuidPreview && fichiers && fichiers.length > 0) {
@@ -345,7 +345,7 @@ function AffichageImagesAlbum(props) {
     )
   }
 
-  console.debug("Collection %O\nImages dans la collection : %O", collection, fichiers)
+  // console.debug("Collection %O\nImages dans la collection : %O", collection, fichiers)
   if(fichiers) {
     const imagesRendered = fichiers.map((f, idx)=>{
       const mimetype = f.mimetype
