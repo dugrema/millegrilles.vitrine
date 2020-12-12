@@ -1,4 +1,5 @@
 import React from 'react'
+import parse from 'html-react-parser'
 import axios from 'axios'
 import {Row, Col, CardColumns, Card, Button} from 'react-bootstrap'
 
@@ -89,6 +90,7 @@ class SectionAlbums extends React.Component {
 
   render() {
     const section = this.props.section
+    const langue = this.props.rootProps.language
 
     var contenu = ''
     if(this.state.imageFuuid) {
@@ -104,11 +106,18 @@ class SectionAlbums extends React.Component {
         ElementMedia = AffichageImageSimpleAlbum
       }
 
+      console.debug("Chargement fichier (langue: %s): %O", langue, fichierInfo)
+      var titreFichier = fichierInfo.nom_fichier
+      if(fichierInfo.titre && fichierInfo.titre[langue]) {
+        titreFichier = fichierInfo.titre[langue]
+      }
+
       contenu = (
         <>
           <div>
             <Row>
               <Col>
+                <h1>{titreFichier}</h1>
                 <Button onClick={this.setImageFuuid}><Trans>global.retour</Trans></Button>
                 {" "}
                 <Button href={"/fichiers/public/" + this.state.imageFuuid}>
@@ -126,32 +135,35 @@ class SectionAlbums extends React.Component {
         </>
       )
     } else if(this.state.collectionId) {
-      const collection = this.state.collections.filter(item=>item.uuid === this.state.collectionId)
+      const collection = this.state.collections.filter(item=>item.uuid === this.state.collectionId)[0]
+      console.debug("Charger collection %O", collection)
+      var titreCollection = collection.nom_collection
+      if(collection.titre && collection.titre[langue]) {
+        titreCollection = collection.titre[langue]
+      }
       contenu = (
         <>
           <div>
+            <h1>{titreCollection}</h1>
             <Button onClick={this.setCollectionId}><Trans>global.retour</Trans></Button>
             <br/>
             <br/>
           </div>
           <AffichageImagesAlbum rootProps={this.props.rootProps}
-                                collection={collection[0]}
+                                collection={collection}
                                 setCollectionId={this.setCollectionId}
                                 setImageFuuid={this.setImageFuuid} />
         </>
       )
     } else {
       contenu = <AfficherAlbums rootProps={this.props.rootProps}
-                      collections={this.state.collections}
-                      setCollectionId={this.setCollectionId} />
+                                collections={this.state.collections}
+                                setCollectionId={this.setCollectionId}
+                                section={section} />
     }
 
     return (
       <>
-        <h1>
-          <ChampMultilingue rootProps={this.props.rootProps} contenu={section.entete} />
-        </h1>
-
         {contenu}
       </>
     )
@@ -241,16 +253,24 @@ function AfficherAlbums(props) {
     })
 
     return (
-      <CardColumns>
-        {collectionsRendered}
-      </CardColumns>
+      <>
+        <h1>
+          <ChampMultilingue rootProps={props.rootProps} contenu={props.section.entete} />
+        </h1>
+
+        <CardColumns>
+          {collectionsRendered}
+        </CardColumns>
+      </>
     )
   }
   return ''
 }
 
 function AfficherCollectionAlbum(props) {
-  const collection = props.collection
+  const collection = props.collection,
+        langue = props.rootProps.language
+
   if(collection.fichiers) {
     const fichiers = collection.fichiers.filter(
       item=>{
@@ -265,13 +285,18 @@ function AfficherCollectionAlbum(props) {
       fuuidPreview = fichiers[0].fuuid
     }
 
+    var titreCollection = collection.nom_collection
+    if(collection.titre && collection.titre[langue]) {
+      titreCollection = collection.titre[langue]
+    }
+
     return (
       <Card border="secondary"
             onClick={props.setCollectionId}
             data-uuid={collection.uuid}>
         <Card.Img variant="top" src={"/fichiers/public/" + fuuidPreview + "?preview=1"} />
         <Card.Body>
-          <Card.Title>{collection.nom_collection}</Card.Title>
+          <Card.Title>{titreCollection}</Card.Title>
         </Card.Body>
       </Card>
     )
@@ -281,7 +306,9 @@ function AfficherCollectionAlbum(props) {
 }
 
 function AffichageImagesAlbum(props) {
-  const collection = props.collection
+  const collection = props.collection,
+        langue = props.rootProps.language
+
   const fichiers = collection.fichiers.filter(
     item=>{
       return item.mimetype &&
@@ -293,6 +320,18 @@ function AffichageImagesAlbum(props) {
     return na.localeCompare(nb)
   })
 
+  var description = ''
+  if(langue && collection.description && collection.description[langue]) {
+    const parsedHtml = parse(collection.description[langue])
+    description = (
+      <Row className="optionrow">
+        <Col>
+          {parsedHtml}
+        </Col>
+      </Row>
+    )
+  }
+
   console.debug("Collection %O\nImages dans la collection : %O", collection, fichiers)
   if(fichiers) {
     const imagesRendered = fichiers.map((f, idx)=>{
@@ -303,9 +342,12 @@ function AffichageImagesAlbum(props) {
     })
 
     return (
-      <CardColumns>
-        {imagesRendered}
-      </CardColumns>
+      <>
+        {description}
+        <CardColumns>
+          {imagesRendered}
+        </CardColumns>
+      </>
     )
   }
   return ''
@@ -314,7 +356,12 @@ function AffichageImagesAlbum(props) {
 function AfficherImageAlbum(props) {
   const fichier = props.fichier
 
-  var fuuidPreview = fichier.fuuid
+  const fuuidPreview = fichier.fuuid
+  const langue = props.rootProps.language
+  var nomFichier = fichier.nom_fichier
+  if(langue && fichier.titre && fichier.titre[langue]) {
+    nomFichier = fichier.titre[langue]
+  }
 
   return (
     <Card border="secondary"
@@ -323,7 +370,7 @@ function AfficherImageAlbum(props) {
           onClick={props.setImageFuuid}>
       <Card.Img variant="top" src={"/fichiers/public/" + fuuidPreview + "?preview=1"} />
       <Card.Body>
-        <Card.Title>{fichier.nom_fichier}</Card.Title>
+        <Card.Title>{nomFichier}</Card.Title>
       </Card.Body>
     </Card>
   )
@@ -332,16 +379,45 @@ function AfficherImageAlbum(props) {
 function AffichageImageSimpleAlbum(props) {
   const fuuidPreview = props.fuuid
 
+  const langue = props.rootProps.language,
+        fichier = props.fichierInfo
+
+  var nomFichier = fichier.nom, description = ''
+  if(langue && fichier.titre && fichier.titre[langue]) {
+    nomFichier = fichier.titre[langue]
+  }
+  if(langue && fichier.description && fichier.description[langue]) {
+    const parsedHtml = parse(fichier.description[langue])
+    description = (
+      <div>
+        {parsedHtml}
+      </div>
+    )
+  }
+
   return (
     <>
       <img className="image-fullsize" src={"/fichiers/public/" + fuuidPreview + "?nofile=1"} />
+      {description}
     </>
   )
 }
 
 function AffichageVideoAlbum(props) {
   const fuuid = props.fuuid,
-        fichierInfo = props.fichierInfo
+        fichierInfo = props.fichierInfo,
+        langue = props.rootProps.language
+
+  var description
+  if(langue && fichierInfo.description && fichierInfo.description[langue]) {
+    const parsedHtml = parse(fichierInfo.description[langue])
+    description = (
+      <div>
+        {parsedHtml}
+      </div>
+    )
+  }
+
 
   var video = fichierInfo.video
   if(video && video['480p']) {
@@ -352,14 +428,15 @@ function AffichageVideoAlbum(props) {
           <source src={'/fichiers/public/' + fuuid + '?video=480p'} type={info480p.mimetype}/>
             Your browser does not support the video tag.
         </video>
+        {description}
       </>
     )
   } else {
     return (
       <>
         <img className="image-fullsize" src={"/fichiers/public/" + fuuid + "?preview=1"} />
-        <p>Video preview not available - click <i className="fa fa-download"/> to download.</p>
-        <p>Previsualisation non disponible - cliquez <i className="fa fa-download"/> pour telecharger.</p>
+        <p>Video streaming not available - click <i className="fa fa-download"/> to download.</p>
+        <p>Streaming non disponible - cliquez <i className="fa fa-download"/> pour telecharger.</p>
       </>
     )
   }
