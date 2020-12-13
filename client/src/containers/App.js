@@ -1,8 +1,8 @@
 import React, {Suspense} from 'react'
 import {
   BrowserRouter as Router,
-  Switch, Route, Link
-} from "react-router-dom";
+  Switch, Route, Link, useParams
+} from "react-router-dom"
 import {Alert} from 'react-bootstrap'
 import openSocket from 'socket.io-client'
 import axios from 'axios'
@@ -110,7 +110,7 @@ class _App extends React.Component {
         return new Promise((resolve, reject)=>{
           this.setState({idmg: idmgVitrine, certificateStore}, _=>{resolve()})
         })
-        
+
       } else {
         console.error("Erreur verification info.json - signature invalide")
         this.setState({err: "Erreur verification info.json - signature invalide"})
@@ -222,24 +222,64 @@ class _App extends React.Component {
 
     var affichage = <p>Connexion en cours</p>
     if(this.state.siteConfiguration && this.state.certificateStore && this.state.page) {
-      // BaseLayout = LayoutAccueil
+      // // BaseLayout = LayoutAccueil
+      // if(this.state.section) {
+      //   affichage = <Section section={this.state.section} rootProps={rootProps} />
+      // } else {
+      //   const Page = MAPPING_PAGES[this.state.page]
+      //   affichage = <Page rootProps={rootProps} />
+      // }
 
-      if(this.state.section) {
-        affichage = <Section section={this.state.section} rootProps={rootProps} />
-      } else {
-        const Page = MAPPING_PAGES[this.state.page]
-        affichage = <Page rootProps={rootProps} />
-      }
+      // affichage = (
+      //   <Switch>
+      //     <Route path="/vitrine/section/:sectionIdx">
+      //       <Section rootProps={rootProps} />
+      //     </Route>
+      //     <Route path="/vitrine/">
+      //       <SiteAccueil rootProps={rootProps} />
+      //     </Route>
+      //     <Route path="/vitrine">
+      //       <SiteAccueil rootProps={rootProps} />
+      //     </Route>
+      //   </Switch>
+      // )
+
+      affichage = (
+        <RouteurSwitch rootProps={rootProps} />
+      )
+
     }
 
     return (
-      <BaseLayout
-        changerPage={this.changerPage}
-        affichage={affichage}
-        goHome={this.goHome}
-        rootProps={rootProps} />
+      <Router>
+        <BaseLayout
+          changerPage={this.changerPage}
+          affichage={affichage}
+          goHome={this.goHome}
+          rootProps={rootProps} />
+      </Router>
     )
   }
+}
+
+function RouteurSwitch(props) {
+  const {sectionIdx} = useParams(),
+        rootProps = props.rootProps
+  console.debug("RouterSwitch sectionIdx: %s, %O", sectionIdx, props)
+  return (
+    <Switch>
+      <Route path="/vitrine/section/:sectionIdx">
+        <Section rootProps={rootProps} sectionIdx={sectionIdx} />
+      </Route>
+      <Route path="/vitrine/">
+        <SiteAccueil rootProps={rootProps} />
+      </Route>
+      <Route path="/vitrine">
+        <SiteAccueil rootProps={rootProps} />
+      </Route>
+    </Switch>
+  )
+
 }
 
 const AppWithTranslation = withTranslation()(_App)

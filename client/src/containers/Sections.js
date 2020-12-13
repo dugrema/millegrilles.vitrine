@@ -2,6 +2,7 @@ import React from 'react'
 import parse from 'html-react-parser'
 import axios from 'axios'
 import {Row, Col, CardColumns, Card, Button} from 'react-bootstrap'
+import { useParams } from "react-router-dom"
 
 import {ChampMultilingue} from '../components/ChampMultilingue'
 import {verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
@@ -10,27 +11,43 @@ import {SiteBlogPost} from './Site'
 import {DateTimeAfficher, FileSizeFormatter} from '../components/ReactFormatters'
 
 export function Section(props) {
-  if(props.section.type === 'fichiers') {
-    return <SectionFichiers {...props} />
-  } else if(props.section.type === 'album') {
-    return <SectionAlbums {...props} />
-  } else if(props.section.type === 'blogposts') {
-    return <AffichageBlogposts {...props} />
+  const valeursParams = useParams()
+  // console.debug("Section props : %O\n%O", props, valeursParams)
+  const sectionIdx = valeursParams.sectionIdx
+  const section = props.rootProps.siteConfiguration.sections[sectionIdx]
+  // console.debug("Section active (%s): %O", sectionIdx, section)
+
+  if(section.type === 'fichiers') {
+    return <SectionFichiers section={section} sectionIdx={sectionIdx} {...props} />
+  } else if(section.type === 'album') {
+    return <SectionAlbums section={section} sectionIdx={sectionIdx} {...props} />
+  } else if(section.type === 'blogposts') {
+    return <AffichageBlogposts section={section} sectionIdx={sectionIdx} {...props} />
   }
-  return 'Section inconnue : ' + props.type
+  return 'Section inconnue : ' + valeursParams.type
 }
 
 class SectionFichiers extends React.Component {
 
   state = {
+    section: '',
     collections: '',
     collectionId: '',  // Id collection courante (affichee)
   }
 
   componentDidMount() {
     const section = this.props.section
-    // console.debug("Section : %O", section)
+    this.chargerSection(section)
+  }
 
+  componentDidUpdate() {
+    if(this.state.section !== this.props.section) {
+      this.chargerSection(this.props.section)
+    }
+  }
+
+  async chargerSection(section) {
+    this.setState({section, collectionId: ''})  // Bloquer sur la nouvelle section, evite multiple refresh
     chargerCollections(section, this.props.rootProps).then(async collections=>{
 
       // Valider les collections
@@ -45,7 +62,10 @@ class SectionFichiers extends React.Component {
         }
       }
 
-      this.setState({collections: collectionsValides}, _=>{
+      this.setState({
+        section,
+        collections: collectionsValides
+      }, _=>{
         if(collections.length === 1) {
           // Forcer ouverture de la (seule) collection recue
           const collectionId = collections[0].uuid
@@ -53,7 +73,6 @@ class SectionFichiers extends React.Component {
         }
       })
     })
-
   }
 
   setCollectionId = event => {
@@ -97,31 +116,13 @@ class SectionAlbums extends React.Component {
 
   componentDidMount() {
     const section = this.props.section
-    // console.debug("Section : %O", section)
+    this.chargerSection(section)
+  }
 
-    chargerCollections(section, this.props.rootProps).then(collections=>{
-
-      // Valider les collections
-      const certificateStore = this.props.rootProps.certificateStore
-      var collectionsValides = []
-      for(let idx in collections) {
-        const c = collections[idx]
-        if(verifierSignatureMessage(c, c._certificat, certificateStore)) {
-          collectionsValides.push(c)
-        } else {
-          console.error("Signature collection invalide : %s", c.uuid)
-        }
-      }
-
-      this.setState({collections: collectionsValides}, _=>{
-        if(collections.length === 1) {
-          // Forcer ouverture de la (seule) collection recue
-          const collectionId = collections[0].uuid
-          this.setState({collectionId})
-        }
-      })
-    })
-
+  componentDidUpdate() {
+    if(this.state.section !== this.props.section) {
+      this.chargerSection(this.props.section)
+    }
   }
 
   setCollectionId = event => {
@@ -135,6 +136,35 @@ class SectionAlbums extends React.Component {
     const imageMimetype = event.currentTarget.dataset.mimetype
     console.debug("Set image fuuid : %s", imageFuuid)
     this.setState({imageFuuid, imageMimetype})
+  }
+
+  async chargerSection(section) {
+    this.setState({section, collectionId: ''})  // Bloquer sur la nouvelle section, evite multiple refresh
+    chargerCollections(section, this.props.rootProps).then(async collections=>{
+
+      // Valider les collections
+      const certificateStore = this.props.rootProps.certificateStore
+      var collectionsValides = []
+      for(let idx in collections) {
+        const c = collections[idx]
+        if(verifierSignatureMessage(c, c._certificat, certificateStore)) {
+          collectionsValides.push(c)
+        } else {
+          console.error("Signature collection invalide : %s", c.uuid)
+        }
+      }
+
+      this.setState({
+        section,
+        collections: collectionsValides
+      }, _=>{
+        if(collections.length === 1) {
+          // Forcer ouverture de la (seule) collection recue
+          const collectionId = collections[0].uuid
+          this.setState({collectionId})
+        }
+      })
+    })
   }
 
   render() {

@@ -1,7 +1,8 @@
 import React from 'react'
-import { Nav, Navbar, NavLink, NavItem, Dropdown } from 'react-bootstrap';
+import { Link } from "react-router-dom"
+import { Nav, Navbar, NavLink, NavItem, Dropdown } from 'react-bootstrap'
 
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next'
 
 import {ChampMultilingue} from '../components/ChampMultilingue'
 
@@ -77,13 +78,14 @@ export class MenuItems extends React.Component {
       })
     }
 
+    // <Nav className="mr-auto" activeKey={this.props.section} onSelect={this.changerPage}>
     return (
-      <Nav className="mr-auto" activeKey={this.props.section} onSelect={this.changerPage}>
+      <Nav className="mr-auto">
 
         <Nav.Item>
-          <Nav.Link eventKey='SiteAccueil'>
+          <Link to="/vitrine" className="nav-link">
             <i className="fa fa-home"/>{' '}<Trans>menu.Accueil</Trans>
-          </Nav.Link>
+          </Link>
         </Nav.Item>
 
         {mappingSections}
@@ -94,12 +96,11 @@ export class MenuItems extends React.Component {
 }
 
 function MenuItemSection(props) {
-
   return (
     <Nav.Item>
-      <Nav.Link eventKey={'section:' + props.sectionIdx}>
-          <ChampMultilingue rootProps={props.rootProps} contenu={props.section.entete} />
-      </Nav.Link>
+      <Link to={'/vitrine/section/' + props.sectionIdx} className="nav-link">
+        <ChampMultilingue rootProps={props.rootProps} contenu={props.section.entete} />
+      </Link>
     </Nav.Item>
   )
 
