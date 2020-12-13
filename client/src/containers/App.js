@@ -44,9 +44,10 @@ class _App extends React.Component {
 
   componentDidMount() {
     console.debug("Vitrine version %s, %s", manifest.version, manifest.date)
-    this.chargerSite()
-    this.chargerCertificateStore()
-    this.connecterSocketIo()
+    this.chargerCertificateStore().then(_=>{
+      this.chargerSite()
+      this.connecterSocketIo()
+    })
   }
 
   async chargerSite() {
@@ -54,8 +55,13 @@ class _App extends React.Component {
     const nomDomaine = window.location.href.split('/')[2].split(':')[0]
 
     // Charger configuration du site associe au domaine
-    const siteConfiguration = await _chargerSite(nomDomaine)
+    const siteConfiguration = await _chargerSite(nomDomaine),
+          certificateStore = this.state.certificateStore
     // console.debug("Configuration site : %O", siteConfiguration)
+    if( ! verifierSignatureMessage(siteConfiguration, siteConfiguration._certificat, certificateStore) ) {
+      this.setState({err: "Signature du site invalide / Site signature is invalid (index.json)"})
+      return
+    }
 
     // Identifier le language de depart pour afficher la page
     if(!language) {
@@ -101,7 +107,10 @@ class _App extends React.Component {
 
       // Valider la signatude de info.json
       if( verifierSignatureMessage(infoVitrine, infoVitrine._certificat, certificateStore) ) {
-        this.setState({idmg: idmgVitrine, certificateStore})
+        return new Promise((resolve, reject)=>{
+          this.setState({idmg: idmgVitrine, certificateStore}, _=>{resolve()})
+        })
+        
       } else {
         console.error("Erreur verification info.json - signature invalide")
         this.setState({err: "Erreur verification info.json - signature invalide"})

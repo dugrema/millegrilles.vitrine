@@ -31,8 +31,21 @@ class SectionFichiers extends React.Component {
     const section = this.props.section
     // console.debug("Section : %O", section)
 
-    chargerCollections(section, this.props.rootProps).then(collections=>{
-      this.setState({collections}, _=>{
+    chargerCollections(section, this.props.rootProps).then(async collections=>{
+
+      // Valider les collections
+      const certificateStore = this.props.rootProps.certificateStore
+      var collectionsValides = []
+      for(let idx in collections) {
+        const c = collections[idx]
+        if(verifierSignatureMessage(c, c._certificat, certificateStore)) {
+          collectionsValides.push(c)
+        } else {
+          console.error("Signature collection invalide : %s", c.uuid)
+        }
+      }
+
+      this.setState({collections: collectionsValides}, _=>{
         if(collections.length === 1) {
           // Forcer ouverture de la (seule) collection recue
           const collectionId = collections[0].uuid
@@ -87,7 +100,20 @@ class SectionAlbums extends React.Component {
     // console.debug("Section : %O", section)
 
     chargerCollections(section, this.props.rootProps).then(collections=>{
-      this.setState({collections}, _=>{
+
+      // Valider les collections
+      const certificateStore = this.props.rootProps.certificateStore
+      var collectionsValides = []
+      for(let idx in collections) {
+        const c = collections[idx]
+        if(verifierSignatureMessage(c, c._certificat, certificateStore)) {
+          collectionsValides.push(c)
+        } else {
+          console.error("Signature collection invalide : %s", c.uuid)
+        }
+      }
+
+      this.setState({collections: collectionsValides}, _=>{
         if(collections.length === 1) {
           // Forcer ouverture de la (seule) collection recue
           const collectionId = collections[0].uuid
@@ -159,13 +185,24 @@ class SectionAlbums extends React.Component {
       )
     } else if(this.state.collectionId) {
       const collection = this.state.collections.filter(item=>item.uuid === this.state.collectionId)[0]
+
+      var boutonBack = <Button onClick={this.props.setCollectionId}><Trans>global.retour</Trans></Button>
+
+      if(!collection) {
+        return (
+          <>
+            <p>Erreur dans la collection / Error with the collection</p>
+            {boutonBack}
+          </>
+        )
+      }
+
       // console.debug("Charger collection %O", collection)
       var titreCollection = collection.nom_collection
       if(collection.titre && collection.titre[langue]) {
         titreCollection = collection.titre[langue]
       }
 
-      var boutonBack = <Button onClick={this.setCollectionId}><Trans>global.retour</Trans></Button>
       if(this.state.collections.length === 1) {
         // On a une seule collection a afficher dans la section, pas de back
         boutonBack = ''
@@ -268,6 +305,17 @@ function AfficherCollectionFichier(props) {
 
 function AfficherCollection(props) {
   const collection = props.collection
+
+  var boutonBack = <Button onClick={props.setCollectionId}><Trans>global.retour</Trans></Button>
+
+  if(!collection) {
+    return (
+      <>
+        <p>Erreur dans la collection / Error with the collection</p>
+        {boutonBack}
+      </>
+    )
+  }
   const fichiers = collection.fichiers
 
   // Retirer les sous-collections (non supporte)
@@ -290,7 +338,6 @@ function AfficherCollection(props) {
         </Row>
       )
     }
-
     var boutonBack = <Button onClick={props.setCollectionId}><Trans>global.retour</Trans></Button>
     if(props.collections.length === 1) {
       // On a une seule collection a afficher dans la section, pas de back
