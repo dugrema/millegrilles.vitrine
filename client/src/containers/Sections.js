@@ -48,18 +48,27 @@ class SectionFichiers extends React.Component {
     this.setState({collectionId})
   }
 
+
   render() {
     const section = this.props.section
 
-    return (
-      <>
-        <h1>
-          <ChampMultilingue rootProps={this.props.rootProps} contenu={section.entete} />
-        </h1>
+    var contenu = ''
+    if(this.state.collectionId) {
+      const c = this.state.collections.filter(item=>item.uuid === this.state.collectionId)[0]
+      contenu = <AfficherCollection rootProps={this.props.rootProps}
+                                    collection={c}
+                                    section={this.props.section} />
+    } else {
+      contenu = (
+        <>
+          <AfficherCollections rootProps={this.props.rootProps}
+                               collections={this.state.collections}
+                               section={this.props.section} />
+        </>
+      )
+    }
 
-        <AfficherCollections rootProps={this.props.rootProps} collections={this.state.collections}/>
-      </>
-    )
+    return contenu
   }
 }
 
@@ -192,6 +201,7 @@ class SectionAlbums extends React.Component {
 function AfficherCollections(props) {
   const collections = props.collections
 
+  var collectionsRendered = ''
   if(collections) {
 
     collections.sort((a,b)=>{
@@ -199,11 +209,19 @@ function AfficherCollections(props) {
       return na.localeCompare(nb)
     })
 
-    return props.collections.map((c, idx)=>{
+    collectionsRendered = props.collections.map((c, idx)=>{
       return <AfficherCollection key={idx} rootProps={props.rootProps} collection={c} />
     })
   }
-  return ''
+
+  return (
+    <>
+      <h1>
+        <ChampMultilingue rootProps={props.rootProps} contenu={props.section.entete} />
+      </h1>
+      {collectionsRendered}
+    </>
+  )
 }
 
 function AfficherCollection(props) {
@@ -213,6 +231,23 @@ function AfficherCollection(props) {
   // Retirer les sous-collections (non supporte)
   if(fichiers) {
     const copieFichiers = fichiers.filter(f=>f.nom_fichier)
+
+    const langue = props.rootProps.language
+    var nomCollection = collection.nom_collection
+    if(collection.titre && collection.titre[langue]) {
+      nomCollection = collection.titre[langue]
+    }
+
+    var parsedDescription = ''
+    if(collection.description && collection.description[langue]) {
+      parsedDescription = (
+        <Row>
+          <Col>
+            {parse(collection.description[langue])}
+          </Col>
+        </Row>
+      )
+    }
 
     // Trier fichiers par nom
     copieFichiers.sort((a,b)=>{
@@ -227,8 +262,11 @@ function AfficherCollection(props) {
     return (
       <>
         <h2>
-          {collection.nom_collection}
+          {nomCollection}
         </h2>
+
+        {parsedDescription}
+
         {fichiersRendered}
       </>
     )
