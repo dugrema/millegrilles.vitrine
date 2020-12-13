@@ -186,7 +186,7 @@ class SectionAlbums extends React.Component {
     } else if(this.state.collectionId) {
       const collection = this.state.collections.filter(item=>item.uuid === this.state.collectionId)[0]
 
-      var boutonBack = <Button onClick={this.props.setCollectionId}><Trans>global.retour</Trans></Button>
+      var boutonBack = <Button onClick={this.setCollectionId}><Trans>global.retour</Trans></Button>
 
       if(!collection) {
         return (
