@@ -71,3 +71,8 @@ div.table div.table-header {
 .image-fullsize {
   max-width: 100%;
 }
+
+.fichier-metadata {
+  font-size: smaller;
+  padding-bottom: 0.75rem;
+}

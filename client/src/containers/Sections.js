@@ -32,7 +32,13 @@ class SectionFichiers extends React.Component {
     // console.debug("Section : %O", section)
 
     chargerCollections(section, this.props.rootProps).then(collections=>{
-      this.setState({collections})
+      this.setState({collections}, _=>{
+        if(collections.length === 1) {
+          // Forcer ouverture de la (seule) collection recue
+          const collectionId = collections[0].uuid
+          this.setState({collectionId})
+        }
+      })
     })
 
   }
@@ -235,17 +241,33 @@ function AfficherCollection(props) {
 function Fichier(props) {
   const fichier = props.fichier
   const url = '/fichiers/public/' + fichier.fuuid
+
+  const langue = props.rootProps.language
+  var nomFichier = fichier.nom_fichier
+  if(fichier.titre && fichier.titre[langue]) {
+    nomFichier = fichier.titre[langue]
+  }
+
+  var parsedDescription = ''
+  if(fichier.description && fichier.description[langue]) {
+    parsedDescription = parse(fichier.description[langue])
+  }
+
   return (
-    <Row>
-      <Col md={0} lg={1}></Col>
-      <Col sm={12} lg={6}>
-        <a href={url}>
-          {fichier.nom_fichier}
-        </a>
-      </Col>
-      <Col sm={5} lg={2} className="col-filesize"><FileSizeFormatter nb={fichier.taille} /></Col>
-      <Col sm={7} lg={3}><DateTimeAfficher date={fichier.date_version}/></Col>
-    </Row>
+    <>
+      <Row>
+        <Col sm={12} md={4} className="fichier-nom">
+          <a href={url}>{nomFichier}</a>
+          <div className="fichier-metadata">
+            <DateTimeAfficher date={fichier.date_version}/><br/>
+            <FileSizeFormatter nb={fichier.taille} />
+          </div>
+        </Col>
+        <Col sm={12} md={8} className="fichier-description">
+          {parsedDescription}
+        </Col>
+      </Row>
+    </>
   )
 }
 
