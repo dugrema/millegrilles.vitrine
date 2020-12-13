@@ -1,5 +1,9 @@
 import React, {Suspense} from 'react'
-import './App.css'
+import {
+  BrowserRouter as Router,
+  Switch, Route, Link
+} from "react-router-dom";
+import {Alert} from 'react-bootstrap'
 import openSocket from 'socket.io-client'
 import axios from 'axios'
 
@@ -14,6 +18,8 @@ import { LayoutMillegrilles } from './Layout'
 import { Section } from './Sections'
 
 import manifest from '../manifest.build.js'
+
+import './App.css'
 
 const MG_SOCKETIO_URL = '/vitrine/socket.io',
       MAPPING_PAGES = {SiteAccueil}
@@ -87,16 +93,23 @@ class _App extends React.Component {
     if(idmgVitrine !== idmgMillegrille) {
       throw new Error("Idmg de vitrine sur info.json ne correspond pas a millegrille.pem")
     }
+    console.info("IDMG recalcule de /vitrine/millegrille.pem = %s", idmgMillegrille)
 
     // console.debug("PEM certificat de millegrille : \n%s", caPem)
-    const certificateStore = preparerCertificateStore(caPem)
+    try {
+      const certificateStore = preparerCertificateStore(caPem)
 
-    // Valider la signatude de info.json
-    if( verifierSignatureMessage(infoVitrine, infoVitrine._certificat, certificateStore) ) {
-      this.setState({idmg: idmgVitrine, certificateStore})
-    } else {
-      console.error("Erreur verification info.json - signature invalide")
-      this.setState({err: "Erreur verification info.json - signature invalide"})
+      // Valider la signatude de info.json
+      if( verifierSignatureMessage(infoVitrine, infoVitrine._certificat, certificateStore) ) {
+        this.setState({idmg: idmgVitrine, certificateStore})
+      } else {
+        console.error("Erreur verification info.json - signature invalide")
+        this.setState({err: "Erreur verification info.json - signature invalide"})
+      }
+
+    } catch(err) {
+      console.error("Erreur verification certificats/info.json : %O", err)
+      this.setState({err: "Erreur verification info.json - date certificat ou signature invalide"})
     }
 
   }
@@ -180,6 +193,17 @@ class _App extends React.Component {
 
   render() {
     var BaseLayout = LayoutAccueil
+
+    if(this.state.err) {
+      return (
+        <Alert variant="danger">
+          <Alert.Heading>
+            Site non disponible / Site unavailable
+          </Alert.Heading>
+          {this.state.err}
+        </Alert>
+      )
+    }
 
     const rootProps = {
       ...this.state,
