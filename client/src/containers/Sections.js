@@ -48,7 +48,6 @@ class SectionFichiers extends React.Component {
     this.setState({collectionId})
   }
 
-
   render() {
     const section = this.props.section
 
@@ -57,13 +56,16 @@ class SectionFichiers extends React.Component {
       const c = this.state.collections.filter(item=>item.uuid === this.state.collectionId)[0]
       contenu = <AfficherCollection rootProps={this.props.rootProps}
                                     collection={c}
-                                    section={this.props.section} />
+                                    collections={this.state.collections}
+                                    section={this.props.section}
+                                    setCollectionId={this.setCollectionId} />
     } else {
       contenu = (
         <>
           <AfficherCollections rootProps={this.props.rootProps}
                                collections={this.state.collections}
-                               section={this.props.section} />
+                               section={this.props.section}
+                               setCollectionId={this.setCollectionId} />
         </>
       )
     }
@@ -210,7 +212,10 @@ function AfficherCollections(props) {
     })
 
     collectionsRendered = props.collections.map((c, idx)=>{
-      return <AfficherCollection key={idx} rootProps={props.rootProps} collection={c} />
+      return <AfficherCollectionFichier key={idx}
+                                        rootProps={props.rootProps}
+                                        collection={c}
+                                        setCollectionId={props.setCollectionId} />
     })
   }
 
@@ -221,6 +226,43 @@ function AfficherCollections(props) {
       </h1>
       {collectionsRendered}
     </>
+  )
+}
+
+function AfficherCollectionFichier(props) {
+
+  const langue = props.rootProps.language,
+        collection = props.collection
+
+  var nomCollection = collection.nom_collection
+  if(collection.titre && collection.titre[langue]) {
+    nomCollection = collection.titre[langue]
+  }
+
+  var parsedDescription = ''
+  if(collection.description && collection.description[langue]) {
+    parsedDescription = (
+      <Row>
+        <Col>
+          {parse(collection.description[langue])}
+        </Col>
+      </Row>
+    )
+  }
+
+  return (
+    <Row className="collection-row">
+      <Col sm={12} md={4}>
+        <Button variant="link"
+                onClick={props.setCollectionId}
+                value={collection.uuid}>
+          {nomCollection}
+        </Button>
+      </Col>
+      <Col sm={12} md={8}>
+        {parsedDescription}
+      </Col>
+    </Row>
   )
 }
 
@@ -241,12 +283,18 @@ function AfficherCollection(props) {
     var parsedDescription = ''
     if(collection.description && collection.description[langue]) {
       parsedDescription = (
-        <Row>
+        <Row className="document-description">
           <Col>
             {parse(collection.description[langue])}
           </Col>
         </Row>
       )
+    }
+
+    var boutonBack = <Button onClick={props.setCollectionId}><Trans>global.retour</Trans></Button>
+    if(props.collections.length === 1) {
+      // On a une seule collection a afficher dans la section, pas de back
+      boutonBack = ''
     }
 
     // Trier fichiers par nom
@@ -264,6 +312,12 @@ function AfficherCollection(props) {
         <h2>
           {nomCollection}
         </h2>
+
+        <Row>
+          <Col>
+            {boutonBack}
+          </Col>
+        </Row>
 
         {parsedDescription}
 
@@ -397,7 +451,7 @@ function AffichageImagesAlbum(props) {
   if(langue && collection.description && collection.description[langue]) {
     const parsedHtml = parse(collection.description[langue])
     description = (
-      <Row className="optionrow">
+      <Row className="document-description">
         <Col>
           {parsedHtml}
         </Col>

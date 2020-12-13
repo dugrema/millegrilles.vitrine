@@ -76,3 +76,11 @@ div.table div.table-header {
   font-size: smaller;
   padding-bottom: 0.75rem;
 }
+
+.collection-row {
+  padding-bottom: 1rem;
+}
+
+.document-description {
+  padding-bottom: 2rem;
+}
