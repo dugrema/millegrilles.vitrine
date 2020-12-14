@@ -281,12 +281,14 @@ class SectionAlbums extends React.Component {
     return (
       <Switch>
         <Route path="/vitrine/section/:sectionIdx/:collectionId/:fuuid">
-          Image/Video
+          <ElementMedia rootProps={this.props.rootProps}
+                        collections={this.state.collections} />
         </Route>
         <Route path="/vitrine/section/:sectionIdx/:collectionId">
           <AffichageImagesAlbum rootProps={this.props.rootProps}
                                 collections={this.state.collections}
-                                sectionIdx={this.props.sectionIdx} />
+                                sectionIdx={this.props.sectionIdx}
+                                section={section} />
         </Route>
         <Route path="/vitrine/section/:sectionIdx">
           <AfficherAlbums rootProps={this.props.rootProps}
@@ -499,6 +501,7 @@ function AfficherAlbums(props) {
       const collection = collections[0]
       return (
         <AffichageImagesAlbum rootProps={props.rootProps}
+                              sectionIdx={props.sectionIdx}
                               collection={collection} />
 
       )
@@ -603,7 +606,7 @@ function AffichageImagesAlbum(props) {
       <Button><Trans>global.retour</Trans></Button>
     </Link>
   )
-  if(props.collections.length === 1) {
+  if(!collectionId) {
     // On a une seule collection a afficher dans la section, pas de back
     boutonBack = ''
   }
@@ -626,7 +629,8 @@ function AffichageImagesAlbum(props) {
       const mimetype = f.mimetype
       return <AfficherImageAlbum key={idx} rootProps={props.rootProps}
                                  fichier={f}
-                                 setImageFuuid={props.setImageFuuid} />
+                                 sectionIdx={props.sectionIdx}
+                                 collectionId={collection.uuid} />
     })
 
     return (
@@ -654,15 +658,65 @@ function AfficherImageAlbum(props) {
   }
 
   return (
-    <Card border="secondary"
-          data-fuuid={fichier.fuuid}
-          data-mimetype={fichier.mimetype}
-          onClick={props.setImageFuuid}>
-      <Card.Img variant="top" src={"/fichiers/public/" + fuuidPreview + "?preview=1"} />
-      <Card.Body>
-        <Card.Title>{nomFichier}</Card.Title>
-      </Card.Body>
-    </Card>
+    <Link to={'/vitrine/section/' + props.sectionIdx + '/' + props.collectionId + '/' + props.fichier.fuuid}>
+      <Card border="secondary">
+        <Card.Img variant="top" src={"/fichiers/public/" + fuuidPreview + "?preview=1"} />
+        <Card.Body>
+          <Card.Title>{nomFichier}</Card.Title>
+        </Card.Body>
+      </Card>
+    </Link>
+  )
+}
+
+function ElementMedia(props) {
+  // Sert a determiner si on affiche une image ou un video
+  var {sectionIdx, collectionId, fuuid} = useParams()
+  const langue = props.langue
+
+  console.debug("ElementMedia proppys %O", props)
+
+  if(!props.collections) return ''  // Chargement en cours
+
+  const collection = props.collections.filter(item=>item.uuid === collectionId)[0]
+  const fichier = collection.fichiers.filter(item=>item.fuuid === fuuid)[0]
+
+  var nomFichier = fichier.nom_fichier
+  if(langue && fichier.titre && fichier.titre[langue]) {
+    nomFichier = fichier.titre[langue]
+  }
+
+  var TypeMedia = null
+  if(fichier.mimetype.startsWith('video/')) {
+    TypeMedia = AffichageVideoAlbum
+  } else if(fichier.mimetype.startsWith('image/')) {
+    TypeMedia = AffichageImageSimpleAlbum
+  }
+
+
+  return (
+    <>
+      <div>
+        <Row>
+          <Col>
+            <h1>{nomFichier}</h1>
+            <Link to={'/vitrine/section/' + sectionIdx + '/' + collectionId}>
+              <Button><Trans>global.retour</Trans></Button>
+            </Link>
+            {" "}
+            <Button href={"/fichiers/public/" + fuuid}>
+              <i className="fa fa-download" />
+            </Button>
+          </Col>
+        </Row>
+
+        <br/>
+      </div>
+      <TypeMedia rootProps={props.rootProps}
+                 fuuid={fichier.fuuid}
+                 mimetype={fichier.imageMimetype}
+                 fichierInfo={fichier} />
+    </>
   )
 }
 
