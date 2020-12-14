@@ -15,5 +15,8 @@
   "menu": {
     "Accueil": "Home",
     "changerLangue": "Français"
+  },
+  "sections": {
+    "original": "Original"
   }
 }

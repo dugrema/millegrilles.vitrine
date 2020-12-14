@@ -1,7 +1,7 @@
 import React from 'react'
 import parse from 'html-react-parser'
 import axios from 'axios'
-import {Row, Col, CardColumns, Card, Button} from 'react-bootstrap'
+import {Row, Col, CardColumns, Card, Button, ButtonGroup} from 'react-bootstrap'
 import { Router, Switch, Route, Link, useParams } from "react-router-dom"
 
 import {ChampMultilingue} from '../components/ChampMultilingue'
@@ -704,9 +704,14 @@ function ElementMedia(props) {
               <Button><Trans>global.retour</Trans></Button>
             </Link>
             {" "}
-            <Button href={"/fichiers/public/" + fuuid}>
-              <i className="fa fa-download" />
-            </Button>
+            <ButtonGroup>
+              <Button href={"/fichiers/public/" + fuuid} variant="secondary">
+                <Trans>sections.original</Trans>{' '}<i className="fa fa-download" />
+              </Button>
+              <Button href={'/fichiers/public/' + fuuid + '?video=480p'} variant="secondary">
+                480p <i className="fa fa-download" />
+              </Button>
+            </ButtonGroup>
           </Col>
         </Row>
 
@@ -768,7 +773,7 @@ function AffichageVideoAlbum(props) {
     var info480p = video['480p']
     return (
       <>
-        <video controls>
+        <video controls={true} preload="auto" autoPlay={true}>
           <source src={'/fichiers/public/' + fuuid + '?video=480p'} type={info480p.mimetype}/>
             Your browser does not support the video tag.
         </video>
