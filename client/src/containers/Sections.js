@@ -788,7 +788,7 @@ function AffichageVideoAlbum(props) {
 }
 
 function AffichageBlogposts(props) {
-  console.debug("Props info : %O", props)
+  // console.debug("Props info : %O", props)
   const section = props.section
   return (
     <>
