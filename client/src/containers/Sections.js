@@ -674,7 +674,7 @@ function ElementMedia(props) {
   var {sectionIdx, collectionId, fuuid} = useParams()
   const langue = props.langue
 
-  console.debug("ElementMedia proppys %O", props)
+  // console.debug("ElementMedia proppys %O", props)
 
   if(!props.collections) return ''  // Chargement en cours
 
