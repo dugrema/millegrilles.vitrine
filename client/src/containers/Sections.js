@@ -187,98 +187,114 @@ class SectionAlbums extends React.Component {
     const section = this.props.section
     const langue = this.props.rootProps.language
 
-    var contenu = ''
-    if(this.state.imageFuuid) {
-      // console.debug("Etat, props pour afficher image : state: %O, \nprops: %O", this.state, this.props)
-      const collection = this.state.collections.filter(item=>item.uuid === this.state.collectionId)
-      var fichierInfo = collection[0].fichiers.filter(item=>item.fuuid === this.state.imageFuuid)
-      fichierInfo = fichierInfo[0]
-
-      var ElementMedia = null
-      if(this.state.imageMimetype.startsWith('video/')) {
-        ElementMedia = AffichageVideoAlbum
-      } else if(this.state.imageMimetype.startsWith('image/')) {
-        ElementMedia = AffichageImageSimpleAlbum
-      }
-
-      // console.debug("Chargement fichier (langue: %s): %O", langue, fichierInfo)
-      var titreFichier = fichierInfo.nom_fichier
-      if(fichierInfo.titre && fichierInfo.titre[langue]) {
-        titreFichier = fichierInfo.titre[langue]
-      }
-
-      contenu = (
-        <>
-          <div>
-            <Row>
-              <Col>
-                <h1>{titreFichier}</h1>
-                <Button onClick={this.setImageFuuid}><Trans>global.retour</Trans></Button>
-                {" "}
-                <Button href={"/fichiers/public/" + this.state.imageFuuid}>
-                  <i className="fa fa-download" />
-                </Button>
-              </Col>
-            </Row>
-
-            <br/>
-          </div>
-          <ElementMedia rootProps={this.props.rootProps}
-                        fuuid={this.state.imageFuuid}
-                        mimetype={this.state.imageMimetype}
-                        fichierInfo={fichierInfo} />
-        </>
-      )
-    } else if(this.state.collectionId) {
-      const collection = this.state.collections.filter(item=>item.uuid === this.state.collectionId)[0]
-
-      var boutonBack = <Button onClick={this.setCollectionId}><Trans>global.retour</Trans></Button>
-
-      if(!collection) {
-        return (
-          <>
-            <p>Erreur dans la collection / Error with the collection</p>
-            {boutonBack}
-          </>
-        )
-      }
-
-      // console.debug("Charger collection %O", collection)
-      var titreCollection = collection.nom_collection
-      if(collection.titre && collection.titre[langue]) {
-        titreCollection = collection.titre[langue]
-      }
-
-      if(this.state.collections.length === 1) {
-        // On a une seule collection a afficher dans la section, pas de back
-        boutonBack = ''
-      }
-
-      contenu = (
-        <>
-          <div>
-            <h1>{titreCollection}</h1>
-            {boutonBack}
-            <br/>
-            <br/>
-          </div>
-          <AffichageImagesAlbum rootProps={this.props.rootProps}
-                                collection={collection}
-                                setCollectionId={this.setCollectionId}
-                                setImageFuuid={this.setImageFuuid} />
-        </>
-      )
-    } else {
-      contenu = <AfficherAlbums rootProps={this.props.rootProps}
-                                collections={this.state.collections}
-                                setCollectionId={this.setCollectionId}
-                                section={section} />
-    }
+    // var contenu = ''
+    // if(this.state.imageFuuid) {
+    //   // console.debug("Etat, props pour afficher image : state: %O, \nprops: %O", this.state, this.props)
+    //   const collection = this.state.collections.filter(item=>item.uuid === this.state.collectionId)
+    //   var fichierInfo = collection[0].fichiers.filter(item=>item.fuuid === this.state.imageFuuid)
+    //   fichierInfo = fichierInfo[0]
+    //
+    //   var ElementMedia = null
+    //   if(this.state.imageMimetype.startsWith('video/')) {
+    //     ElementMedia = AffichageVideoAlbum
+    //   } else if(this.state.imageMimetype.startsWith('image/')) {
+    //     ElementMedia = AffichageImageSimpleAlbum
+    //   }
+    //
+    //   // console.debug("Chargement fichier (langue: %s): %O", langue, fichierInfo)
+    //   var titreFichier = fichierInfo.nom_fichier
+    //   if(fichierInfo.titre && fichierInfo.titre[langue]) {
+    //     titreFichier = fichierInfo.titre[langue]
+    //   }
+    //
+    //   // contenu = (
+    //   //   <>
+    //   //     <div>
+    //   //       <Row>
+    //   //         <Col>
+    //   //           <h1>{titreFichier}</h1>
+    //   //           <Link to={'/vitrine/section/' + this.props.sectionIdx + '/'}>
+    //   //             <Button><Trans>global.retour</Trans></Button>
+    //   //           </Link>
+    //   //           {" "}
+    //   //           <Button href={"/fichiers/public/" + this.state.imageFuuid}>
+    //   //             <i className="fa fa-download" />
+    //   //           </Button>
+    //   //         </Col>
+    //   //       </Row>
+    //   //
+    //   //       <br/>
+    //   //     </div>
+    //   //     <ElementMedia rootProps={this.props.rootProps}
+    //   //                   fuuid={this.state.imageFuuid}
+    //   //                   mimetype={this.state.imageMimetype}
+    //   //                   fichierInfo={fichierInfo} />
+    //   //   </>
+    //   // )
+    //
+    // } else if(this.state.collectionId) {
+    //   const collection = this.state.collections.filter(item=>item.uuid === this.state.collectionId)[0]
+    //
+    //   var boutonBack = <Button onClick={this.setCollectionId}><Trans>global.retour</Trans></Button>
+    //
+    //   if(!collection) {
+    //     return (
+    //       <>
+    //         <p>Erreur dans la collection / Error with the collection</p>
+    //         {boutonBack}
+    //       </>
+    //     )
+    //   }
+    //
+    //   // console.debug("Charger collection %O", collection)
+    //   var titreCollection = collection.nom_collection
+    //   if(collection.titre && collection.titre[langue]) {
+    //     titreCollection = collection.titre[langue]
+    //   }
+    //
+    //   if(this.state.collections.length === 1) {
+    //     // On a une seule collection a afficher dans la section, pas de back
+    //     boutonBack = ''
+    //   }
+    //
+    //   contenu = (
+    //     <>
+    //       <div>
+    //         <h1>{titreCollection}</h1>
+    //         {boutonBack}
+    //         <br/>
+    //         <br/>
+    //       </div>
+    //       <AffichageImagesAlbum rootProps={this.props.rootProps}
+    //                             collection={collection}
+    //                             setCollectionId={this.setCollectionId}
+    //                             setImageFuuid={this.setImageFuuid} />
+    //     </>
+    //   )
+    // } else {
+    //   contenu = <AfficherAlbums rootProps={this.props.rootProps}
+    //                             collections={this.state.collections}
+    //                             setCollectionId={this.setCollectionId}
+    //                             section={section} />
+    // }
 
     return (
-      <>
-        {contenu}
-      </>
+      <Switch>
+        <Route path="/vitrine/section/:sectionIdx/:collectionId/:fuuid">
+          Image/Video
+        </Route>
+        <Route path="/vitrine/section/:sectionIdx/:collectionId">
+          <AffichageImagesAlbum rootProps={this.props.rootProps}
+                                collections={this.state.collections}
+                                sectionIdx={this.props.sectionIdx} />
+        </Route>
+        <Route path="/vitrine/section/:sectionIdx">
+          <AfficherAlbums rootProps={this.props.rootProps}
+                          collections={this.state.collections}
+                          sectionIdx={this.props.sectionIdx}
+                          section={section} />
+        </Route>
+      </Switch>
     )
   }
 }
@@ -361,7 +377,7 @@ function AfficherCollection(props) {
   if(!collectionId) {
     collectionId = props.collectionId
   }
-  console.debug("AffichageCollection section:%s, collectionId:%s", sectionIdx, collectionId)
+  // console.debug("AffichageCollection section:%s, collectionId:%s", sectionIdx, collectionId)
 
   // var boutonBack = <Button onClick={props.setCollectionId}><Trans>global.retour</Trans></Button>
   var boutonBack = (
@@ -479,15 +495,25 @@ function AfficherAlbums(props) {
 
   if(collections) {
 
+    if(collections.length === 1) {
+      const collection = collections[0]
+      return (
+        <AffichageImagesAlbum rootProps={props.rootProps}
+                              collection={collection} />
+
+      )
+    }
+
     collections.sort((a,b)=>{
       const na=a.nom_collection, nb=b.nom_collection
       return na.localeCompare(nb)
     })
 
     const collectionsRendered = props.collections.map((c, idx)=>{
-      return <AfficherCollectionAlbum key={idx} rootProps={props.rootProps}
-                                      collection={c}
-                                      setCollectionId={props.setCollectionId} />
+      return <AfficherCollectionAlbum key={idx}
+                                      rootProps={props.rootProps}
+                                      sectionIdx={props.sectionIdx}
+                                      collection={c} />
     })
 
     return (
@@ -529,14 +555,14 @@ function AfficherCollectionAlbum(props) {
     }
 
     return (
-      <Card border="secondary"
-            onClick={props.setCollectionId}
-            data-uuid={collection.uuid}>
-        <Card.Img variant="top" src={"/fichiers/public/" + fuuidPreview + "?preview=1"} />
-        <Card.Body>
-          <Card.Title>{titreCollection}</Card.Title>
-        </Card.Body>
-      </Card>
+      <Link to={'/vitrine/section/' + props.sectionIdx + '/' + collection.uuid}>
+        <Card border="secondary">
+          <Card.Img variant="top" src={"/fichiers/public/" + fuuidPreview + "?preview=1"} />
+          <Card.Body>
+            <Card.Title>{titreCollection}</Card.Title>
+          </Card.Body>
+        </Card>
+      </Link>
     )
   }
 
@@ -544,8 +570,16 @@ function AfficherCollectionAlbum(props) {
 }
 
 function AffichageImagesAlbum(props) {
-  const collection = props.collection,
-        langue = props.rootProps.language
+  var {collectionId} = useParams()
+  const langue = props.rootProps.language
+
+  var collection = null
+  if(props.collection) {
+    collection = props.collection
+  } else if(props.collections) {
+    collection = props.collections.filter(item=>item.uuid===collectionId)[0]
+  }
+  if(!collection) return ''  // Pas initialise
 
   const fichiers = collection.fichiers.filter(
     item=>{
@@ -557,6 +591,22 @@ function AffichageImagesAlbum(props) {
     const na=a.nom_fichier, nb=b.nom_fichier
     return na.localeCompare(nb)
   })
+
+
+  var titreCollection = collection.nom_collection
+  if(collection.titre && collection.titre[langue]) {
+    titreCollection = collection.titre[langue]
+  }
+
+  var boutonBack = (
+    <Link to={"/vitrine/section/" + props.sectionIdx + '/'} >
+      <Button><Trans>global.retour</Trans></Button>
+    </Link>
+  )
+  if(props.collections.length === 1) {
+    // On a une seule collection a afficher dans la section, pas de back
+    boutonBack = ''
+  }
 
   var description = ''
   if(langue && collection.description && collection.description[langue]) {
@@ -581,6 +631,8 @@ function AffichageImagesAlbum(props) {
 
     return (
       <>
+        <h1>{titreCollection}</h1>
+        {boutonBack}
         {description}
         <CardColumns>
           {imagesRendered}
