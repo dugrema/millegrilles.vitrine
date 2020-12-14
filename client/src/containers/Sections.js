@@ -2,7 +2,7 @@ import React from 'react'
 import parse from 'html-react-parser'
 import axios from 'axios'
 import {Row, Col, CardColumns, Card, Button} from 'react-bootstrap'
-import { useParams } from "react-router-dom"
+import { Router, Switch, Route, Link, useParams } from "react-router-dom"
 
 import {ChampMultilingue} from '../components/ChampMultilingue'
 import {verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
@@ -32,7 +32,7 @@ class SectionFichiers extends React.Component {
   state = {
     section: '',
     collections: '',
-    collectionId: '',  // Id collection courante (affichee)
+    // collectionId: '',  // Id collection courante (affichee)
   }
 
   componentDidMount() {
@@ -75,32 +75,48 @@ class SectionFichiers extends React.Component {
     })
   }
 
-  setCollectionId = event => {
-    const collectionId = event.currentTarget.value
-    this.setState({collectionId})
-  }
+  // setCollectionId = event => {
+  //   const collectionId = event.currentTarget.value
+  //   this.setState({collectionId})
+  // }
 
   render() {
     const section = this.props.section
 
-    var contenu = ''
-    if(this.state.collectionId) {
-      const c = this.state.collections.filter(item=>item.uuid === this.state.collectionId)[0]
-      contenu = <AfficherCollection rootProps={this.props.rootProps}
-                                    collection={c}
-                                    collections={this.state.collections}
-                                    section={this.props.section}
-                                    setCollectionId={this.setCollectionId} />
-    } else {
-      contenu = (
-        <>
+    var contenu = (
+      <Switch>
+        <Route path="/vitrine/section/:sectionIdx/:collectionId">
+          <AfficherCollection rootProps={this.props.rootProps}
+                              collections={this.state.collections}
+                              sectionIdx={this.props.sectionIdx}
+                              section={section} />
+        </Route>
+        <Route path="/vitrine/section/:sectionIdx">
           <AfficherCollections rootProps={this.props.rootProps}
                                collections={this.state.collections}
-                               section={this.props.section}
-                               setCollectionId={this.setCollectionId} />
-        </>
-      )
-    }
+                               sectionIdx={this.props.sectionIdx}
+                               section={section} />
+        </Route>
+      </Switch>
+    )
+
+    // if(this.state.collectionId) {
+    //   const c = this.state.collections.filter(item=>item.uuid === this.state.collectionId)[0]
+    //   contenu = <AfficherCollection rootProps={this.props.rootProps}
+    //                                 collection={c}
+    //                                 collections={this.state.collections}
+    //                                 section={this.props.section}
+    //                                 setCollectionId={this.setCollectionId} />
+    // } else {
+    //   contenu = (
+    //     <>
+    //       <AfficherCollections rootProps={this.props.rootProps}
+    //                            collections={this.state.collections}
+    //                            section={this.props.section}
+    //                            setCollectionId={this.setCollectionId} />
+    //     </>
+    //   )
+    // }
 
     return contenu
   }
@@ -273,17 +289,26 @@ function AfficherCollections(props) {
   var collectionsRendered = ''
   if(collections) {
 
-    collections.sort((a,b)=>{
-      const na=a.nom_collection, nb=b.nom_collection
-      return na.localeCompare(nb)
-    })
+    if(collections.length === 1) {
+      const collectionId = collections[0].uuid
+      return <AfficherCollection rootProps={props.rootProps}
+                                 collections={collections}
+                                 collectionId={collectionId}
+                                 sectionIdx={props.sectionIdx}
+                                 section={props.section} />
+    } else {
+      collections.sort((a,b)=>{
+        const na=a.nom_collection, nb=b.nom_collection
+        return na.localeCompare(nb)
+      })
 
-    collectionsRendered = props.collections.map((c, idx)=>{
-      return <AfficherCollectionFichier key={idx}
-                                        rootProps={props.rootProps}
-                                        collection={c}
-                                        setCollectionId={props.setCollectionId} />
-    })
+      collectionsRendered = props.collections.map((c, idx)=>{
+        return <AfficherCollectionFichier key={idx}
+                                          rootProps={props.rootProps}
+                                          sectionIdx={props.sectionIdx}
+                                          collection={c} />
+      })
+    }
   }
 
   return (
@@ -320,11 +345,9 @@ function AfficherCollectionFichier(props) {
   return (
     <Row className="collection-row">
       <Col sm={12} md={4}>
-        <Button variant="link"
-                onClick={props.setCollectionId}
-                value={collection.uuid}>
+        <Link to={"/vitrine/section/" + props.sectionIdx + "/" + collection.uuid}>
           {nomCollection}
-        </Button>
+        </Link>
       </Col>
       <Col sm={12} md={8}>
         {parsedDescription}
@@ -334,11 +357,20 @@ function AfficherCollectionFichier(props) {
 }
 
 function AfficherCollection(props) {
-  const collection = props.collection
+  var {sectionIdx, collectionId} = useParams()
+  if(!collectionId) {
+    collectionId = props.collectionId
+  }
+  console.debug("AffichageCollection section:%s, collectionId:%s", sectionIdx, collectionId)
 
-  var boutonBack = <Button onClick={props.setCollectionId}><Trans>global.retour</Trans></Button>
+  // var boutonBack = <Button onClick={props.setCollectionId}><Trans>global.retour</Trans></Button>
+  var boutonBack = (
+    <Link to={"/vitrine/section/" + sectionIdx} >
+      <Button><Trans>global.retour</Trans></Button>
+    </Link>
+  )
 
-  if(!collection) {
+  if(!collectionId || !props.collections) {
     return (
       <>
         <p>Erreur dans la collection / Error with the collection</p>
@@ -346,6 +378,8 @@ function AfficherCollection(props) {
       </>
     )
   }
+
+  const collection = props.collections.filter(item=>item.uuid===collectionId)[0]
   const fichiers = collection.fichiers
 
   // Retirer les sous-collections (non supporte)
@@ -368,7 +402,7 @@ function AfficherCollection(props) {
         </Row>
       )
     }
-    var boutonBack = <Button onClick={props.setCollectionId}><Trans>global.retour</Trans></Button>
+    // var boutonBack = <Button onClick={props.setCollectionId}><Trans>global.retour</Trans></Button>
     if(props.collections.length === 1) {
       // On a une seule collection a afficher dans la section, pas de back
       boutonBack = ''

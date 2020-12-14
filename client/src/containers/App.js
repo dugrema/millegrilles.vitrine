@@ -263,13 +263,12 @@ class _App extends React.Component {
 }
 
 function RouteurSwitch(props) {
-  const {sectionIdx} = useParams(),
-        rootProps = props.rootProps
-  console.debug("RouterSwitch sectionIdx: %s, %O", sectionIdx, props)
+  const rootProps = props.rootProps
+  // console.debug("RouterSwitch: %O", props)
   return (
     <Switch>
       <Route path="/vitrine/section/:sectionIdx">
-        <Section rootProps={rootProps} sectionIdx={sectionIdx} />
+        <Section rootProps={rootProps} />
       </Route>
       <Route path="/vitrine/">
         <SiteAccueil rootProps={rootProps} />
