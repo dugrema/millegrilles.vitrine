@@ -27,7 +27,7 @@ export function SiteBlogPost(props) {
 
   const rangees = postsSection.map((rangee, idx)=>{
     return (
-      <RangeeAccueil key={idx} rootProps={rootProps} rangee={rangee} afficherDate={true} />
+      <RangeeAccueil key={idx} rootProps={rootProps} rangee={rangee} afficherDate={props.section.afficherDate} />
     )
   })
 
