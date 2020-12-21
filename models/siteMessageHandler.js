@@ -31,7 +31,7 @@ class SiteMessageHandler {
 
     this.mq.routingKeyManager.addRoutingKeyCallback(
       function(routingKeys, message, opts) {majCollection(mq, routingKeys, message, opts)},
-      ['evenement.GrosFichiers.confirmationMajCollectionPublique']
+      ['evenements.GrosFichiers.confirmationMajCollectionPublique']
     )
 
   }
