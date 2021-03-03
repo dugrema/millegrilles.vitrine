@@ -35,6 +35,6 @@ export DEBUG=millegrilles:*
 export NODE_ENV=dev
 export DEV=1
 # export IDMG=JPtGcNcFSkfSdw49YsDpQHKxqTHMitpbPZW17a2JC54T
-export MG_NOEUD_ID=5e9e7984-7828-4a1d-8740-74fbf9676e0c
+export MG_NOEUD_ID=d7e4b240-5b2a-4bfa-a728-9804e874eff6
 
 npm start

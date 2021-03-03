@@ -8,7 +8,8 @@ import openSocket from 'socket.io-client'
 import axios from 'axios'
 
 import {preparerCertificateStore, verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
-import {calculerIdmg} from '@dugrema/millegrilles.common/lib/forgecommon'
+// import {calculerIdmg} from '@dugrema/millegrilles.common/lib/forgecommon'
+import {verifierIdmg} from '@dugrema/millegrilles.common/lib/idmg'
 
 import '../components/i18n'
 import { withTranslation } from 'react-i18next';
@@ -94,12 +95,9 @@ class _App extends React.Component {
     // console.debug("Info vitrine : %O", infoVitrine)
 
     // Valider le idmg - millegrille.pem === info.idmg
-    const idmgVitrine = infoVitrine.idmg,
-          idmgMillegrille = calculerIdmg(caPem)
-    if(idmgVitrine !== idmgMillegrille) {
-      throw new Error("Idmg de vitrine sur info.json ne correspond pas a millegrille.pem")
-    }
-    console.info("IDMG recalcule de /vitrine/millegrille.pem = %s", idmgMillegrille)
+    const idmgVitrine = infoVitrine.idmg
+    verifierIdmg(idmgVitrine, caPem)
+    console.info("IDMG verifie avec /vitrine/millegrille.pem = %s", idmgVitrine)
 
     // console.debug("PEM certificat de millegrille : \n%s", caPem)
     try {

@@ -78,7 +78,7 @@ async function infoMillegrille(req, res, next) {
   }
 
   const reponse = { idmg }
-  amqpdao.formatterTransaction('Vitrine.information', reponse, {attacherCertificat: true})
+  amqpdao.pki.formatterMessage(reponse, 'Vitrine.information', {attacherCertificat: true})
 
   res.send(reponse)
 }
