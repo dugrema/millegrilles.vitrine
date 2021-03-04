@@ -59,7 +59,7 @@ class _App extends React.Component {
     const siteConfiguration = await _chargerSite(nomDomaine),
           certificateStore = this.state.certificateStore
     // console.debug("Configuration site : %O", siteConfiguration)
-    if( ! verifierSignatureMessage(siteConfiguration, siteConfiguration._certificat, certificateStore) ) {
+    if( ! await verifierSignatureMessage(siteConfiguration, siteConfiguration._certificat, certificateStore) ) {
       this.setState({err: "Signature du site invalide / Site signature is invalid (index.json)"})
       return
     }
@@ -88,6 +88,7 @@ class _App extends React.Component {
           infoPromise = axios.get('/vitrine/info.json')
 
     const resultat = await Promise.all([caPromise, infoPromise])
+    console.debug("Chargement certificat, information vitrine : %O", resultat)
 
     const caPem = resultat[0].data,
           infoVitrine = resultat[1].data
@@ -104,7 +105,7 @@ class _App extends React.Component {
       const certificateStore = preparerCertificateStore(caPem)
 
       // Valider la signatude de info.json
-      if( verifierSignatureMessage(infoVitrine, infoVitrine._certificat, certificateStore) ) {
+      if( await verifierSignatureMessage(infoVitrine, infoVitrine._certificat, certificateStore) ) {
         return new Promise((resolve, reject)=>{
           this.setState({idmg: idmgVitrine, certificateStore}, _=>{resolve()})
         })
@@ -142,10 +143,10 @@ class _App extends React.Component {
     }
   }
 
-  eventMajSite = site => {
+  eventMajSite = async site => {
     console.debug("MAJ site %O", site)
     const certificateStore = this.state.certificateStore
-    if( verifierSignatureMessage(site, site._certificat, certificateStore) ) {
+    if( await verifierSignatureMessage(site, site._certificat, certificateStore) ) {
       this.setState({siteConfiguration: site})
     }
   }

@@ -98,7 +98,7 @@ function _sauvegarderSite(urlDomain, site, pathDataSites, amqpdao) {
     await _mkdirs(pathSite)
 
     // Valider le message
-    if( ! pki.verifierSignatureMessage(site) ) {
+    if( ! pki.verifierMessage(site) ) {
       return reject(new Error("Signature du site %s est invalide", site.site_id))
     }
 
@@ -141,7 +141,7 @@ function _sauvegarderPost(post, pathDataPosts, amqpdao, certificat, opts) {
     const postCopy = {...post, _certificat: certificat}
 
     // Valider le message
-    if( ! pki.verifierSignatureMessage(postCopy) ) {
+    if( ! pki.verifierMessage(postCopy) ) {
       return reject(new Error("Signature de la post id %s est invalide", post.post_id))
     }
 
@@ -170,7 +170,7 @@ function _sauvegarderCollection(collection, pathDataCollections, amqpdao, certif
     const collectionCopy = {...collection, _certificat: certificat}
 
     // Valider le message
-    if( ! pki.verifierSignatureMessage(collectionCopy) ) {
+    if( ! pki.verifierMessage(collectionCopy) ) {
       return reject(new Error("Signature de la collection %s est invalide", uuidCollection))
     }
 

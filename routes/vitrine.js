@@ -77,8 +77,8 @@ async function infoMillegrille(req, res, next) {
     idmg = amqpdao.pki.idmg
   }
 
-  const reponse = { idmg }
-  amqpdao.pki.formatterMessage(reponse, 'Vitrine.information', {attacherCertificat: true})
+  var reponse = { idmg }
+  reponse = await amqpdao.pki.formatterMessage(reponse, 'Vitrine.information', {attacherCertificat: true})
 
   res.send(reponse)
 }
