@@ -24,10 +24,8 @@
     "socket.io-client": "^3.0.1"
   },
   "scripts": {
-    "start": "export WDS_SOCKET_PATH=/vitrine/sockjs-node && react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "export WDS_SOCKET_PATH=/vitrine/sockjs-node && rescripts start",
+    "build": "rescripts build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -44,5 +42,10 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "/vitrine"
+  "homepage": "/vitrine",
+  "devDependencies": {
+    "@rescripts/cli": "0.0.16",
+    "rescript-worker-loader": "^1.0.4",
+    "worker-loader": "^3.0.8"
+  }
 }

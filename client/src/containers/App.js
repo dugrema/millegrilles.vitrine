@@ -8,6 +8,7 @@ import {Alert} from 'react-bootstrap'
 
 import {preparerCertificateStore, verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
 import {verifierIdmg} from '@dugrema/millegrilles.common/lib/idmg'
+import {getResolver} from '../workers/workers.load'
 
 import '../components/i18n'
 import { withTranslation } from 'react-i18next';
@@ -22,8 +23,6 @@ import manifest from '../manifest.build.js'
 import './App.css'
 
 const Section = React.lazy(_=>{import('./Sections')})
-
-var resolverRessources;
 
 const MG_SOCKETIO_URL = '/vitrine/socket.io',
       MAPPING_PAGES = {SiteAccueil}
@@ -41,6 +40,7 @@ class _App extends React.Component {
     section: '',
     page: 'SiteAccueil',
 
+    resolverWorker: '',
     socket: '',
   }
 
@@ -52,8 +52,15 @@ class _App extends React.Component {
   async chargerSite() {
     var language = this.props.i18n.language
 
+    var resolverWorker = this.state.resolverWorker
+    if(!resolverWorker) {
+      // Preparer resolver
+      resolverWorker = (await getResolver()).webWorker
+      this.setState({resolverWorker})
+    }
+
     // Charger configuration du site associe au domaine
-    const siteConfiguration = await _chargerSite()
+    const siteConfiguration = await _chargerSite(resolverWorker)
     console.debug("!!! Configuration site (index.json): %O", siteConfiguration)
     const {idmg, certificateStore} = await chargerCertificateStore(siteConfiguration)
 
@@ -233,14 +240,9 @@ function LayoutAccueil(props) {
 
 }
 
-async function _chargerSite() {
-  if(!resolverRessources) {
-    // Importer le resolver de ressources
-    resolverRessources = await import('./resolverRessources')
-  }
-
+async function _chargerSite(resolverWorker) {
   const url = '/vitrine/index.json'
-  const reponse = await resolverRessources.resolveUrl(url)
+  const reponse = await resolverWorker.resolveUrl(url)
   return reponse.data
 }
 
@@ -270,5 +272,12 @@ async function chargerCertificateStore(siteConfiguration) {
     console.error("Erreur verification certificats/info.json : %O", err)
     throw new Error("Erreur verification info.json - date certificat ou signature invalide")
   }
+
+}
+
+async function preparerResolverWorker() {
+  // Importer le resolver de ressources
+
+  const resolverWorker = await import('./resolverRessources')
 
 }
