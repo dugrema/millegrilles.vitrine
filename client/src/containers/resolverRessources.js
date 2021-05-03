@@ -74,7 +74,7 @@ export async function getUrl(url, opts) {
     if(!signatureValide) {
       throw new Error(`Signature {$url} invalide`)
     }
-    console.debug("Signature %s est valide", url)
+    // console.debug("Signature %s est valide", url)
   }
 
   return {status: reponse.status, data: reponse.data}
@@ -105,7 +105,7 @@ export async function getSection(uuidSection, typeSection, ipnsMapping) {
         console.debug("Type section inconnue : %s", typeSection)
     }
     const urlComplet = accessPointUrl + urlRessource
-    console.debug("Chargement section url %s", urlComplet)
+    // console.debug("Chargement section url %s", urlComplet)
     return getUrl(urlComplet)
   }
 }

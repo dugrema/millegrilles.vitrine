@@ -5,7 +5,6 @@ import { Card, CardDeck } from 'react-bootstrap'
 import {ChampMultilingue, ChampHtmlMultilingue} from '../components/ChampMultilingue'
 
 export default function SectionPage(props) {
-  console.debug("!!!! PROPPYS %O", props)
   const section = props.section,
         resolver = props.workers.resolver,
         sectionId = section.section_id
@@ -59,11 +58,13 @@ function TypeTexte(props) {
 }
 
 function TypeMedia(props) {
-  console.debug("!!! TypeMedia %O", props)
-
   const media = props.partiePage.media || {},
-        fuuid = media.fuuid_v_courante,
-        mimetype = media.mimetype
+        versionCourante = media.version_courante || {},
+        fuuid = versionCourante.fuuid_preview,
+        mimetype = versionCourante.mimetype_preview
+
+        // fuuid = media.fuuid_v_courante,
+        // mimetype = media.mimetype
 
   const [imgUrl, setImgUrl] = useState('')
   useEffect(_=>{
@@ -137,6 +138,5 @@ async function resolveFuuid(resolver, fuuid, mimetype, setUrl) {
 
 async function chargerSection(resolver, sectionId, setContenuSection) {
   const {data} = await resolver.getSection(sectionId, 'pages')
-  console.debug("!!! contenu section recu : %O", data)
   setContenuSection(data)
 }
