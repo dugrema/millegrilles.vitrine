@@ -24,3 +24,5 @@ yarn-error.log*
 
 manifest.build.js
 .eslintcache
+
+public/index.json*

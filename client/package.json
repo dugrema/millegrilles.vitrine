@@ -1,9 +1,9 @@
 {
   "name": "front-end",
-  "version": "1.39.0",
+  "version": "1.42.0",
   "private": true,
   "dependencies": {
-    "@dugrema/millegrilles.common": "git+ssh://git.maceroc.com/git/millegrilles.common.nodejs#1.39",
+    "@dugrema/millegrilles.common": "git+ssh://git.maceroc.com/git/millegrilles.common.nodejs#1.42",
     "axios": "^0.21.0",
     "bootstrap": "^4.5.3",
     "font-awesome": "^4.7.0",
@@ -44,6 +44,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "https://localhost:3025",
   "homepage": "/vitrine"
 }
