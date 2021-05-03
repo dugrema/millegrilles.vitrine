@@ -64,6 +64,10 @@ class _App extends React.Component {
     console.debug("!!! Configuration site (index.json): %O", siteConfiguration)
     const {idmg, certificateStore} = await chargerCertificateStore(siteConfiguration)
 
+    // Aucune erreur, on initialiser les CDNs de la connexion
+    // Le resolver va immediatement commencer a verifier les sources de contenu
+    resolverWorker.init(siteConfiguration.cdns)
+
     // Identifier le language de depart pour afficher la page
     // S'assurer que le language detecte existe pour le site
     if( ! language || ! siteConfiguration.languages.includes(language) ) {
@@ -154,13 +158,11 @@ class _App extends React.Component {
     this.setState({language: langueProchaine})
   }
 
-  render() {
-    return <p>Allo!</p>
-  }
-
   // render() {
-  //   var BaseLayout = LayoutAccueil
-  //
+  //   return <p>Allo!</p>
+  // }
+
+  render() {
   //   if(this.state.err) {
   //     return (
   //       <Alert variant="danger">
@@ -172,29 +174,33 @@ class _App extends React.Component {
   //     )
   //   }
   //
-  //   const rootProps = {
-  //     ...this.state,
-  //     changerLanguage: this.changerLanguage,
-  //     manifest,
-  //   }
-  //
-  //   var affichage = <p>Connexion en cours</p>
+    const rootProps = {
+      ...this.state,
+      changerLanguage: this.changerLanguage,
+      manifest,
+    }
+
+    var affichage = <p>Connexion en cours</p>
   //   if(this.state.siteConfiguration && this.state.certificateStore && this.state.page) {
   //     affichage = (
   //       <RouteurSwitch rootProps={rootProps} />
   //     )
   //   }
-  //
-  //   return (
-  //     <Router>
-  //       <BaseLayout
-  //         changerPage={this.changerPage}
-  //         affichage={affichage}
-  //         goHome={this.goHome}
-  //         rootProps={rootProps} />
-  //     </Router>
-  //   )
-  // }
+
+    return (
+      <Router>
+        <LayoutMillegrilles
+          // changerPage={props.changerPage}
+          // goHome={this.goHome}
+          siteConfiguration={this.state.siteConfiguration}
+          rootProps={rootProps}>
+
+          <RouteurSwitch rootProps={rootProps} />
+
+        </LayoutMillegrilles>
+      </Router>
+    )
+  }
 }
 
 function RouteurSwitch(props) {
@@ -220,30 +226,29 @@ const AppWithTranslation = withTranslation()(_App)
 
 export default function App(props) {
   return (
-    <Suspense fallback={<p>Loading</p>}>
+    <Suspense fallback={<ChargementEnCours/>}>
       <AppWithTranslation />
     </Suspense>
   )
 }
 
-// Layout general de l'application
-function LayoutAccueil(props) {
-
+function ChargementEnCours(props) {
   return (
-    <LayoutMillegrilles
-      changerPage={props.changerPage}
-      page={props.affichage}
-      goHome={props.goHome}
-      sousMenuApplication={props.sousMenuApplication}
-      rootProps={props.rootProps} />
+    <>
+      <p>Loading in progress</p>
+      <p>Chargement en cours</p>
+      <p>
+        <i className="fa fa-refresh fa-spin fa-fw"/>
+      </p>
+    </>
   )
-
 }
 
 async function _chargerSite(resolverWorker) {
   const url = '/vitrine/index.json'
   const reponse = await resolverWorker.resolveUrl(url)
-  return reponse.data
+  const siteConfig = reponse.data
+  return siteConfig
 }
 
 async function chargerCertificateStore(siteConfiguration) {
@@ -272,12 +277,5 @@ async function chargerCertificateStore(siteConfiguration) {
     console.error("Erreur verification certificats/info.json : %O", err)
     throw new Error("Erreur verification info.json - date certificat ou signature invalide")
   }
-
-}
-
-async function preparerResolverWorker() {
-  // Importer le resolver de ressources
-
-  const resolverWorker = await import('./resolverRessources')
 
 }

@@ -9,18 +9,17 @@ import {ChampMultilingue} from '../components/ChampMultilingue'
 export function Menu(props) {
   const { t, i18n } = useTranslation()
 
-  const rootProps = props.rootProps
+  const rootProps = props.rootProps,
+        siteConfiguration = props.siteConfiguration || {},
+        titre = siteConfiguration.titre || {},
+        languages = siteConfiguration.languages || [],
+        language = rootProps.language
 
-  var titreSite = '', changerLangue = ''
-  if(rootProps.siteConfiguration) {
-    if(rootProps.language && rootProps.siteConfiguration.titre) {
-      titreSite = rootProps.siteConfiguration.titre[rootProps.language]
-    }
+  var titreSite = titre[language],
+      changerLangue = ''
 
-    const languages = rootProps.siteConfiguration.languages
-    if(languages && languages.length > 1) {
-      changerLangue = <Nav.Link onClick={props.rootProps.changerLanguage}>{t('menu.changerLangue')}</Nav.Link>
-    }
+  if(languages.length > 1) {
+    changerLangue = <Nav.Link onClick={props.rootProps.changerLanguage}>{t('menu.changerLangue')}</Nav.Link>
   }
 
   return (
@@ -30,7 +29,9 @@ export function Menu(props) {
       </Navbar.Brand>
       <Navbar.Toggle aria-controls="responsive-navbar-menu" />
       <Navbar.Collapse id="responsive-navbar-menu">
-        <MenuItems changerPage={props.changerPage} rootProps={props.rootProps}/>
+        <MenuItems siteConfiguration={siteConfiguration}
+                   language={language}
+                   changerPage={props.changerPage} />
         <Nav className="justify-content-end">
           {changerLangue}
         </Nav>
@@ -39,67 +40,49 @@ export function Menu(props) {
   )
 }
 
-export class MenuItems extends React.Component {
+export function MenuItems(props) {
 
-  changerPage = param => {
+  const siteConfiguration = props.siteConfiguration,
+        language = props.language
+  const listeSections = siteConfiguration.liste_sections
 
-    // const params_split = param.split('/')
-    // var paramsAdditionnels = {}
-    // if(params_split.length > 1) {
-    //   for(let idx in params_split) {
-    //     if(idx === 0) continue
-    //     var paramCombine = params_split[idx]
-    //     var keyValue = paramCombine.split(':')
-    //     paramsAdditionnels[keyValue[0]] = keyValue[1]
-    //   }
-    // }
+  if(!listeSections) return ''
 
+  const changerPage = param => {
     // Simuler un event avec value et dataset
     const info = {
       value: param,
-      // dataset: paramsAdditionnels,
     }
-    this.props.changerPage({currentTarget: info})
-
+    props.changerPage({currentTarget: info})
   }
 
-  render() {
+  var mappingSections = listeSections.map((section, idx)=>{
+      return <MenuItemSection key={idx}
+                              section={section}
+                              sectionIdx={idx}
+                              language={language} />
+    })
 
-    const siteConfiguration = this.props.rootProps.siteConfiguration
-    const language = this.props.language
+  return (
+    <Nav className="mr-auto">
 
-    var mappingSections = ''
-    if(siteConfiguration.sections) {
-      mappingSections = siteConfiguration.sections.map((section, idx)=>{
-        return <MenuItemSection key={idx}
-                                section={section}
-                                sectionIdx={idx}
-                                rootProps={this.props.rootProps} />
-      })
-    }
+      <Nav.Item>
+        <Link to="/vitrine" className="nav-link">
+          <i className="fa fa-home"/>{' '}<Trans>menu.Accueil</Trans>
+        </Link>
+      </Nav.Item>
 
-    // <Nav className="mr-auto" activeKey={this.props.section} onSelect={this.changerPage}>
-    return (
-      <Nav className="mr-auto">
+      {mappingSections}
 
-        <Nav.Item>
-          <Link to="/vitrine" className="nav-link">
-            <i className="fa fa-home"/>{' '}<Trans>menu.Accueil</Trans>
-          </Link>
-        </Nav.Item>
-
-        {mappingSections}
-
-      </Nav>
-    )
-  }
+    </Nav>
+  )
 }
 
 function MenuItemSection(props) {
   return (
     <Nav.Item>
       <Link to={'/vitrine/section/' + props.sectionIdx} className="nav-link">
-        <ChampMultilingue rootProps={props.rootProps} contenu={props.section.entete} />
+        <ChampMultilingue language={props.language} contenu={props.section.entete} />
       </Link>
     </Nav.Item>
   )

@@ -6,29 +6,26 @@ import { Menu } from './Menu'
 
 import './Layout.css'
 
-export class LayoutMillegrilles extends React.Component {
+export function LayoutMillegrilles(props) {
 
-  componentDidMount() {
-    // console.debug("App props:\n%O", this.props)
-  }
-
-  render() {
-    return (
-      <div className="flex-wrapper">
-        <div>
-          <Entete changerPage={this.props.changerPage} rootProps={this.props.rootProps}/>
-          <Contenu page={this.props.page}/>
-        </div>
-        <Footer rootProps={this.props.rootProps}/>
+  return (
+    <div className="flex-wrapper">
+      <div>
+        <Entete siteConfiguration={props.siteConfiguration}
+                changerPage={props.changerPage}
+                rootProps={props.rootProps}/>
+        <Contenu />
       </div>
-    )
-  }
+      <Footer rootProps={props.rootProps}/>
+    </div>
+  )
+
 }
 
 function Entete(props) {
   return (
     <Container>
-      <Menu changerPage={props.changerPage} rootProps={props.rootProps}/>
+      <Menu {...props} />
       <div className="body-top-padding"></div>
     </Container>
   )
