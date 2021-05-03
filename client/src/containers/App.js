@@ -1,31 +1,17 @@
 import React, {Suspense} from 'react'
-import {
-  BrowserRouter as Router,
-  Switch, Route, Link, useParams
-} from "react-router-dom"
+import {BrowserRouter as Router} from "react-router-dom"
 import {Alert} from 'react-bootstrap'
-// import openSocket from 'socket.io-client'
-
-// import {preparerCertificateStore, verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
-// import {verifierIdmg} from '@dugrema/millegrilles.common/lib/idmg'
 import {getResolver} from '../workers/workers.load'
 
 import '../components/i18n'
 import { withTranslation } from 'react-i18next';
-
-import { SiteAccueil } from './Site'
-import { LayoutMillegrilles } from './Layout'
-
-// import { Section } from './Sections'
-
 import manifest from '../manifest.build.js'
-
 import './App.css'
 
-const Section = React.lazy(_=>{import('./Sections')})
+import ContenuSite from './ContenuSite'
+import { LayoutMillegrilles } from './Layout'
 
-const MG_SOCKETIO_URL = '/vitrine/socket.io',
-      MAPPING_PAGES = {SiteAccueil}
+const MG_SOCKETIO_URL = '/vitrine/socket.io'
 
 var _resolverWorker = null,
     _connexionWorker = null
@@ -55,11 +41,6 @@ class _App extends React.Component {
 
       // Charger configuration du site associe au domaine
       const siteConfiguration = await _chargerSite()
-      // await chargerCertificateStore(siteConfiguration)
-
-      // Aucune erreur, on initialiser les CDNs de la connexion
-      // Le resolver va immediatement commencer a verifier les sources de contenu
-      // _resolverWorker.setSiteConfiguration(siteConfiguration)
 
       // Identifier le language de depart pour afficher la page
       // S'assurer que le language detecte existe pour le site
@@ -82,24 +63,6 @@ class _App extends React.Component {
       this.setState({err: ''+err})
     }
   }
-
-  // changerPage = event => {
-  //   const value = event.currentTarget.value
-  //   // console.debug("Changer page %s", value)
-  //
-  //   if(value.startsWith('section:')) {
-  //     const idx = Number(value.split(':')[1])
-  //     const section = this.state.siteConfiguration.sections[idx]
-  //     // Toggle la section, force le rechargement si on a plusieurs sections de meme type
-  //     this.setState({section: ''}, _=>{
-  //       this.setState({section})
-  //     })
-  //   } else if(MAPPING_PAGES[value]) {
-  //     this.setState({page: value, section: ''})
-  //   } else {
-  //     throw new Error("Page inconnue : " + value)
-  //   }
-  // }
 
   changerLanguage = event => {
     // console.debug("Changer language : %O\n%O", event, this.props)
@@ -142,9 +105,9 @@ class _App extends React.Component {
                               // goHome={this.goHome}
                               rootProps={rootProps}>
 
-            <RouteurSwitch siteConfiguration={siteConfiguration}
-                           language={this.state.language}
-                           rootProps={rootProps} />
+            <ContenuSite siteConfiguration={siteConfiguration}
+                         language={this.state.language}
+                         rootProps={rootProps} />
 
           </LayoutMillegrilles>
         </Router>
@@ -162,22 +125,6 @@ function AfficherErreur(props) {
       </Alert.Heading>
       <pre>{props.err}</pre>
     </Alert>
-  )
-}
-
-function RouteurSwitch(props) {
-  return (
-    <Switch>
-      <Route path="/vitrine/section/:sectionIdx">
-        <Section {...props} />
-      </Route>
-      <Route path="/vitrine/">
-        <SiteAccueil {...props} />
-      </Route>
-      <Route path="/vitrine">
-        <SiteAccueil {...props} />
-      </Route>
-    </Switch>
   )
 }
 

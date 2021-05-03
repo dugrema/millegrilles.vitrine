@@ -5,7 +5,8 @@ import {verifierIdmg} from '@dugrema/millegrilles.common/lib/idmg'
 var _etatCdns = {},
     _siteConfiguration,
     _certificateStore,
-    _idmg
+    _idmg,
+    _cdnCourant
 
 const ETAT_INACTIF = 0,
       ETAT_INIT    = 1,
@@ -54,13 +55,13 @@ function mergeCdns(cdns) {
 }
 
 export async function chargerSiteConfiguration(url) {
-  const reponse = await resolveUrl(url, {noverif: true})
+  const reponse = await getUrl(url, {noverif: true})
   const siteConfiguration = reponse.data
   await setSiteConfiguration(siteConfiguration)
   return siteConfiguration
 }
 
-export async function resolveUrl(url, opts) {
+export async function getUrl(url, opts) {
   opts = opts || {}
   const reponse = await axios({method: 'get', url, timeout: 15000})
 
@@ -77,6 +78,39 @@ export async function resolveUrl(url, opts) {
   return {status: reponse.status, data: reponse.data}
 }
 
+export async function getSection(uuidSection, typeSection, ipnsMapping) {
+  if(!_cdnCourant) throw new Error("Aucun CDN n'est disponible")
+
+  const typeCdn = _cdnCourant.type_cdn
+  if(typeCdn === 'ipfs') {
+
+  } else if(typeCdn === 'ipfs_gateway') {
+
+  } else {
+    const accessPointUrl = _cdnCourant.access_point_url
+    var urlRessource = ''
+    switch(typeRessource) {
+      case 'fichiers':
+        urlRessource = '/data/fichiers/' + uuidSection + '.json'
+        break
+      case 'page':
+        urlRessource = '/data/pages/' + uuidSection + '.json'
+        break
+      case 'forum':
+        urlRessource = '/data/forums/' + uuidSection + '.json'
+        break
+      default:
+        console.debug("Type section inconnue : %s", typeSection)
+    }
+    const urlComplet = accessPointUrl + urlRessource
+    return getUrl(urlComplet)
+  }
+}
+
+export async function getFuuid(fuuid, collection) {
+
+}
+
 async function verifierConnexionCdns() {
   /* Parcours les CDN et trouve ceux qui sont actifs. */
 
@@ -84,6 +118,7 @@ async function verifierConnexionCdns() {
   const cdnIds = _siteConfiguration.cdns.reduce((acc, item)=>{return [...acc, item.cdn_id]}, [])
 
   // Verifier la presence de path/index.json sur chaque CDN
+  var cdnCourant = null
   for await (let cdnId of cdnIds) {
     const etatCdn = _etatCdns[cdnId]
     const typeCdn = etatCdn.config.type_cdn
@@ -99,6 +134,15 @@ async function verifierConnexionCdns() {
       default:
         console.debug("Type CDN inconnu : %s", typeCdn)
     }
+
+    if(!cdnCourant && etatCdn.etat === ETAT_ACTIF) {
+      cdnCourant = etatCdn
+    }
+  }
+
+  if(cdnCourant) {
+    // Mettre a jour le CDN utilise
+    _cdnCourant = cdnCourant
   }
 
   console.debug("Etat CDNs : %O", _etatCdns)
@@ -112,7 +156,7 @@ async function verifierEtatAccessPoint(cdnId) {
   const urlRessource = accessPointUrl + '/index.json'
   try {
     const dateDebut = new Date().getTime()
-    const reponse = await resolveUrl(urlRessource)
+    const reponse = await getUrl(urlRessource)
     const tempsReponse = new Date().getTime()-dateDebut
     etatCdn.etat = ETAT_ACTIF
     etatCdn.tempsReponse = tempsReponse
