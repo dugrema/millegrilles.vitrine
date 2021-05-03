@@ -101,8 +101,7 @@ class _App extends React.Component {
 
         <Router>
           <LayoutMillegrilles siteConfiguration={siteConfiguration}
-                              // changerPage={props.changerPage}
-                              // goHome={this.goHome}
+                              language={this.state.language}
                               rootProps={rootProps}>
 
             <ContenuSite siteConfiguration={siteConfiguration}

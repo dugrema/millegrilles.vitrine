@@ -10,12 +10,16 @@ export function LayoutMillegrilles(props) {
 
   return (
     <div className="flex-wrapper">
-      <div>
+      <>
         <Entete siteConfiguration={props.siteConfiguration}
-                changerPage={props.changerPage}
-                rootProps={props.rootProps}/>
-        <Contenu />
-      </div>
+                language={props.language}
+                changerPage={props.changerPage} />
+
+        <Container>
+          {props.children}
+        </Container>
+        
+      </>
       <Footer rootProps={props.rootProps}/>
     </div>
   )
@@ -27,14 +31,6 @@ function Entete(props) {
     <Container>
       <Menu {...props} />
       <div className="body-top-padding"></div>
-    </Container>
-  )
-}
-
-function Contenu(props) {
-  return (
-    <Container>
-      {props.page}
     </Container>
   )
 }

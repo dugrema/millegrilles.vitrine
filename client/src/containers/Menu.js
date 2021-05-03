@@ -9,17 +9,16 @@ import {ChampMultilingue} from '../components/ChampMultilingue'
 export function Menu(props) {
   const { t, i18n } = useTranslation()
 
-  const rootProps = props.rootProps,
-        siteConfiguration = props.siteConfiguration || {},
+  const siteConfiguration = props.siteConfiguration || {},
         titre = siteConfiguration.titre || {},
         languages = siteConfiguration.languages || [],
-        language = rootProps.language
+        language = props.language
 
   var titreSite = titre[language],
       changerLangue = ''
 
   if(languages.length > 1) {
-    changerLangue = <Nav.Link onClick={props.rootProps.changerLanguage}>{t('menu.changerLangue')}</Nav.Link>
+    changerLangue = <Nav.Link onClick={props.changerLanguage}>{t('menu.changerLangue')}</Nav.Link>
   }
 
   return (
