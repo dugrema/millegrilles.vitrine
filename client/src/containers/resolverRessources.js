@@ -2,6 +2,7 @@ import axios from 'axios'
 import path from 'path'
 import {preparerCertificateStore, verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
 import {verifierIdmg} from '@dugrema/millegrilles.common/lib/idmg'
+import mimetypeExtensions from '@dugrema/millegrilles.common/lib/mimetype_ext.json'
 
 var _etatCdns = {},
     _siteConfiguration,
@@ -109,7 +110,7 @@ export async function getSection(uuidSection, typeSection, ipnsMapping) {
   }
 }
 
-export async function resolveUrlFuuid(fuuid) {
+export async function resolveUrlFuuid(fuuid, mimetype) {
   if(!_cdnCourant) throw new Error("Aucun CDN n'est disponible")
 
   const typeCdn = _cdnCourant.type_cdn
@@ -121,7 +122,9 @@ export async function resolveUrlFuuid(fuuid) {
     const accessPointUrl = _cdnCourant.config.access_point_url
     const part1 = fuuid.slice(0, 5),
           part2 = fuuid.slice(5, 7)
-    const pathFuuid = path.join('fichiers/public', part1, part2, fuuid + '.jpg')
+    const ext = mimetypeExtensions[mimetype]
+
+    const pathFuuid = path.join('fichiers/public', part1, part2, fuuid + '.' + ext)
 
     const urlRessource = accessPointUrl + '/' + pathFuuid
     return urlRessource

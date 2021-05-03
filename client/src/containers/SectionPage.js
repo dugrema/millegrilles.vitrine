@@ -59,11 +59,27 @@ function TypeTexte(props) {
 }
 
 function TypeMedia(props) {
-  return <p>Type media</p>
+  console.debug("!!! TypeMedia %O", props)
+
+  const media = props.partiePage.media || {},
+        fuuid = media.fuuid_v_courante,
+        mimetype = media.mimetype
+
+  const [imgUrl, setImgUrl] = useState('')
+  useEffect(_=>{
+    if(fuuid) {
+      resolveFuuid(props.resolver, fuuid, mimetype, setImgUrl)
+    }
+  }, [fuuid])
+
+  if(imgUrl) {
+    return <img src={imgUrl} />
+  }
+
+  return 'MEDIA'
 }
 
 function TypeColonnes(props) {
-  console.debug("!!! TypeColonnes %O", props)
   return (
     <CardDeck>
       {props.partiePage.colonnes.map((item, idx)=>{
@@ -90,24 +106,15 @@ function PageColonneAffichage(props) {
 
   const media = colonne.media || {},
         versionCourante = media.version_courante || {},
-        fuuidPreview = versionCourante.fuuid_preview
+        fuuidPreview = versionCourante.fuuid_preview,
+        mimetypePreview = versionCourante.mimetype_preview
 
   const [imgUrl, setImgUrl] = useState('')
   useEffect(_=>{
     if(fuuidPreview) {
-      resolveFuuid(props.resolver, fuuidPreview, setImgUrl)
+      resolveFuuid(props.resolver, fuuidPreview, mimetypePreview, setImgUrl)
     }
   }, [fuuidPreview])
-
-  // if(contenu.media) {
-  //   return (
-  //     <CardBodyView item={contenu.media}
-  //                   usePoster={true}
-  //                   rootProps={props.rootProps}>
-  //       <RenderValeursMultilingueRows champ={htmlParsed} languages={props.site.languages}/>
-  //     </CardBodyView>
-  //   )
-  // } else {
 
   return (
     <Card>
@@ -123,8 +130,8 @@ function PageColonneAffichage(props) {
   )
 }
 
-async function resolveFuuid(resolver, fuuid, setUrl) {
-  const url = await resolver.resolveUrlFuuid(fuuid)
+async function resolveFuuid(resolver, fuuid, mimetype, setUrl) {
+  const url = await resolver.resolveUrlFuuid(fuuid, mimetype)
   setUrl(url)
 }
 
