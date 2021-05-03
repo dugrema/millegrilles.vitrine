@@ -4,11 +4,9 @@ import {
   Switch, Route, Link, useParams
 } from "react-router-dom"
 import {Alert} from 'react-bootstrap'
-import openSocket from 'socket.io-client'
-import axios from 'axios'
+// import openSocket from 'socket.io-client'
 
 import {preparerCertificateStore, verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
-// import {calculerIdmg} from '@dugrema/millegrilles.common/lib/forgecommon'
 import {verifierIdmg} from '@dugrema/millegrilles.common/lib/idmg'
 
 import '../components/i18n'
@@ -16,11 +14,16 @@ import { withTranslation } from 'react-i18next';
 
 import { SiteAccueil } from './Site'
 import { LayoutMillegrilles } from './Layout'
-import { Section } from './Sections'
+
+// import { Section } from './Sections'
 
 import manifest from '../manifest.build.js'
 
 import './App.css'
+
+const Section = React.lazy(_=>{import('./Sections')})
+
+var resolverRessources;
 
 const MG_SOCKETIO_URL = '/vitrine/socket.io',
       MAPPING_PAGES = {SiteAccueil}
@@ -33,112 +36,57 @@ class _App extends React.Component {
     language: '',
     certificateStore: '',
     idmg: '',
-    infoVitrine: '',
 
     err: '',
     section: '',
     page: 'SiteAccueil',
 
     socket: '',
-
   }
 
   componentDidMount() {
     console.debug("Vitrine version %s, %s", manifest.version, manifest.date)
-    this.chargerCertificateStore().then(_=>{
-      this.chargerSite()
-      this.connecterSocketIo()
-    })
+    this.chargerSite()
   }
 
   async chargerSite() {
     var language = this.props.i18n.language
-    const nomDomaine = window.location.href.split('/')[2].split(':')[0]
 
     // Charger configuration du site associe au domaine
-    const siteConfiguration = await _chargerSite(nomDomaine),
-          certificateStore = this.state.certificateStore
-    // console.debug("Configuration site : %O", siteConfiguration)
-    if( ! await verifierSignatureMessage(siteConfiguration, siteConfiguration._certificat, certificateStore) ) {
-      this.setState({err: "Signature du site invalide / Site signature is invalid (index.json)"})
-      return
-    }
+    const siteConfiguration = await _chargerSite()
+    console.debug("!!! Configuration site (index.json): %O", siteConfiguration)
+    const {idmg, certificateStore} = await chargerCertificateStore(siteConfiguration)
 
     // Identifier le language de depart pour afficher la page
-    if(!language) {
-      language = siteConfiguration.languages[0]  // Utiliser le language par defaut (1er dans la liste)
+    // S'assurer que le language detecte existe pour le site
+    if( ! language || ! siteConfiguration.languages.includes(language) ) {
+      // Langague non fourni ou non supporte
+      // Utiliser le language par defaut du site (1er dans la liste)
+      language = siteConfiguration.languages[0]
       this.props.i18n.changeLanguage(language)
-    } else {
-      // S'assurer que le language detecte existe pour le site
-      if( ! siteConfiguration.languages.includes(language) ) {
-        console.debug("Forcer changement de language, celui detecte dans le navigateur n'existe pas")
-        language = siteConfiguration.languages[0]  // Utiliser le language par defaut (1er dans la liste)
-        this.props.i18n.changeLanguage(language)
-      }
     }
 
     document.title = siteConfiguration.titre[language]
-    this.setState({nomDomaine, siteConfiguration, language})
-  }
-
-
-  async chargerCertificateStore() {
-    // Preparer le certificate store avec le CA pour valider tous les .json telecharges
-    const caPromise = axios.get('/vitrine/millegrille.pem'),
-          infoPromise = axios.get('/vitrine/info.json')
-
-    const resultat = await Promise.all([caPromise, infoPromise])
-    console.debug("Chargement certificat, information vitrine : %O", resultat)
-
-    const caPem = resultat[0].data,
-          infoVitrine = resultat[1].data
-
-    // console.debug("Info vitrine : %O", infoVitrine)
-
-    // Valider le idmg - millegrille.pem === info.idmg
-    const idmgVitrine = infoVitrine.idmg
-    verifierIdmg(idmgVitrine, caPem)
-    console.info("IDMG verifie avec /vitrine/millegrille.pem = %s", idmgVitrine)
-
-    // console.debug("PEM certificat de millegrille : \n%s", caPem)
-    try {
-      const certificateStore = preparerCertificateStore(caPem)
-
-      // Valider la signatude de info.json
-      if( await verifierSignatureMessage(infoVitrine, infoVitrine._certificat, certificateStore) ) {
-        return new Promise((resolve, reject)=>{
-          this.setState({idmg: idmgVitrine, certificateStore}, _=>{resolve()})
-        })
-
-      } else {
-        console.error("Erreur verification info.json - signature invalide")
-        this.setState({err: "Erreur verification info.json - signature invalide"})
-      }
-
-    } catch(err) {
-      console.error("Erreur verification certificats/info.json : %O", err)
-      this.setState({err: "Erreur verification info.json - date certificat ou signature invalide"})
-    }
-
+    this.setState({siteConfiguration, language, certificateStore}, _=>{console.debug("!!! State initial %O", this.state)})
   }
 
   connecterSocketIo = () => {
     if( ! this.state.connexionSocketIo ) {
-      const socket = openSocket('/', {
-        path: MG_SOCKETIO_URL,
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 500,
-        reconnectionDelayMax: 30000,
-        randomizationFactor: 0.5
-      })
-      socket.on('disconnect', () => {this.deconnexionSocketIo()})
-
-      socket.on('majSite', this.eventMajSite)
-      socket.on('majCollection', this.eventMajCollection)
-
-      // Conserve socket, permet d'enregistrer listeners par component (post, collections, etc.)
-      this.setState({socket})
+      // const socket = openSocket('/', {
+      //   path: MG_SOCKETIO_URL,
+      //   reconnection: true,
+      //   reconnectionAttempts: 5,
+      //   reconnectionDelay: 500,
+      //   reconnectionDelayMax: 30000,
+      //   randomizationFactor: 0.5
+      // })
+      // socket.on('disconnect', () => {this.deconnexionSocketIo()})
+      //
+      // socket.on('majSite', this.eventMajSite)
+      // socket.on('majCollection', this.eventMajCollection)
+      //
+      // // Conserve socket, permet d'enregistrer listeners par component (post, collections, etc.)
+      // this.setState({socket})
 
     }
   }
@@ -200,65 +148,46 @@ class _App extends React.Component {
   }
 
   render() {
-    var BaseLayout = LayoutAccueil
-
-    if(this.state.err) {
-      return (
-        <Alert variant="danger">
-          <Alert.Heading>
-            Site non disponible / Site unavailable
-          </Alert.Heading>
-          {this.state.err}
-        </Alert>
-      )
-    }
-
-    const rootProps = {
-      ...this.state,
-      changerLanguage: this.changerLanguage,
-      manifest,
-    }
-
-    var affichage = <p>Connexion en cours</p>
-    if(this.state.siteConfiguration && this.state.certificateStore && this.state.page) {
-      // // BaseLayout = LayoutAccueil
-      // if(this.state.section) {
-      //   affichage = <Section section={this.state.section} rootProps={rootProps} />
-      // } else {
-      //   const Page = MAPPING_PAGES[this.state.page]
-      //   affichage = <Page rootProps={rootProps} />
-      // }
-
-      // affichage = (
-      //   <Switch>
-      //     <Route path="/vitrine/section/:sectionIdx">
-      //       <Section rootProps={rootProps} />
-      //     </Route>
-      //     <Route path="/vitrine/">
-      //       <SiteAccueil rootProps={rootProps} />
-      //     </Route>
-      //     <Route path="/vitrine">
-      //       <SiteAccueil rootProps={rootProps} />
-      //     </Route>
-      //   </Switch>
-      // )
-
-      affichage = (
-        <RouteurSwitch rootProps={rootProps} />
-      )
-
-    }
-
-    return (
-      <Router>
-        <BaseLayout
-          changerPage={this.changerPage}
-          affichage={affichage}
-          goHome={this.goHome}
-          rootProps={rootProps} />
-      </Router>
-    )
+    return <p>Allo!</p>
   }
+
+  // render() {
+  //   var BaseLayout = LayoutAccueil
+  //
+  //   if(this.state.err) {
+  //     return (
+  //       <Alert variant="danger">
+  //         <Alert.Heading>
+  //           Site non disponible / Site unavailable
+  //         </Alert.Heading>
+  //         {this.state.err}
+  //       </Alert>
+  //     )
+  //   }
+  //
+  //   const rootProps = {
+  //     ...this.state,
+  //     changerLanguage: this.changerLanguage,
+  //     manifest,
+  //   }
+  //
+  //   var affichage = <p>Connexion en cours</p>
+  //   if(this.state.siteConfiguration && this.state.certificateStore && this.state.page) {
+  //     affichage = (
+  //       <RouteurSwitch rootProps={rootProps} />
+  //     )
+  //   }
+  //
+  //   return (
+  //     <Router>
+  //       <BaseLayout
+  //         changerPage={this.changerPage}
+  //         affichage={affichage}
+  //         goHome={this.goHome}
+  //         rootProps={rootProps} />
+  //     </Router>
+  //   )
+  // }
 }
 
 function RouteurSwitch(props) {
@@ -304,12 +233,42 @@ function LayoutAccueil(props) {
 
 }
 
-async function _chargerSite(domaineUrl, language) {
-  const url = '/vitrine/sites/' + domaineUrl + '/index.json'
-  const reponse = await axios({method: 'get', url})
-  // console.debug("Reponse site : %O", reponse)
+async function _chargerSite() {
+  if(!resolverRessources) {
+    // Importer le resolver de ressources
+    resolverRessources = await import('./resolverRessources')
+  }
 
-  const siteConfiguration = reponse.data
+  const url = '/vitrine/index.json'
+  const reponse = await resolverRessources.resolveUrl(url)
+  return reponse.data
+}
 
-  return siteConfiguration
+async function chargerCertificateStore(siteConfiguration) {
+  // Preparer le certificate store avec le CA pour valider tous les .json telecharges
+  const caPem = [...siteConfiguration['_certificat']].pop()  // Dernier certificat dans la liste
+
+  // Valider le idmg - millegrille.pem === info.idmg
+  const idmg = siteConfiguration['en-tete'].idmg
+  verifierIdmg(idmg, caPem)
+  console.debug("IDMG verifie OK avec PEM = %s", idmg)
+
+  try {
+    const certificateStore = preparerCertificateStore(caPem)
+
+    // Valider la signature de index.json (siteConfiguration)
+    let signatureValide = await verifierSignatureMessage(
+      siteConfiguration, siteConfiguration._certificat, certificateStore)
+
+    if(!signatureValide) {
+      console.error("Erreur verification info.json - signature invalide")
+      throw new Error("Erreur verification info.json - signature invalide")
+    }
+
+    return {idmg, certificateStore}
+  } catch(err) {
+    console.error("Erreur verification certificats/info.json : %O", err)
+    throw new Error("Erreur verification info.json - date certificat ou signature invalide")
+  }
+
 }
