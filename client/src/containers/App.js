@@ -6,8 +6,8 @@ import {
 import {Alert} from 'react-bootstrap'
 // import openSocket from 'socket.io-client'
 
-import {preparerCertificateStore, verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
-import {verifierIdmg} from '@dugrema/millegrilles.common/lib/idmg'
+// import {preparerCertificateStore, verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
+// import {verifierIdmg} from '@dugrema/millegrilles.common/lib/idmg'
 import {getResolver} from '../workers/workers.load'
 
 import '../components/i18n'
@@ -27,21 +27,16 @@ const Section = React.lazy(_=>{import('./Sections')})
 const MG_SOCKETIO_URL = '/vitrine/socket.io',
       MAPPING_PAGES = {SiteAccueil}
 
+var _resolverWorker = null,
+    _connexionWorker = null
+
 class _App extends React.Component {
 
   state = {
-    nomDomaine: '',
     siteConfiguration: '',
+
     language: '',
-    certificateStore: '',
-    idmg: '',
-
     err: '',
-    section: '',
-    page: 'SiteAccueil',
-
-    resolverWorker: '',
-    socket: '',
   }
 
   componentDidMount() {
@@ -50,91 +45,61 @@ class _App extends React.Component {
   }
 
   async chargerSite() {
-    var language = this.props.i18n.language
+    try {
+      var language = this.props.i18n.language
 
-    var resolverWorker = this.state.resolverWorker
-    if(!resolverWorker) {
-      // Preparer resolver
-      resolverWorker = (await getResolver()).webWorker
-      this.setState({resolverWorker})
-    }
+      if(!_resolverWorker) {
+        // Preparer resolver
+        _resolverWorker = (await getResolver()).webWorker
+      }
 
-    // Charger configuration du site associe au domaine
-    const siteConfiguration = await _chargerSite(resolverWorker)
-    console.debug("!!! Configuration site (index.json): %O", siteConfiguration)
-    const {idmg, certificateStore} = await chargerCertificateStore(siteConfiguration)
+      // Charger configuration du site associe au domaine
+      const siteConfiguration = await _chargerSite()
+      // await chargerCertificateStore(siteConfiguration)
 
-    // Aucune erreur, on initialiser les CDNs de la connexion
-    // Le resolver va immediatement commencer a verifier les sources de contenu
-    resolverWorker.init(siteConfiguration.cdns)
+      // Aucune erreur, on initialiser les CDNs de la connexion
+      // Le resolver va immediatement commencer a verifier les sources de contenu
+      // _resolverWorker.setSiteConfiguration(siteConfiguration)
 
-    // Identifier le language de depart pour afficher la page
-    // S'assurer que le language detecte existe pour le site
-    if( ! language || ! siteConfiguration.languages.includes(language) ) {
-      // Langague non fourni ou non supporte
-      // Utiliser le language par defaut du site (1er dans la liste)
-      language = siteConfiguration.languages[0]
-      this.props.i18n.changeLanguage(language)
-    }
+      // Identifier le language de depart pour afficher la page
+      // S'assurer que le language detecte existe pour le site
+      if( ! language || ! siteConfiguration.languages.includes(language) ) {
+        // Langague non fourni ou non supporte
+        // Utiliser le language par defaut du site (1er dans la liste)
+        language = siteConfiguration.languages[0]
+        this.props.i18n.changeLanguage(language)
+      }
 
-    document.title = siteConfiguration.titre[language]
-    this.setState({siteConfiguration, language, certificateStore}, _=>{console.debug("!!! State initial %O", this.state)})
-  }
-
-  connecterSocketIo = () => {
-    if( ! this.state.connexionSocketIo ) {
-      // const socket = openSocket('/', {
-      //   path: MG_SOCKETIO_URL,
-      //   reconnection: true,
-      //   reconnectionAttempts: 5,
-      //   reconnectionDelay: 500,
-      //   reconnectionDelayMax: 30000,
-      //   randomizationFactor: 0.5
-      // })
-      // socket.on('disconnect', () => {this.deconnexionSocketIo()})
-      //
-      // socket.on('majSite', this.eventMajSite)
-      // socket.on('majCollection', this.eventMajCollection)
-      //
-      // // Conserve socket, permet d'enregistrer listeners par component (post, collections, etc.)
-      // this.setState({socket})
-
+      document.title = siteConfiguration.titre[language]
+      this.setState(
+        {siteConfiguration, language},
+        _=>{
+          console.debug("!!! State initial %O", this.state)
+        }
+      )
+    } catch(err) {
+      console.error("Erreur chargement site : %O", err)
+      this.setState({err: ''+err})
     }
   }
 
-  eventMajSite = async site => {
-    console.debug("MAJ site %O", site)
-    const certificateStore = this.state.certificateStore
-    if( await verifierSignatureMessage(site, site._certificat, certificateStore) ) {
-      this.setState({siteConfiguration: site})
-    }
-  }
-
-  eventMajCollection = collection => {
-    console.debug("MAJ collection %O", collection)
-  }
-
-  deconnexionSocketIo = () => {
-    console.debug("Deconnexion Socket.IO")
-  }
-
-  changerPage = event => {
-    const value = event.currentTarget.value
-    // console.debug("Changer page %s", value)
-
-    if(value.startsWith('section:')) {
-      const idx = Number(value.split(':')[1])
-      const section = this.state.siteConfiguration.sections[idx]
-      // Toggle la section, force le rechargement si on a plusieurs sections de meme type
-      this.setState({section: ''}, _=>{
-        this.setState({section})
-      })
-    } else if(MAPPING_PAGES[value]) {
-      this.setState({page: value, section: ''})
-    } else {
-      throw new Error("Page inconnue : " + value)
-    }
-  }
+  // changerPage = event => {
+  //   const value = event.currentTarget.value
+  //   // console.debug("Changer page %s", value)
+  //
+  //   if(value.startsWith('section:')) {
+  //     const idx = Number(value.split(':')[1])
+  //     const section = this.state.siteConfiguration.sections[idx]
+  //     // Toggle la section, force le rechargement si on a plusieurs sections de meme type
+  //     this.setState({section: ''}, _=>{
+  //       this.setState({section})
+  //     })
+  //   } else if(MAPPING_PAGES[value]) {
+  //     this.setState({page: value, section: ''})
+  //   } else {
+  //     throw new Error("Page inconnue : " + value)
+  //   }
+  // }
 
   changerLanguage = event => {
     // console.debug("Changer language : %O\n%O", event, this.props)
@@ -158,68 +123,62 @@ class _App extends React.Component {
     this.setState({language: langueProchaine})
   }
 
-  // render() {
-  //   return <p>Allo!</p>
-  // }
-
   render() {
-  //   if(this.state.err) {
-  //     return (
-  //       <Alert variant="danger">
-  //         <Alert.Heading>
-  //           Site non disponible / Site unavailable
-  //         </Alert.Heading>
-  //         {this.state.err}
-  //       </Alert>
-  //     )
-  //   }
-  //
     const rootProps = {
       ...this.state,
       changerLanguage: this.changerLanguage,
       manifest,
     }
 
-    var affichage = <p>Connexion en cours</p>
-  //   if(this.state.siteConfiguration && this.state.certificateStore && this.state.page) {
-  //     affichage = (
-  //       <RouteurSwitch rootProps={rootProps} />
-  //     )
-  //   }
+    const siteConfiguration = this.state.siteConfiguration
 
     return (
-      <Router>
-        <LayoutMillegrilles
-          // changerPage={props.changerPage}
-          // goHome={this.goHome}
-          siteConfiguration={this.state.siteConfiguration}
-          rootProps={rootProps}>
+      <>
+        <AfficherErreur err={this.state.err} />
 
-          <RouteurSwitch rootProps={rootProps} />
+        <Router>
+          <LayoutMillegrilles siteConfiguration={siteConfiguration}
+                              // changerPage={props.changerPage}
+                              // goHome={this.goHome}
+                              rootProps={rootProps}>
 
-        </LayoutMillegrilles>
-      </Router>
+            <RouteurSwitch siteConfiguration={siteConfiguration}
+                           language={this.state.language}
+                           rootProps={rootProps} />
+
+          </LayoutMillegrilles>
+        </Router>
+      </>
     )
   }
 }
 
+function AfficherErreur(props) {
+  console.debug("!!! Afficher erreur : %O", props)
+  return (
+    <Alert show={props.err?true:false} variant="danger">
+      <Alert.Heading>
+        Site non disponible / Site unavailable
+      </Alert.Heading>
+      <pre>{props.err}</pre>
+    </Alert>
+  )
+}
+
 function RouteurSwitch(props) {
-  const rootProps = props.rootProps
-  // console.debug("RouterSwitch: %O", props)
   return (
     <Switch>
       <Route path="/vitrine/section/:sectionIdx">
-        <Section rootProps={rootProps} />
+        <Section {...props} />
       </Route>
       <Route path="/vitrine/">
-        <SiteAccueil rootProps={rootProps} />
+        <SiteAccueil {...props} />
       </Route>
       <Route path="/vitrine">
-        <SiteAccueil rootProps={rootProps} />
+        <SiteAccueil {...props} />
       </Route>
     </Switch>
   )
-
 }
 
 const AppWithTranslation = withTranslation()(_App)
@@ -244,38 +203,8 @@ function ChargementEnCours(props) {
   )
 }
 
-async function _chargerSite(resolverWorker) {
+async function _chargerSite() {
   const url = '/vitrine/index.json'
-  const reponse = await resolverWorker.resolveUrl(url)
-  const siteConfig = reponse.data
+  const siteConfig = await _resolverWorker.chargerSiteConfiguration(url)
   return siteConfig
-}
-
-async function chargerCertificateStore(siteConfiguration) {
-  // Preparer le certificate store avec le CA pour valider tous les .json telecharges
-  const caPem = [...siteConfiguration['_certificat']].pop()  // Dernier certificat dans la liste
-
-  // Valider le idmg - millegrille.pem === info.idmg
-  const idmg = siteConfiguration['en-tete'].idmg
-  verifierIdmg(idmg, caPem)
-  console.debug("IDMG verifie OK avec PEM = %s", idmg)
-
-  try {
-    const certificateStore = preparerCertificateStore(caPem)
-
-    // Valider la signature de index.json (siteConfiguration)
-    let signatureValide = await verifierSignatureMessage(
-      siteConfiguration, siteConfiguration._certificat, certificateStore)
-
-    if(!signatureValide) {
-      console.error("Erreur verification info.json - signature invalide")
-      throw new Error("Erreur verification info.json - signature invalide")
-    }
-
-    return {idmg, certificateStore}
-  } catch(err) {
-    console.error("Erreur verification certificats/info.json : %O", err)
-    throw new Error("Erreur verification info.json - date certificat ou signature invalide")
-  }
-
 }
