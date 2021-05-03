@@ -18,9 +18,9 @@ export function LayoutMillegrilles(props) {
         <Container>
           {props.children}
         </Container>
-        
+
       </>
-      <Footer rootProps={props.rootProps}/>
+      <Footer {...props} />
     </div>
   )
 
@@ -37,16 +37,15 @@ function Entete(props) {
 
 function Footer(props) {
 
-  const idmg = props.rootProps.idmg
+  const siteConfiguration = props.siteConfiguration || {},
+        entete = siteConfiguration['en-tete'] || {},
+        idmg = entete.idmg,
+        manifest = props.manifest || {}
+
   var qrCode = null
 
-  if(props.rootProps.idmg) {
+  if(idmg) {
     // qrCode = <QRCode value={'idmg:' + idmg} size={75} />;
-  }
-
-  var manifest = ''
-  if(props.rootProps && props.rootProps.manifest) {
-    manifest = props.rootProps.manifest
   }
 
   return (

@@ -62,8 +62,6 @@ function RenderSection(props) {
       ElemSection = TypeSectionInconnue
   }
 
-  console.debug("!!! RenderSection proppys : %O", props)
-
   return (
     <ElemSection {...props} />
   )

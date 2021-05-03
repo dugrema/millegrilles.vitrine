@@ -52,12 +52,7 @@ class _App extends React.Component {
       }
 
       document.title = siteConfiguration.titre[language]
-      this.setState(
-        {siteConfiguration, language},
-        _=>{
-          console.debug("!!! State initial %O", this.state)
-        }
-      )
+      this.setState({siteConfiguration, language})
     } catch(err) {
       console.error("Erreur chargement site : %O", err)
       this.setState({err: ''+err})
@@ -87,10 +82,8 @@ class _App extends React.Component {
   }
 
   render() {
-    const rootProps = {
-      ...this.state,
-      changerLanguage: this.changerLanguage,
-      manifest,
+    const workers = {
+      resolver: _resolverWorker,
     }
 
     const siteConfiguration = this.state.siteConfiguration
@@ -102,11 +95,11 @@ class _App extends React.Component {
         <Router>
           <LayoutMillegrilles siteConfiguration={siteConfiguration}
                               language={this.state.language}
-                              rootProps={rootProps}>
+                              manifest={manifest}>
 
             <ContenuSite siteConfiguration={siteConfiguration}
                          language={this.state.language}
-                         rootProps={rootProps} />
+                         workers={workers} />
 
           </LayoutMillegrilles>
         </Router>
@@ -116,7 +109,6 @@ class _App extends React.Component {
 }
 
 function AfficherErreur(props) {
-  console.debug("!!! Afficher erreur : %O", props)
   return (
     <Alert show={props.err?true:false} variant="danger">
       <Alert.Heading>

@@ -87,13 +87,13 @@ export async function getSection(uuidSection, typeSection, ipnsMapping) {
   } else if(typeCdn === 'ipfs_gateway') {
 
   } else {
-    const accessPointUrl = _cdnCourant.access_point_url
+    const accessPointUrl = _cdnCourant.config.access_point_url
     var urlRessource = ''
-    switch(typeRessource) {
+    switch(typeSection) {
       case 'fichiers':
         urlRessource = '/data/fichiers/' + uuidSection + '.json'
         break
-      case 'page':
+      case 'pages':
         urlRessource = '/data/pages/' + uuidSection + '.json'
         break
       case 'forum':
@@ -103,6 +103,7 @@ export async function getSection(uuidSection, typeSection, ipnsMapping) {
         console.debug("Type section inconnue : %s", typeSection)
     }
     const urlComplet = accessPointUrl + urlRessource
+    console.debug("Chargement section url %s", urlComplet)
     return getUrl(urlComplet)
   }
 }
