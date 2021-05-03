@@ -1,4 +1,5 @@
 import axios from 'axios'
+import path from 'path'
 import {preparerCertificateStore, verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
 import {verifierIdmg} from '@dugrema/millegrilles.common/lib/idmg'
 
@@ -108,8 +109,23 @@ export async function getSection(uuidSection, typeSection, ipnsMapping) {
   }
 }
 
-export async function getFuuid(fuuid, collection) {
+export async function resolveUrlFuuid(fuuid) {
+  if(!_cdnCourant) throw new Error("Aucun CDN n'est disponible")
 
+  const typeCdn = _cdnCourant.type_cdn
+  if(typeCdn === 'ipfs') {
+
+  } else if(typeCdn === 'ipfs_gateway') {
+
+  } else {
+    const accessPointUrl = _cdnCourant.config.access_point_url
+    const part1 = fuuid.slice(0, 5),
+          part2 = fuuid.slice(5, 7)
+    const pathFuuid = path.join('fichiers/public', part1, part2, fuuid + '.jpg')
+
+    const urlRessource = accessPointUrl + '/' + pathFuuid
+    return urlRessource
+  }
 }
 
 async function verifierConnexionCdns() {

@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import parse from 'html-react-parser'
+import { Card, CardDeck } from 'react-bootstrap'
 
 import {ChampMultilingue, ChampHtmlMultilingue} from '../components/ChampMultilingue'
 
@@ -62,13 +63,69 @@ function TypeMedia(props) {
 }
 
 function TypeColonnes(props) {
-  return <p>Type colonne</p>
+  console.debug("!!! TypeColonnes %O", props)
+  return (
+    <CardDeck>
+      {props.partiePage.colonnes.map((item, idx)=>{
+        return (
+          <PageColonneAffichage key={idx}
+                                colonne={item}
+                                language={props.language}
+                                resolver={props.resolver} />
+        )
+      })}
+    </CardDeck>
+  )
 }
 
 function TypeInconnu(props) {
   return (
     <p>Partie de type inconnu</p>
   )
+}
+
+function PageColonneAffichage(props) {
+  const colonne = props.colonne || {}
+  const champHtml = colonne.html || {}
+
+  const media = colonne.media || {},
+        versionCourante = media.version_courante || {},
+        fuuidPreview = versionCourante.fuuid_preview
+
+  const [imgUrl, setImgUrl] = useState('')
+  useEffect(_=>{
+    if(fuuidPreview) {
+      resolveFuuid(props.resolver, fuuidPreview, setImgUrl)
+    }
+  }, [fuuidPreview])
+
+  // if(contenu.media) {
+  //   return (
+  //     <CardBodyView item={contenu.media}
+  //                   usePoster={true}
+  //                   rootProps={props.rootProps}>
+  //       <RenderValeursMultilingueRows champ={htmlParsed} languages={props.site.languages}/>
+  //     </CardBodyView>
+  //   )
+  // } else {
+
+  return (
+    <Card>
+      {imgUrl?
+        <Card.Img src={imgUrl} />
+        :''
+      }
+      <Card.Body>
+        <ChampHtmlMultilingue language={props.language}
+                              contenu={champHtml} />
+      </Card.Body>
+    </Card>
+  )
+}
+
+async function resolveFuuid(resolver, fuuid, setUrl) {
+  const url = await resolver.resolveUrlFuuid(fuuid)
+  setUrl(url)
 }
 
 async function chargerSection(resolver, sectionId, setContenuSection) {
