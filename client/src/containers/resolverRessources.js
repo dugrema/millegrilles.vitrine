@@ -65,6 +65,14 @@ export async function chargerSiteConfiguration(url) {
 
 export async function getUrl(url, opts) {
   opts = opts || {}
+  const cdn = opts.cdn || {}
+
+  if(url.endsWith('.json') && ['awss3'].includes(cdn.type_cdn)) {
+    url = url + '.gz'
+  }
+
+  console.debug("!!! getUrl : %s", url)
+
   const reponse = await axios({method: 'get', url, timeout: 15000})
 
   if(!opts.noverif) {
@@ -106,19 +114,26 @@ export async function getSection(uuidSection, typeSection, ipnsMapping) {
     }
     const urlComplet = accessPointUrl + urlRessource
     // console.debug("Chargement section url %s", urlComplet)
-    return getUrl(urlComplet)
+    return getUrl(urlComplet, {cdn: _cdnCourant.config})
   }
 }
 
 export async function resolveUrlFuuid(fuuid, mimetype) {
   if(!_cdnCourant) throw new Error("Aucun CDN n'est disponible")
 
-  const typeCdn = _cdnCourant.type_cdn
+  const typeCdn = _cdnCourant.config.type_cdn
   if(typeCdn === 'ipfs') {
 
   } else if(typeCdn === 'ipfs_gateway') {
 
+  } else if(typeCdn === 'awss3') {
+    const accessPointUrl = _cdnCourant.config.access_point_url
+    const ext = mimetypeExtensions[mimetype]
+    const pathFuuid = path.join('fichiers/public', fuuid + '.' + ext)
+    const urlRessource = accessPointUrl + '/' + pathFuuid
+    return urlRessource
   } else {
+    console.debug("!!! CDN Generique, type : %s", typeCdn)
     const accessPointUrl = _cdnCourant.config.access_point_url
     const part1 = fuuid.slice(0, 5),
           part2 = fuuid.slice(5, 7)
@@ -173,10 +188,11 @@ async function verifierEtatAccessPoint(cdnId) {
         config = etatCdn.config
 
   const accessPointUrl = config.access_point_url
-  const urlRessource = accessPointUrl + '/index.json'
+  var urlRessource = accessPointUrl + '/index.json'
+
   try {
     const dateDebut = new Date().getTime()
-    const reponse = await getUrl(urlRessource)
+    const reponse = await getUrl(urlRessource, {cdn: config})
     const tempsReponse = new Date().getTime()-dateDebut
     etatCdn.etat = ETAT_ACTIF
     etatCdn.tempsReponse = tempsReponse
