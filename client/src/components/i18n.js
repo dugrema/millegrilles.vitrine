@@ -34,7 +34,7 @@ i18n
     keySeparator: '.', // we use keys in form messages.welcome
 
     backend: {
-      loadPath: '/vitrine/locales/{{lng}}/{{ns}}.json',
+      loadPath: './locales/{{lng}}/{{ns}}.json',
     },
 
     interpolation: {
