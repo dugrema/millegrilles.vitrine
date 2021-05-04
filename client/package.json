@@ -25,7 +25,7 @@
   },
   "scripts": {
     "start": "export WDS_SOCKET_PATH=/vitrine/sockjs-node && rescripts start",
-    "build": "rescripts build"
+    "build": "PUBLIC_URL=./ rescripts build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -42,7 +42,7 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "./",
+  "homepage": "/vitrine",
   "devDependencies": {
     "@rescripts/cli": "0.0.16",
     "rescript-worker-loader": "^1.0.4",

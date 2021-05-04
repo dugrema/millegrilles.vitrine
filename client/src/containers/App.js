@@ -1,5 +1,5 @@
 import React, {Suspense, useState, useEffect} from 'react'
-import { BrowserRouter, HashRouter, useLocation } from "react-router-dom"
+import { HashRouter as Router } from "react-router-dom"
 import {Alert} from 'react-bootstrap'
 import {getResolver} from '../workers/workers.load'
 
@@ -46,20 +46,12 @@ function VitrineApp(props) {
   const [siteConfiguration, setSiteConfiguration] = useState('')
   const [language, setLanguage] = useState('')
   const [err, setErr] = useState('')
-  // var [Router, setRouter] = useState(BrowserRouter)
-  var Router = HashRouter
 
   // Chargement au demarrage
   useEffect(_=>{
     console.debug("Vitrine version %s, %s", manifest.version, manifest.date)
     chargerSite(props.i18n, setSiteConfiguration, setLanguage, setErr)
   }, [])
-
-  // Toggle type de routage
-  useEffect(_=>{
-    const siteRoutable = true
-    // if(!siteRoutable) setRouter(MemoryRouter)
-  }, [siteConfiguration])
 
   const changerLanguage = event => {
     // console.debug("Changer language : %O\n%O", event, this.props)
