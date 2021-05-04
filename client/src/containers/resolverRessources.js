@@ -1,5 +1,6 @@
 import axios from 'axios'
 import path from 'path'
+import {gunzip} from 'zlib'
 import {preparerCertificateStore, verifierSignatureMessage} from '@dugrema/millegrilles.common/lib/pki2'
 import {verifierIdmg} from '@dugrema/millegrilles.common/lib/idmg'
 import mimetypeExtensions from '@dugrema/millegrilles.common/lib/mimetype_ext.json'
@@ -73,10 +74,27 @@ export async function getUrl(url, opts) {
 
   console.debug("!!! getUrl : %s", url)
 
-  const reponse = await axios({method: 'get', url, timeout: 15000})
+  var responseType = opts.responseType
+  if(responseType === 'json.gzip') {
+    // On va decoder le fichier et le parser
+    responseType = 'blob'
+  }
+
+  const reponse = await axios({
+    method: 'get',
+    url,
+    timeout: opts.timeout || 15000,
+    responseType,
+  })
+
+  var data = reponse.data
+  if(opts.responseType === 'json.gzip') {
+    // Extraire le resultat et transformer en dict
+    const responseStr = await unzipResponse(data)
+    data = JSON.parse(responseStr)
+  }
 
   if(!opts.noverif) {
-    const data = reponse.data
     // Verifier la signature de la ressource
     let signatureValide = await verifierSignatureMessage(data, data._certificat, _certificateStore)
     if(!signatureValide) {
@@ -85,15 +103,26 @@ export async function getUrl(url, opts) {
     // console.debug("Signature %s est valide", url)
   }
 
-  return {status: reponse.status, data: reponse.data}
+  return {status: reponse.status, data}
 }
 
-export async function getSection(uuidSection, typeSection, ipnsMapping) {
+export async function getSection(uuidSection, typeSection) {
   if(!_cdnCourant) throw new Error("Aucun CDN n'est disponible")
 
-  const typeCdn = _cdnCourant.type_cdn
+  const typeCdn = _cdnCourant.config.type_cdn
+  console.debug('!!!getSection typeCdn : %O', typeCdn)
+  var urlComplet, opts = {}
   if(typeCdn === 'ipfs') {
-
+    const ipnsMapping = _siteConfiguration.ipns_map
+    console.debug("IPNS map : %O", ipnsMapping)
+    if(ipnsMapping) {
+      const ipns_id = ipnsMapping[uuidSection]
+      urlComplet = 'ipns://' + ipns_id
+      opts.timeout = 120000
+      opts.responseType = 'json.gzip'
+    } else {
+      console.warn("IPNS map de sactions n'est pas disponible dans _siteConfiguration")
+    }
   } else if(typeCdn === 'ipfs_gateway') {
 
   } else {
@@ -112,10 +141,10 @@ export async function getSection(uuidSection, typeSection, ipnsMapping) {
       default:
         console.debug("Type section inconnue : %s", typeSection)
     }
-    const urlComplet = accessPointUrl + urlRessource
-    // console.debug("Chargement section url %s", urlComplet)
-    return getUrl(urlComplet, {cdn: _cdnCourant.config})
+    urlComplet = accessPointUrl + urlRessource
   }
+
+  return getUrl(urlComplet, {...opts, cdn: _cdnCourant.config})
 }
 
 export async function resolveUrlFuuid(fuuid, mimetype) {
@@ -204,7 +233,27 @@ async function verifierEtatAccessPoint(cdnId) {
 }
 
 async function verifierEtatIpfs(cdnId) {
+  const ipnsId = _siteConfiguration.ipns_id
+  if(ipnsId) {
+    const etatCdn = _etatCdns[cdnId],
+          config = etatCdn.config
 
+    try {
+      const url = "ipns://" + ipnsId
+      console.debug("Verifier capacite d'acceder a IPFS directement avec %s", url)
+      const dateDebut = new Date().getTime()
+      const reponse = await axios({method: 'get', url, timeout: 120000})
+      const tempsReponse = new Date().getTime()-dateDebut
+      console.debug("Reponse via IPNS: %O", reponse)
+
+      etatCdn.etat = ETAT_ACTIF
+      etatCdn.tempsReponse = tempsReponse
+    } catch(err) {
+      etatCdn.etat = ETAT_ERREUR
+      etatCdn.tempsReponse = -1
+      console.error("Erreur access point : %O\n%O", etatCdn, err)
+    }
+  }
 }
 
 async function chargerCertificateStore(siteConfiguration) {
@@ -236,4 +285,19 @@ async function chargerCertificateStore(siteConfiguration) {
     throw new Error("Erreur verification index.json - date certificat ou signature invalide")
   }
 
+}
+
+function unzipResponse(blob) {
+  // const buffer = Buffer.from(stringBuffer, 'raw')
+  return new Promise(async (resolve, reject)=>{
+    const abData = await blob.arrayBuffer()
+    gunzip(new Uint8Array(abData), (err, buffer) => {
+      if (err) {
+        console.error('Unzip Response error occurred:', err)
+        return reject(err)
+      }
+      console.log(buffer.toString())
+      resolve(buffer.toString())
+    })
+  })
 }
