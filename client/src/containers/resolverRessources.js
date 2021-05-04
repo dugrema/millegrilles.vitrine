@@ -72,8 +72,6 @@ export async function getUrl(url, opts) {
     url = url + '.gz'
   }
 
-  console.debug("!!! getUrl : %s", url)
-
   var responseType = opts.responseType
   if(responseType === 'json.gzip') {
     // On va decoder le fichier et le parser
@@ -110,7 +108,6 @@ export async function getSection(uuidSection, typeSection) {
   if(!_cdnCourant) throw new Error("Aucun CDN n'est disponible")
 
   const typeCdn = _cdnCourant.config.type_cdn
-  console.debug('!!!getSection typeCdn : %O', typeCdn)
   var urlComplet, opts = {}
   if(typeCdn === 'ipfs') {
     const ipnsMapping = _siteConfiguration.ipns_map
@@ -147,12 +144,17 @@ export async function getSection(uuidSection, typeSection) {
   return getUrl(urlComplet, {...opts, cdn: _cdnCourant.config})
 }
 
-export async function resolveUrlFuuid(fuuid, mimetype) {
+export async function resolveUrlFuuid(fuuid, fuuidInfo) {
   if(!_cdnCourant) throw new Error("Aucun CDN n'est disponible")
+  const mimetype = fuuidInfo.mimetype
 
   const typeCdn = _cdnCourant.config.type_cdn
   if(typeCdn === 'ipfs') {
-
+    if(fuuidInfo.cid) {
+      return 'ipfs://' + fuuidInfo.cid
+    } else {
+      console.warn("FUUID %s, aucun CID defini pour IPFS", fuuid)
+    }
   } else if(typeCdn === 'ipfs_gateway') {
 
   } else if(typeCdn === 'awss3') {
@@ -162,7 +164,6 @@ export async function resolveUrlFuuid(fuuid, mimetype) {
     const urlRessource = accessPointUrl + '/' + pathFuuid
     return urlRessource
   } else {
-    console.debug("!!! CDN Generique, type : %s", typeCdn)
     const accessPointUrl = _cdnCourant.config.access_point_url
     const part1 = fuuid.slice(0, 5),
           part2 = fuuid.slice(5, 7)

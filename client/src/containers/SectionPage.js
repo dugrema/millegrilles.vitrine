@@ -23,6 +23,7 @@ export default function SectionPage(props) {
         <ChampMultilingue language={props.language} contenu={entete} />
       </h2>
       <AfficherPartiesPages partiesPages={partiesPages}
+                            contenuSection={contenuSection}
                             language={props.language}
                             resolver={resolver} />
     </>
@@ -69,7 +70,7 @@ function TypeMedia(props) {
   const [imgUrl, setImgUrl] = useState('')
   useEffect(_=>{
     if(fuuid) {
-      resolveFuuid(props.resolver, fuuid, mimetype, setImgUrl)
+      resolveFuuid(props.resolver, fuuid, props.contenuSection.fuuids, setImgUrl)
     }
   }, [fuuid])
 
@@ -87,6 +88,7 @@ function TypeColonnes(props) {
         return (
           <PageColonneAffichage key={idx}
                                 colonne={item}
+                                contenuSection={props.contenuSection}
                                 language={props.language}
                                 resolver={props.resolver} />
         )
@@ -113,7 +115,7 @@ function PageColonneAffichage(props) {
   const [imgUrl, setImgUrl] = useState('')
   useEffect(_=>{
     if(fuuidPreview) {
-      resolveFuuid(props.resolver, fuuidPreview, mimetypePreview, setImgUrl)
+      resolveFuuid(props.resolver, fuuidPreview, props.contenuSection.fuuids, setImgUrl)
     }
   }, [fuuidPreview])
 
@@ -131,8 +133,8 @@ function PageColonneAffichage(props) {
   )
 }
 
-async function resolveFuuid(resolver, fuuid, mimetype, setUrl) {
-  const url = await resolver.resolveUrlFuuid(fuuid, mimetype)
+async function resolveFuuid(resolver, fuuid, fuuidsMapping, setUrl) {
+  const url = await resolver.resolveUrlFuuid(fuuid, fuuidsMapping[fuuid])
   setUrl(url)
 }
 
