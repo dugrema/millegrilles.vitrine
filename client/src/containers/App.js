@@ -1,4 +1,4 @@
-import React, {Suspense, useState, useEffect} from 'react'
+import React, {Suspense, useState, useEffect, useTransition} from 'react'
 import { HashRouter as Router } from "react-router-dom"
 import {Alert} from 'react-bootstrap'
 import {getResolver} from '../workers/workers.load'
@@ -12,6 +12,9 @@ import ContenuSite from './ContenuSite'
 import { LayoutMillegrilles } from './Layout'
 
 console.info("Vitrine version %s, %s", manifest.version, manifest.date)
+
+console.debug("REACT : %O", React)
+console.debug("React useTransition : %O", useTransition)
 
 const MG_SOCKETIO_URL = '/vitrine/socket.io',
       // MG_INDEX_JSON = '/vitrine/index.json'  // '/./index.json'

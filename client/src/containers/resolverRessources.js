@@ -24,7 +24,7 @@ export async function setSiteConfiguration(siteConfiguration) {
   }
 
   console.debug("Set Site config : %O", siteConfiguration)
-  mergeCdns(_siteConfiguration.cdns)
+  _cdnCourant = mergeCdns(_siteConfiguration.cdns)
   console.debug("CDNs initialises, commencer a verifier les sources")
 }
 
@@ -54,7 +54,9 @@ function mergeCdns(cdns) {
   }
 
   console.debug("Etat CDNS apres maj : %O", _etatCdns)
-  verifierConnexionCdns()
+  var opts = {}
+  if(!_cdnCourant) opts.initial = true  // S'accroche au premier CDN qui repond
+  return verifierConnexionCdns(opts)  // Conserver promise pour initialiser CDN
 }
 
 export async function chargerSiteConfiguration(url) {
@@ -81,7 +83,7 @@ export async function getUrl(url, opts) {
   const reponse = await axios({
     method: 'get',
     url,
-    timeout: opts.timeout || 15000,
+    timeout: opts.timeout || 30000,
     responseType,
   })
 
@@ -105,7 +107,7 @@ export async function getUrl(url, opts) {
 }
 
 export async function getSection(uuidSection, typeSection) {
-  if(!_cdnCourant) throw new Error("Aucun CDN n'est disponible")
+  if(!await _cdnCourant) throw new Error("Aucun CDN n'est disponible")
 
   const typeCdn = _cdnCourant.config.type_cdn
   var urlComplet, opts = {}
@@ -176,14 +178,15 @@ export async function resolveUrlFuuid(fuuid, fuuidInfo) {
   }
 }
 
-async function verifierConnexionCdns() {
+async function verifierConnexionCdns(opts) {
+  opts = opts || {}
   /* Parcours les CDN et trouve ceux qui sont actifs. */
 
   // Extraire CDN en ordre de preference de la configuration
   const cdnIds = _siteConfiguration.cdns.reduce((acc, item)=>{return [...acc, item.cdn_id]}, [])
 
   // Verifier la presence de path/index.json sur chaque CDN
-  var cdnCourant = null
+  var promisesCdns = []
   for await (let cdnId of cdnIds) {
     const etatCdn = _etatCdns[cdnId]
     const typeCdn = etatCdn.config.type_cdn
@@ -191,26 +194,41 @@ async function verifierConnexionCdns() {
       case 'sftp':
       case 'awss3':
       case 'ipfs_gateway':
-        await verifierEtatAccessPoint(cdnId)
+        etatCdn.promiseCheck = verifierEtatAccessPoint(cdnId)
         break
       case 'ipfs':
-        await verifierEtatIpfs(cdnId)
+        etatCdn.promiseCheck = verifierEtatIpfs(cdnId)
         break
       default:
         console.debug("Type CDN inconnu : %s", typeCdn)
     }
+    promisesCdns.push(etatCdn.promiseCheck)
+  }
 
-    if(!cdnCourant && etatCdn.etat === ETAT_ACTIF) {
-      cdnCourant = etatCdn
+  // Attendre le premier CDN qui revient (le plus rapide)
+  var cdnCourant
+  if(opts.initial) {
+    // Sur connexion initiale, on prend la premiere connexion qui est prete
+    cdnCourant = await Promise.any(promisesCdns)
+  } else {
+    const resultats = (await Promise.allSettled(promisesCdns))
+      .filter(item=>item.status==='fulfilled')
+      .map(item=>item.value)
+
+    // Trouver un CDN dans la liste par ordre de preference du site
+    for(let idx in resultats) {
+      const etatCdn = resultats[idx]
+      const etat = etatCdn.etat
+      if(etat === ETAT_ACTIF) {
+        cdnCourant = etatCdn
+        break
+      }
     }
   }
 
-  if(cdnCourant) {
-    // Mettre a jour le CDN utilise
-    _cdnCourant = cdnCourant
-  }
-
-  console.debug("Etat CDNs : %O", _etatCdns)
+  console.debug("Etat CDNs : %O\nCDN courant %O", _etatCdns, cdnCourant)
+  _cdnCourant = cdnCourant
+  return cdnCourant
 }
 
 async function verifierEtatAccessPoint(cdnId) {
@@ -222,7 +240,7 @@ async function verifierEtatAccessPoint(cdnId) {
 
   try {
     const dateDebut = new Date().getTime()
-    const reponse = await getUrl(urlRessource, {cdn: config})
+    const reponse = await getUrl(urlRessource, {cdn: config, timeout: 3000})
     const tempsReponse = new Date().getTime()-dateDebut
     etatCdn.etat = ETAT_ACTIF
     etatCdn.tempsReponse = tempsReponse
@@ -230,15 +248,18 @@ async function verifierEtatAccessPoint(cdnId) {
     etatCdn.etat = ETAT_ERREUR
     etatCdn.tempsReponse = -1
     console.error("Erreur access point : %O\n%O", etatCdn, err)
+    throw err
   }
+
+  return etatCdn
 }
 
 async function verifierEtatIpfs(cdnId) {
+  const etatCdn = _etatCdns[cdnId],
+        config = etatCdn.config
+
   const ipnsId = _siteConfiguration.ipns_id
   if(ipnsId) {
-    const etatCdn = _etatCdns[cdnId],
-          config = etatCdn.config
-
     try {
       const url = "ipns://" + ipnsId
       console.debug("Verifier capacite d'acceder a IPFS directement avec %s", url)
@@ -253,8 +274,11 @@ async function verifierEtatIpfs(cdnId) {
       etatCdn.etat = ETAT_ERREUR
       etatCdn.tempsReponse = -1
       console.error("Erreur access point : %O\n%O", etatCdn, err)
+      throw err
     }
   }
+
+  return etatCdn
 }
 
 async function chargerCertificateStore(siteConfiguration) {
