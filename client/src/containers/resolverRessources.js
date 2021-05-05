@@ -123,7 +123,17 @@ export async function getSection(uuidSection, typeSection) {
       console.warn("IPNS map de sactions n'est pas disponible dans _siteConfiguration")
     }
   } else if(typeCdn === 'ipfs_gateway') {
-
+    const accessPointUrl = _cdnCourant.config.access_point_url
+    const ipnsMapping = _siteConfiguration.ipns_map
+    console.debug("IPNS map : %O", ipnsMapping)
+    if(ipnsMapping) {
+      const ipns_id = ipnsMapping[uuidSection]
+      urlComplet = accessPointUrl + '/ipns/' + ipns_id
+      opts.timeout = 120000
+      opts.responseType = 'json.gzip'
+    } else {
+      console.warn("IPNS map de sections n'est pas disponible dans _siteConfiguration")
+    }
   } else {
     const accessPointUrl = _cdnCourant.config.access_point_url
     var urlRessource = ''
@@ -158,7 +168,12 @@ export async function resolveUrlFuuid(fuuid, fuuidInfo) {
       console.warn("FUUID %s, aucun CID defini pour IPFS", fuuid)
     }
   } else if(typeCdn === 'ipfs_gateway') {
-
+    if(fuuidInfo.cid) {
+      const accessPointUrl = _cdnCourant.config.access_point_url
+      return accessPointUrl + '/ipfs/' + fuuidInfo.cid
+    } else {
+      console.warn("FUUID %s, aucun CID defini pour IPFS", fuuid)
+    }
   } else if(typeCdn === 'awss3') {
     const accessPointUrl = _cdnCourant.config.access_point_url
     const ext = mimetypeExtensions[mimetype]
@@ -193,14 +208,18 @@ async function verifierConnexionCdns(opts) {
     switch(typeCdn) {
       case 'sftp':
       case 'awss3':
-      case 'ipfs_gateway':
+      case 'hiddenService':
         etatCdn.promiseCheck = verifierEtatAccessPoint(cdnId)
         break
       case 'ipfs':
         etatCdn.promiseCheck = verifierEtatIpfs(cdnId)
         break
+      case 'ipfs_gateway':
+        etatCdn.promiseCheck = verifierEtatIpfsGateway(cdnId)
+        break
       default:
         console.debug("Type CDN inconnu : %s", typeCdn)
+        continue
     }
     promisesCdns.push(etatCdn.promiseCheck)
   }
@@ -262,6 +281,34 @@ async function verifierEtatIpfs(cdnId) {
   if(ipnsId) {
     try {
       const url = "ipns://" + ipnsId
+      console.debug("Verifier capacite d'acceder a IPFS directement avec %s", url)
+      const dateDebut = new Date().getTime()
+      const reponse = await axios({method: 'get', url, timeout: 120000})
+      const tempsReponse = new Date().getTime()-dateDebut
+      console.debug("Reponse via IPNS: %O", reponse)
+
+      etatCdn.etat = ETAT_ACTIF
+      etatCdn.tempsReponse = tempsReponse
+    } catch(err) {
+      etatCdn.etat = ETAT_ERREUR
+      etatCdn.tempsReponse = -1
+      console.error("Erreur access point : %O\n%O", etatCdn, err)
+      throw err
+    }
+  }
+
+  return etatCdn
+}
+
+async function verifierEtatIpfsGateway(cdnId) {
+  const etatCdn = _etatCdns[cdnId],
+        config = etatCdn.config
+
+  const accessPointUrl = config.access_point_url
+  const ipnsId = _siteConfiguration.ipns_id
+  if(ipnsId) {
+    try {
+      const url = accessPointUrl + '/ipns/' + ipnsId
       console.debug("Verifier capacite d'acceder a IPFS directement avec %s", url)
       const dateDebut = new Date().getTime()
       const reponse = await axios({method: 'get', url, timeout: 120000})
