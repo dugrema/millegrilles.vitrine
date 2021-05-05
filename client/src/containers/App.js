@@ -11,6 +11,8 @@ import './App.css'
 import ContenuSite from './ContenuSite'
 import { LayoutMillegrilles } from './Layout'
 
+console.info("Vitrine version %s, %s", manifest.version, manifest.date)
+
 const MG_SOCKETIO_URL = '/vitrine/socket.io',
       // MG_INDEX_JSON = '/vitrine/index.json'  // '/./index.json'
       MG_INDEX_JSON = '../../index.json'
@@ -49,7 +51,6 @@ function VitrineApp(props) {
 
   // Chargement au demarrage
   useEffect(_=>{
-    console.debug("Vitrine version %s, %s", manifest.version, manifest.date)
     chargerSite(props.i18n, setSiteConfiguration, setLanguage, setErr)
   }, [])
 

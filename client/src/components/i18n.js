@@ -22,7 +22,6 @@ function formatterValeur(value, format, lng) {
 }
 
 i18n
-  .use(Backend)
   .use(LanguageDetector)
   .use(initReactI18next) // passes i18n down to react-i18next
   .init({
@@ -32,10 +31,6 @@ i18n
     // debug: true,
 
     keySeparator: '.', // we use keys in form messages.welcome
-
-    // backend: {
-    //   loadPath: './locales/{{lng}}/{{ns}}.json',
-    // },
 
     interpolation: {
       escapeValue: false, // react is already safe from xss,
