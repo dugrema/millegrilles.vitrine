@@ -209,6 +209,7 @@ async function verifierConnexionCdns(opts) {
       case 'sftp':
       case 'awss3':
       case 'hiddenService':
+      case 'manuel':
         etatCdn.promiseCheck = verifierEtatAccessPoint(cdnId)
         break
       case 'ipfs':
