@@ -9,26 +9,28 @@ import './Layout.css'
 export function LayoutMillegrilles(props) {
 
   return (
-    <div className="flex-wrapper">
-      <>
-        <Entete siteConfiguration={props.siteConfiguration}
-                language={props.language}
-                changerPage={props.changerPage} />
+    <>
+      <Entete siteConfiguration={props.siteConfiguration}
+              language={props.language}
+              changerPage={props.changerPage} />
 
-        <Container>
-          {props.children}
-        </Container>
+      <div className="flex-wrapper">
+        <div className="contenu">
+          <Container>
+            {props.children}
+          </Container>
+        </div>
+        <Footer {...props} />
+      </div>
 
-      </>
-      <Footer {...props} />
-    </div>
+    </>
   )
 
 }
 
 function Entete(props) {
   return (
-    <Container>
+    <Container className="entete">
       <Menu {...props} />
       <div className="body-top-padding"></div>
     </Container>

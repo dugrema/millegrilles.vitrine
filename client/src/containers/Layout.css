@@ -1,8 +1,20 @@
 .flex-wrapper {
   display: flex;
-  min-height: 100vh;
+  min-height: 94vh;
   flex-direction: column;
   justify-content: space-between;
+}
+
+.entete {
+  height: 6vh;
+}
+
+.entete > nav {
+  height: 5vh;
+}
+
+.contenu {
+  margin-top: 0em;
 }
 
 .footer {

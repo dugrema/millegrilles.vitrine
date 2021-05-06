@@ -130,7 +130,10 @@ function AfficherMedia(props) {
   console.debug("!!! AfficherMedia proppys %O", props)
   const locationPage = useLocation()
   const {sectionIdx, uuidFichier} = useParams()
-  const [urlFichier, setUrlFichier] = useState('')
+
+  var urlRetour = locationPage.pathname.split('/')
+  urlRetour.pop()
+  urlRetour = urlRetour.join('/')
 
   const collectionFichiers = props.collectionFichiers || '',
         fichiers = collectionFichiers.fichiers || [],
@@ -143,25 +146,69 @@ function AfficherMedia(props) {
   const versionCourante = fichier.version_courante
   console.debug("Fichier charge (uuid: %s) : %O\nVersion courante: %O", uuidFichier, fichier, versionCourante)
 
-  useEffect(async _=> {
-    const val = await resolver.resolveUrlFuuid(fichier.fuuid_v_courante, versionCourante)
-    setUrlFichier(val)
-  }, [fichier, uuidFichier])
+  var mimetypeBase = versionCourante.mimetype
+  if(mimetypeBase) {
+    mimetypeBase = mimetypeBase.split('/')[0]
+  }
+  console.debug("Mimetype base : O", mimetypeBase)
 
-  if(!urlFichier) return ''
-
-  var urlRetour = locationPage.pathname.split('/')
-  urlRetour.pop()
-  urlRetour = urlRetour.join('/')
+  var Viewer = TypeInconnu
+  switch(mimetypeBase) {
+    case 'image': Viewer = AfficherImage; break
+    case 'video': Viewer = AfficherVideo; break
+    default:
+  }
 
   return (
     <Card className="card-viewing">
       <Card.Header>
         <Link to={urlRetour}>Retour</Link>
       </Card.Header>
-      <Card.Img src={urlFichier} />
+      <Viewer fichier={fichier} {...props} />
     </Card>
   )
+}
+
+function AfficherImage(props) {
+  const fichier = props.fichier,
+        versionCourante = fichier.version_courante,
+        resolver = props.resolver
+
+  const [urlFichier, setUrlFichier] = useState('')
+
+  useEffect(async _=> {
+    const val = await resolver.resolveUrlFuuid(fichier.fuuid_v_courante, versionCourante)
+    setUrlFichier(val)
+  }, [fichier])
+
+  if(!urlFichier) return ''
+
+  return (
+    <Card.Img src={urlFichier} />
+  )
+}
+
+function AfficherVideo(props) {
+  const fichier = props.fichier,
+        versionCourante = fichier.version_courante,
+        resolver = props.resolver
+
+  const [urlFichier, setUrlFichier] = useState('')
+
+  useEffect(async _=> {
+    const val = await resolver.resolveUrlFuuid(fichier.fuuid_v_courante, versionCourante)
+    setUrlFichier(val)
+  }, [fichier])
+
+  if(!urlFichier) return ''
+
+  return (
+    <Card.Img src={urlFichier} />
+  )
+}
+
+function TypeInconnu(props) {
+  return <p>Type Inconnu</p>
 }
 
 function trierCollections(language, a, b) {
@@ -175,8 +222,8 @@ function trierCollections(language, a, b) {
 
 function trierFichiers(a, b) {
   if(a===b) return 0
-  const nomA = a.nom_fichier || a.fuuid_v_courante,
-        nomB = b.nom_fichier || b.fuuid_v_courante
+  const dateA = a.version_courante.date_version,
+        dateB = b.version_courante.date_version
 
-  return nomA.localeCompare(nomB)
+  return dateB - dateA
 }
