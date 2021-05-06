@@ -8,9 +8,9 @@ export default function SectionFichiers(props) {
   const section = props.section,
         resolver = props.workers.resolver
 
-  console.debug("Section : %O", section)
+  // console.debug("Section : %O", section)
   const [collectionsFichiers, setCollectionsFichiers] = useState('')
-  console.debug("CollectionsFichiers : %O", collectionsFichiers)
+  // console.debug("CollectionsFichiers : %O", collectionsFichiers)
 
   useEffect(_=>{
     chargerCollections(resolver, section, setCollectionsFichiers)
@@ -36,7 +36,7 @@ function AfficherCollectionsFichiers(props) {
 
   const listeFichiers = Object.values(props.collectionsFichiers)
   listeFichiers.sort((a,b)=>{return trierCollections(props.language, a, b)})
-  console.debug("Liste fichiers triee : %O", listeFichiers)
+  // console.debug("Liste fichiers triee : %O", listeFichiers)
 
   return listeFichiers.map(item=>(
     <AfficherCollectionFichiers key={item.uuid}
@@ -128,7 +128,7 @@ function trierFichiers(a, b) {
   return nomA.localeCompare(nomB)
 }
 
-async function chargerCollections(resolver, section, setCollectionsFichiers) {
+export async function chargerCollections(resolver, section, setCollectionsFichiers) {
   const collectionsFichiers = {}
   const promisesCollections = section.collections.map(async collectionId => {
     // console.debug("Charger collection - data : %O", collectionId)

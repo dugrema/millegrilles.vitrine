@@ -62,7 +62,7 @@ function RenderSection(props) {
   var ElemSection = TypeSectionInconnue
   switch(typeSection) {
     case 'fichiers': ElemSection = SectionFichiers; break
-    case 'albums': ElemSection = SectionAlbum; break
+    case 'album': ElemSection = SectionAlbum; break
     case 'pages': ElemSection = SectionPage; break
     // case 'forums': ElemSection = SectionForums; break
     default:
