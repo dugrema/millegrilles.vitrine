@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import {Switch, Route} from 'react-router'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useLocation } from 'react-router-dom'
 import parse from 'html-react-parser'
 import {Row, Col, Button, Card} from 'react-bootstrap'
 
@@ -50,7 +50,8 @@ function AfficherAlbums(props) {
     return (
       <Switch>
         <Route path="/vitrine/section/:sectionIdx/:uuidFichier">
-          <AfficherMedia collectionFichiers={collectionFichier} {...props} />
+          <AfficherMedia collectionFichiers={collectionFichier}
+                         {...props} />
         </Route>
         <Route>
           <AfficherAlbum collectionFichiers={collectionFichier} {...props} />
@@ -127,6 +128,7 @@ function AfficherPoster(props) {
 
 function AfficherMedia(props) {
   console.debug("!!! AfficherMedia proppys %O", props)
+  const locationPage = useLocation()
   const {sectionIdx, uuidFichier} = useParams()
   const [urlFichier, setUrlFichier] = useState('')
 
@@ -148,10 +150,14 @@ function AfficherMedia(props) {
 
   if(!urlFichier) return ''
 
+  var urlRetour = locationPage.pathname.split('/')
+  urlRetour.pop()
+  urlRetour = urlRetour.join('/')
+
   return (
     <Card className="card-viewing">
       <Card.Header>
-        <Link to={'/vitrine/section/'+sectionIdx}>Retour</Link>
+        <Link to={urlRetour}>Retour</Link>
       </Card.Header>
       <Card.Img src={urlFichier} />
     </Card>
