@@ -1,4 +1,6 @@
 import React, {useState, useEffect} from 'react'
+import {Switch, Route} from 'react-router'
+import { Link, useParams } from 'react-router-dom'
 import parse from 'html-react-parser'
 import {Row, Col, Button, Card} from 'react-bootstrap'
 
@@ -39,11 +41,25 @@ export default function SectionAlbum(props) {
 function AfficherAlbums(props) {
   const collectionsFichiers = props.collectionsFichiers
   if(!collectionsFichiers) return ''
-  if(collectionsFichiers.length === 1) {
+
+  const listeFichiers = Object.values(collectionsFichiers)
+
+  if(listeFichiers.length === 1) {
     // Mode direct, pas de navigation vers les collections
+    const collectionFichier = listeFichiers[0]
+    return (
+      <Switch>
+        <Route path="/vitrine/section/:sectionIdx/:uuidFichier">
+          <AfficherMedia collectionFichiers={collectionFichier} {...props} />
+        </Route>
+        <Route>
+          <AfficherAlbum collectionFichiers={collectionFichier} {...props} />
+        </Route>
+      </Switch>
+    )
   } else {
     // Mode d'affichage de plusieurs collections
-    return <AfficherCollectionsFichiers {...props} />
+    return <p>TODO</p>
   }
 }
 
@@ -83,13 +99,10 @@ function AfficherPoster(props) {
         versionCourante = fichier.version_courante,
         resolver = props.resolver
 
+  const {sectionIdx} = useParams()
+
   const nomFichier = fichier.nom_fichier || fichier.fuuid_v_courante
 
-  const [urlFichier, setUrlFichier] = useState('')
-  useEffect(async _=> {
-    const val = await resolver.resolveUrlFuuid(fichier.fuuid_v_courante, versionCourante)
-    setUrlFichier(val)
-  }, [fichier])
   const [urlPreview, setUrlPreview] = useState('')
   useEffect(async _=> {
     if(versionCourante.fuuid_preview) {
@@ -101,14 +114,47 @@ function AfficherPoster(props) {
   // console.debug("URL fichier : %s, preview: %s", urlFichier, urlPreview)
 
   return (
-    <a href={urlFichier} download={nomFichier}>
+    <Link to={sectionIdx + '/' + fichier.uuid}>
       <Card className="fichier-browsing-img">
         {urlPreview?
           <Card.Img variant="bottom" src={urlPreview} />
           :'Fichier'
         }
       </Card>
-    </a>
+    </Link>
+  )
+}
+
+function AfficherMedia(props) {
+  console.debug("!!! AfficherMedia proppys %O", props)
+  const {sectionIdx, uuidFichier} = useParams()
+  const [urlFichier, setUrlFichier] = useState('')
+
+  const collectionFichiers = props.collectionFichiers || '',
+        fichiers = collectionFichiers.fichiers || [],
+        resolver = props.resolver
+
+  const fichier = fichiers.reduce((acc, item)=>{
+    if(item.uuid === uuidFichier) return item
+    return acc
+  }, '')
+  const versionCourante = fichier.version_courante
+  console.debug("Fichier charge (uuid: %s) : %O\nVersion courante: %O", uuidFichier, fichier, versionCourante)
+
+  useEffect(async _=> {
+    const val = await resolver.resolveUrlFuuid(fichier.fuuid_v_courante, versionCourante)
+    setUrlFichier(val)
+  }, [fichier, uuidFichier])
+
+  if(!urlFichier) return ''
+
+  return (
+    <Card className="card-viewing">
+      <Card.Header>
+        <Link to={'/vitrine/section/'+sectionIdx}>Retour</Link>
+      </Card.Header>
+      <Card.Img src={urlFichier} />
+    </Card>
   )
 }
 

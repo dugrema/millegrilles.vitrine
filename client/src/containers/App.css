@@ -64,8 +64,19 @@ div.table div.table-header {
   }
 }
 
+/*
 .card {
   width: 18rem;
+}
+*/
+
+.card-viewing {
+  max-height: 50%;
+}
+
+.card-viewing > img {
+  object-fit: contain;
+  max-height: 80vh;
 }
 
 .image-fullsize {
