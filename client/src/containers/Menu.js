@@ -1,13 +1,13 @@
 import React from 'react'
 import { Link } from "react-router-dom"
-import { Nav, Navbar, NavLink, NavItem, Dropdown } from 'react-bootstrap'
+import { Nav, Navbar } from 'react-bootstrap'
 
 import { useTranslation, Trans } from 'react-i18next'
 
 import {ChampMultilingue} from '../components/ChampMultilingue'
 
 export function Menu(props) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
 
   const siteConfiguration = props.siteConfiguration || {},
         titre = siteConfiguration.titre || {},
@@ -46,14 +46,6 @@ export function MenuItems(props) {
   const listeSections = siteConfiguration.liste_sections
 
   if(!listeSections) return ''
-
-  const changerPage = param => {
-    // Simuler un event avec value et dataset
-    const info = {
-      value: param,
-    }
-    props.changerPage({currentTarget: info})
-  }
 
   var mappingSections = listeSections.map((section, idx)=>{
       return <MenuItemSection key={idx}

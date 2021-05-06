@@ -1,10 +1,9 @@
 import React, {useState, useEffect} from 'react'
 import {Switch, Route} from 'react-router'
 import { Link, useParams, useLocation } from 'react-router-dom'
-import parse from 'html-react-parser'
-import {Row, Col, Button, Card} from 'react-bootstrap'
+import {Card} from 'react-bootstrap'
 
-import {ChampMultilingue, ChampHtmlMultilingue} from '../components/ChampMultilingue'
+import {ChampMultilingue} from '../components/ChampMultilingue'
 import {chargerCollections} from './SectionFichiers'
 
 export default function SectionAlbum(props) {
@@ -17,7 +16,7 @@ export default function SectionAlbum(props) {
 
   useEffect(_=>{
     chargerCollections(resolver, section, setCollectionsFichiers)
-  }, [])
+  }, [resolver, section])
 
   const entete = section.entete
 
@@ -64,19 +63,19 @@ function AfficherAlbums(props) {
   }
 }
 
-function AfficherCollectionsFichiers(props) {
-  if(!props.collectionsFichiers) return ''
-
-  const listeFichiers = Object.values(props.collectionsFichiers)
-  listeFichiers.sort((a,b)=>{return trierCollections(props.language, a, b)})
-  // console.debug("Liste fichiers triee : %O", listeFichiers)
-
-  return listeFichiers.map(item=>(
-    <AfficherAlbum key={item.uuid}
-                   collectionFichiers={item}
-                   {...props} />
-  ))
-}
+// function AfficherCollectionsFichiers(props) {
+//   if(!props.collectionsFichiers) return ''
+//
+//   const listeFichiers = Object.values(props.collectionsFichiers)
+//   listeFichiers.sort((a,b)=>{return trierCollections(props.language, a, b)})
+//   // console.debug("Liste fichiers triee : %O", listeFichiers)
+//
+//   return listeFichiers.map(item=>(
+//     <AfficherAlbum key={item.uuid}
+//                    collectionFichiers={item}
+//                    {...props} />
+//   ))
+// }
 
 function AfficherAlbum(props) {
   const collectionFichiers = props.collectionFichiers,
@@ -102,15 +101,13 @@ function AfficherPoster(props) {
 
   const {sectionIdx} = useParams()
 
-  const nomFichier = fichier.nom_fichier || fichier.fuuid_v_courante
-
   const [urlPreview, setUrlPreview] = useState('')
-  useEffect(async _=> {
+  useEffect( _ => {
     if(versionCourante.fuuid_preview) {
-      const val = await resolver.resolveUrlFuuid(versionCourante.fuuid_preview, {mimetype: versionCourante.mimetype_preview})
-      setUrlPreview(val)
+      resolver.resolveUrlFuuid(versionCourante.fuuid_preview, {mimetype: versionCourante.mimetype_preview})
+      .then(val=>setUrlPreview(val))
     }
-  }, [versionCourante])
+  }, [resolver, versionCourante])
 
   // console.debug("URL fichier : %s, preview: %s", urlFichier, urlPreview)
 
@@ -127,30 +124,29 @@ function AfficherPoster(props) {
 }
 
 function AfficherMedia(props) {
-  console.debug("!!! AfficherMedia proppys %O", props)
+  // console.debug("!!! AfficherMedia proppys %O", props)
   const locationPage = useLocation()
-  const {sectionIdx, uuidFichier} = useParams()
+  const {uuidFichier} = useParams()
 
   var urlRetour = locationPage.pathname.split('/')
   urlRetour.pop()
   urlRetour = urlRetour.join('/')
 
   const collectionFichiers = props.collectionFichiers || '',
-        fichiers = collectionFichiers.fichiers || [],
-        resolver = props.resolver
+        fichiers = collectionFichiers.fichiers || []
 
   const fichier = fichiers.reduce((acc, item)=>{
     if(item.uuid === uuidFichier) return item
     return acc
   }, '')
   const versionCourante = fichier.version_courante
-  console.debug("Fichier charge (uuid: %s) : %O\nVersion courante: %O", uuidFichier, fichier, versionCourante)
+  // console.debug("Fichier charge (uuid: %s) : %O\nVersion courante: %O", uuidFichier, fichier, versionCourante)
 
   var mimetypeBase = versionCourante.mimetype
   if(mimetypeBase) {
     mimetypeBase = mimetypeBase.split('/')[0]
   }
-  console.debug("Mimetype base : O", mimetypeBase)
+  // console.debug("Mimetype base : O", mimetypeBase)
 
   var Viewer = TypeInconnu
   switch(mimetypeBase) {
@@ -176,10 +172,10 @@ function AfficherImage(props) {
 
   const [urlFichier, setUrlFichier] = useState('')
 
-  useEffect(async _=> {
-    const val = await resolver.resolveUrlFuuid(fichier.fuuid_v_courante, versionCourante)
-    setUrlFichier(val)
-  }, [fichier])
+  useEffect( _ => {
+    resolver.resolveUrlFuuid(fichier.fuuid_v_courante, versionCourante)
+    .then(val => setUrlFichier(val))
+  }, [resolver, fichier, versionCourante])
 
   if(!urlFichier) return ''
 
@@ -195,10 +191,10 @@ function AfficherVideo(props) {
 
   const [urlFichier, setUrlFichier] = useState('')
 
-  useEffect(async _=> {
-    const val = await resolver.resolveUrlFuuid(fichier.fuuid_v_courante, versionCourante)
-    setUrlFichier(val)
-  }, [fichier])
+  useEffect( _ => {
+    resolver.resolveUrlFuuid(fichier.fuuid_v_courante, versionCourante)
+    .then(val=>setUrlFichier(val))
+  }, [resolver, fichier, versionCourante])
 
   if(!urlFichier) return ''
 
@@ -211,14 +207,14 @@ function TypeInconnu(props) {
   return <p>Type Inconnu</p>
 }
 
-function trierCollections(language, a, b) {
-  if(a===b) return 0
-
-  const nomA = a.nom_collection || a.uuid,
-        nomB = b.nom_collection || b.uuid
-
-  return nomA.localeCompare(nomB)
-}
+// function trierCollections(language, a, b) {
+//   if(a===b) return 0
+//
+//   const nomA = a.nom_collection || a.uuid,
+//         nomB = b.nom_collection || b.uuid
+//
+//   return nomA.localeCompare(nomB)
+// }
 
 function trierFichiers(a, b) {
   if(a===b) return 0

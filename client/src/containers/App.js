@@ -16,12 +16,12 @@ console.info("Vitrine version %s, %s", manifest.version, manifest.date)
 console.debug("REACT : %O", React)
 console.debug("React useTransition : %O", useTransition)
 
-const MG_SOCKETIO_URL = '/vitrine/socket.io',
+// const MG_SOCKETIO_URL = '/vitrine/socket.io'
       // MG_INDEX_JSON = '/vitrine/index.json'  // '/./index.json'
-      MG_INDEX_JSON = '../../index.json'
+const MG_INDEX_JSON = '../../index.json'
 
-var _resolverWorker = null,
-    _connexionWorker = null
+var _resolverWorker = null
+    // _connexionWorker = null
 
 export default function App(props) {
 
@@ -55,28 +55,28 @@ function VitrineApp(props) {
   // Chargement au demarrage
   useEffect(_=>{
     chargerSite(props.i18n, setSiteConfiguration, setLanguage, setErr)
-  }, [])
+  }, [props.i18n])
 
-  const changerLanguage = event => {
-    // console.debug("Changer language : %O\n%O", event, this.props)
-    const i18n = props.i18n
-    const langueCourante = i18n.language
-    var langueProchaine = ''
-
-    // Trouver les language dans le site, toggle si juste 2
-    const languagesSite = siteConfiguration.languages
-    const languesDifferentes = languagesSite.filter(langue=>langue!==langueCourante)
-    if(languesDifferentes.length === 1) {
-      // Une seule langue differente, on la choisit
-      langueProchaine = languesDifferentes[0]
-    } else {
-      throw new Error("Langue switch - plusieurs langues candidates, il faut choisir")
-    }
-
-    document.title = siteConfiguration.titre[langueProchaine]
-    props.i18n.changeLanguage(langueProchaine)
-    setLanguage(langueProchaine)
-  }
+  // const changerLanguage = event => {
+  //   // console.debug("Changer language : %O\n%O", event, this.props)
+  //   const i18n = props.i18n
+  //   const langueCourante = i18n.language
+  //   var langueProchaine = ''
+  //
+  //   // Trouver les language dans le site, toggle si juste 2
+  //   const languagesSite = siteConfiguration.languages
+  //   const languesDifferentes = languagesSite.filter(langue=>langue!==langueCourante)
+  //   if(languesDifferentes.length === 1) {
+  //     // Une seule langue differente, on la choisit
+  //     langueProchaine = languesDifferentes[0]
+  //   } else {
+  //     throw new Error("Langue switch - plusieurs langues candidates, il faut choisir")
+  //   }
+  //
+  //   document.title = siteConfiguration.titre[langueProchaine]
+  //   props.i18n.changeLanguage(langueProchaine)
+  //   setLanguage(langueProchaine)
+  // }
 
   const workers = {
     resolver: _resolverWorker,

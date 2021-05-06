@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React from 'react'
 import {Switch, Route} from 'react-router'
 import {useParams} from 'react-router-dom'
 import {Alert} from 'react-bootstrap'
@@ -51,8 +51,7 @@ function Section(props) {
 
 function RenderSection(props) {
   const section = props.section,
-        typeSection = section.type_section,
-        resolver = props.workers.resolver
+        typeSection = section.type_section
 
   // const [contenuSection, setContenuSection] = useState('')
   // useEffect(_=>{chargerSection(resolver, section, setContenuSection)}, [])

@@ -1,8 +1,7 @@
 import React, {useState, useEffect} from 'react'
-import parse from 'html-react-parser'
 import {Row, Col, Button, Card} from 'react-bootstrap'
 
-import {ChampMultilingue, ChampHtmlMultilingue} from '../components/ChampMultilingue'
+import {ChampMultilingue} from '../components/ChampMultilingue'
 
 export default function SectionFichiers(props) {
   const section = props.section,
@@ -14,7 +13,7 @@ export default function SectionFichiers(props) {
 
   useEffect(_=>{
     chargerCollections(resolver, section, setCollectionsFichiers)
-  }, [])
+  }, [resolver, section])
 
   const entete = section.entete
 
@@ -70,17 +69,17 @@ function AfficherRowFichier(props) {
   const nomFichier = fichier.nom_fichier || fichier.fuuid_v_courante
 
   const [urlFichier, setUrlFichier] = useState('')
-  useEffect(async _=> {
-    const val = await resolver.resolveUrlFuuid(fichier.fuuid_v_courante, versionCourante)
-    setUrlFichier(val)
-  }, [fichier])
+  useEffect(_ => {
+    resolver.resolveUrlFuuid(fichier.fuuid_v_courante, versionCourante)
+    .then(val=>setUrlFichier(val))
+  }, [resolver, fichier, versionCourante])
   const [urlPreview, setUrlPreview] = useState('')
-  useEffect(async _=> {
+  useEffect(_ => {
     if(versionCourante.fuuid_preview) {
-      const val = await resolver.resolveUrlFuuid(versionCourante.fuuid_preview, {mimetype: versionCourante.mimetype_preview})
-      setUrlPreview(val)
+      resolver.resolveUrlFuuid(versionCourante.fuuid_preview, {mimetype: versionCourante.mimetype_preview})
+      .then(val=>setUrlPreview(val))
     }
-  }, [versionCourante])
+  }, [resolver, versionCourante])
 
   // console.debug("URL fichier : %s, preview: %s", urlFichier, urlPreview)
 
@@ -130,7 +129,7 @@ function trierFichiers(a, b) {
 
 export async function chargerCollections(resolver, section, setCollectionsFichiers) {
   const collectionsFichiers = {}
-  const promisesCollections = section.collections.map(async collectionId => {
+  section.collections.forEach(async collectionId => {
     // console.debug("Charger collection - data : %O", collectionId)
     const reponse = await resolver.getSection(collectionId, 'fichiers')
     // console.debug("Resultat getSection : %O", reponse)

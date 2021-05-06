@@ -30,7 +30,7 @@ export async function setSiteConfiguration(siteConfiguration) {
 
   console.debug("Set Site config : %O", siteConfiguration)
   _cdnCourant = mergeCdns(_siteConfiguration.cdns)
-  console.debug("CDNs initialises, commencer a verifier les sources")
+  // console.debug("CDNs initialises, commencer a verifier les sources")
 }
 
 function mergeCdns(cdns) {
@@ -58,7 +58,7 @@ function mergeCdns(cdns) {
     }
   }
 
-  console.debug("Etat CDNS apres maj : %O", _etatCdns)
+  // console.debug("Etat CDNS apres maj : %O", _etatCdns)
   var opts = {}
   if(!_cdnCourant) opts.initial = true  // S'accroche au premier CDN qui repond
   return verifierConnexionCdns(opts)  // Conserver promise pour initialiser CDN
@@ -232,7 +232,7 @@ export async function resolveUrlFuuid(fuuid, fuuidInfo) {
 async function verifierConnexionCdns(opts) {
   opts = opts || {}
   /* Parcours les CDN et trouve ceux qui sont actifs. */
-  console.debug("!!! debut verifierConnexionCdns")
+  // console.debug("!!! debut verifierConnexionCdns")
 
   // Extraire CDN en ordre de preference de la configuration
   const cdnIds = _siteConfiguration.cdns.reduce((acc, item)=>{return [...acc, item.cdn_id]}, [])
@@ -322,7 +322,7 @@ async function verifierEtatIpfs(cdnId) {
   if(ipnsId) {
     try {
       const url = "ipns://" + ipnsId
-      console.debug("Verifier capacite d'acceder a IPFS directement avec %s", url)
+      // console.debug("Verifier capacite d'acceder a IPFS directement avec %s", url)
       const dateDebut = new Date().getTime()
       const reponse = await axios({method: 'get', url, timeout: 120000})
       const tempsReponse = new Date().getTime()-dateDebut
@@ -350,11 +350,11 @@ async function verifierEtatIpfsGateway(cdnId) {
   if(ipnsId) {
     try {
       const url = accessPointUrl + '/ipns/' + ipnsId
-      console.debug("Verifier capacite d'acceder a IPFS directement avec %s", url)
+      // console.debug("Verifier capacite d'acceder a IPFS directement avec %s", url)
       const dateDebut = new Date().getTime()
       const reponse = await axios({method: 'get', url, timeout: 120000})
       const tempsReponse = new Date().getTime()-dateDebut
-      console.debug("Reponse via IPNS: %O", reponse)
+      // console.debug("Reponse via IPNS: %O", reponse)
 
       etatCdn.etat = ETAT_ACTIF
       etatCdn.tempsReponse = tempsReponse
@@ -376,7 +376,7 @@ async function chargerCertificateStore(siteConfiguration) {
   // Valider le idmg - millegrille.pem === info.idmg
   const idmg = siteConfiguration['en-tete'].idmg
   verifierIdmg(idmg, caPem)
-  console.debug("IDMG verifie OK avec PEM = %s", idmg)
+  console.info("IDMG verifie OK avec PEM = %s", idmg)
 
   try {
     const certificateStore = preparerCertificateStore(caPem)
@@ -416,7 +416,7 @@ function unzipResponse(blob) {
 
 async function choisirCdn(promisesCdns) {
   const cdnsResultats = await Promise.allSettled(promisesCdns)
-  console.debug("choisirCdn Resultat complet : %O", cdnsResultats)
+  // console.debug("choisirCdn Resultat complet : %O", cdnsResultats)
 
   // CDN prefere
   const cdnIdPrefere = _siteConfiguration.cdns[0].cdn_id,
@@ -436,7 +436,7 @@ async function choisirCdn(promisesCdns) {
 
   // Trier les CDN par temps de reponse
   cdns.sort((a,b)=>{return a.tempsPondere - b.tempsPondere})
-  console.debug("Liste triee de CDNs %O", cdns)
+  // console.debug("Liste triee de CDNs %O", cdns)
 
   const cdnChoisi = cdns[0]
   console.debug("Nouveau CDN courant : %O", cdnChoisi)

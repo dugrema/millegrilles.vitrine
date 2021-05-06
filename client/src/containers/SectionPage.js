@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from 'react'
-import parse from 'html-react-parser'
 import { Card, CardDeck } from 'react-bootstrap'
 
 import {ChampMultilingue, ChampHtmlMultilingue} from '../components/ChampMultilingue'
@@ -12,7 +11,7 @@ export default function SectionPage(props) {
   const [contenuSection, setContenuSection] = useState('')
   useEffect(_ =>{
     chargerSection(resolver, sectionId, setContenuSection)
-  }, [])
+  }, [resolver, sectionId])
 
   const partiesPages = contenuSection.parties_pages,
         entete = section.entete
@@ -61,21 +60,17 @@ function TypeTexte(props) {
 function TypeMedia(props) {
   const media = props.partiePage.media || {},
         versionCourante = media.version_courante || {},
-        fuuid = versionCourante.fuuid_preview,
-        mimetype = versionCourante.mimetype_preview
-
-        // fuuid = media.fuuid_v_courante,
-        // mimetype = media.mimetype
+        fuuid = versionCourante.fuuid_preview
 
   const [imgUrl, setImgUrl] = useState('')
   useEffect(_=>{
     if(fuuid) {
       resolveFuuid(props.resolver, fuuid, props.contenuSection.fuuids, setImgUrl)
     }
-  }, [fuuid])
+  }, [fuuid, props.resolver, props.contenuSection])
 
   if(imgUrl) {
-    return <img src={imgUrl} />
+    return <img src={imgUrl} alt="Pas d'abord"/>
   }
 
   return 'MEDIA'
@@ -109,15 +104,14 @@ function PageColonneAffichage(props) {
 
   const media = colonne.media || {},
         versionCourante = media.version_courante || {},
-        fuuidPreview = versionCourante.fuuid_preview,
-        mimetypePreview = versionCourante.mimetype_preview
+        fuuidPreview = versionCourante.fuuid_preview
 
   const [imgUrl, setImgUrl] = useState('')
   useEffect(_=>{
     if(fuuidPreview) {
       resolveFuuid(props.resolver, fuuidPreview, props.contenuSection.fuuids, setImgUrl)
     }
-  }, [fuuidPreview])
+  }, [fuuidPreview, props.resolver, props.contenuSection])
 
   return (
     <Card>
