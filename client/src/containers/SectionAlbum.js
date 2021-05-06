@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import {Switch, Route} from 'react-router'
-import { Link, useParams, useLocation } from 'react-router-dom'
+import { Link, Redirect, useParams, useLocation } from 'react-router-dom'
 import {Row, Col, Card} from 'react-bootstrap'
 import VisibilitySensor from 'react-visibility-sensor'
 
@@ -28,6 +28,7 @@ export default function SectionAlbum(props) {
       </h2>
 
       <AfficherAlbums language={props.language}
+                      section={section}
                       collectionsFichiers={collectionsFichiers}
                       resolver={resolver} />
     </>
@@ -56,7 +57,8 @@ function AfficherAlbums(props) {
         </Switch>
       </Route>
       <Route>
-        <AfficherListeAlbums collectionsFichiers={collectionsFichiers} {...props} />
+        <AfficherListeAlbums collectionsFichiers={collectionsFichiers}
+                             {...props} />
       </Route>
     </Switch>
   )
@@ -64,6 +66,13 @@ function AfficherAlbums(props) {
 
 function AfficherListeAlbums(props) {
   const collectionsFichiers = Object.values(props.collectionsFichiers)
+  const locationPath = useLocation()
+
+  if(props.section.collections.length === 1) {
+    const uuidCollection = props.section.collections[0]
+    const pathCollection = locationPath.pathname + '/' + uuidCollection
+    return <Redirect to={pathCollection} />
+  }
 
   if(!props.collectionsFichiers) return ''
 
@@ -109,6 +118,7 @@ function AfficherPosterCollection(props) {
 
 function AfficherAlbum(props) {
   var {uuidCollection} = useParams()
+  const locationPath = useLocation()
   uuidCollection = uuidCollection || props.uuidCollection
 
   console.debug("AfficherAlbum : %O, uuidCollection %O", props, uuidCollection)
@@ -118,8 +128,18 @@ function AfficherAlbum(props) {
     setNombreAffiches(nombreAffiches+20)
   }
 
-  const collectionFichiers = Object.values(props.collectionsFichiers).filter(item=>item.uuid === uuidCollection)[0],
-        nomCollection = collectionFichiers.nom_collection || collectionFichiers.uuid,
+  var linkRetour = ''
+  if(props.section.collections.length > 1) {
+    var urlRetour = locationPath.pathname.split('/')
+    urlRetour.pop()
+    urlRetour = urlRetour.join('/')
+    linkRetour = <Link to={urlRetour}>Retour</Link>
+  }
+
+  const collectionFichiers = Object.values(props.collectionsFichiers).filter(item=>item.uuid === uuidCollection)[0]
+  if(!collectionFichiers) return ''
+
+  const nomCollection = collectionFichiers.nom_collection || collectionFichiers.uuid,
         fichiersTries = collectionFichiers.fichiers
 
   fichiersTries.sort(trierFichiers)
@@ -127,6 +147,8 @@ function AfficherAlbum(props) {
   return (
     <>
       <h3>{nomCollection}</h3>
+
+      {linkRetour}
 
       <Row>
         {fichiersTries.slice(0, nombreAffiches).map(item=>(
