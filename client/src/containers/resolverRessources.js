@@ -9,12 +9,17 @@ var _etatCdns = {},
     _siteConfiguration,
     _certificateStore,
     _idmg,
-    _cdnCourant
+    _cdnCourant,
+    _intervalVerificationConnexions,
+    _compteurGetErreurs400 = 0,
+    _compteurGetErreurs500 = 0
 
 const ETAT_INACTIF = 0,
       ETAT_INIT    = 1,
       ETAT_ACTIF   = 2,
       ETAT_ERREUR  = 3
+
+const LIMITE_ERREURS = 3
 
 export async function setSiteConfiguration(siteConfiguration) {
   _siteConfiguration = siteConfiguration
@@ -63,6 +68,12 @@ export async function chargerSiteConfiguration(url) {
   const reponse = await getUrl(url, {noverif: true})
   const siteConfiguration = reponse.data
   await setSiteConfiguration(siteConfiguration)
+
+  if(!_intervalVerificationConnexions) {
+    // Demarrer interval entretien connexion ressources
+    _intervalVerificationConnexions = setInterval(verifierConnexionCdns, 300000)
+  }
+
   return siteConfiguration
 }
 
@@ -80,14 +91,39 @@ export async function getUrl(url, opts) {
     responseType = 'blob'
   }
 
-  const reponse = await axios({
+  const axiosParams = {
     method: 'get',
     url,
-    timeout: opts.timeout || 30000,
+    timeout: opts.timeout || 3000,
     responseType,
-  })
+  }
 
-  var data = reponse.data
+  var data, status
+  try {
+    const reponse = await axios(axiosParams)
+    data = reponse.data
+    status = reponse.status
+  } catch(err) {
+    console.error("Erreur axios sur getUrl : %O", err)
+
+    // TODO : verifier si on doit changer de CDN
+    // Si on a un timeout, tenter de trouver nouveau CDN
+
+    if(err.status >= 400 && err.status < 500) {
+      // Si on a une erreur 400-500, augmenter compteur jusqu'a la limite puis trouver nouveau CDN
+      if(_compteurGetErreurs400++ > LIMITE_ERREURS) {
+        verifierConnexionCdns({initial: true})  // Trouver rapidement une connexion fonctionnelle
+      }
+    } else if(err.status >= 500 && err.status < 600) {
+      // Si on a une erreur 400-500, augmenter compteur jusqu'a la limite puis trouver nouveau CDN
+      if(_compteurGetErreurs500++ > LIMITE_ERREURS) {
+        verifierConnexionCdns({initial: true})  // Trouver rapidement une connexion fonctionnelle
+      }
+    }
+
+    throw err
+  }
+
   if(opts.responseType === 'json.gzip') {
     // Extraire le resultat et transformer en dict
     const responseStr = await unzipResponse(data)
@@ -103,7 +139,7 @@ export async function getUrl(url, opts) {
     // console.debug("Signature %s est valide", url)
   }
 
-  return {status: reponse.status, data}
+  return {status, data}
 }
 
 export async function getSection(uuidSection, typeSection) {
@@ -196,6 +232,7 @@ export async function resolveUrlFuuid(fuuid, fuuidInfo) {
 async function verifierConnexionCdns(opts) {
   opts = opts || {}
   /* Parcours les CDN et trouve ceux qui sont actifs. */
+  console.debug("!!! debut verifierConnexionCdns")
 
   // Extraire CDN en ordre de preference de la configuration
   const cdnIds = _siteConfiguration.cdns.reduce((acc, item)=>{return [...acc, item.cdn_id]}, [])
@@ -228,22 +265,25 @@ async function verifierConnexionCdns(opts) {
   // Attendre le premier CDN qui revient (le plus rapide)
   var cdnCourant
   if(opts.initial) {
+    choisirCdn(promisesCdns)
+
     // Sur connexion initiale, on prend la premiere connexion qui est prete
     cdnCourant = await Promise.any(promisesCdns)
   } else {
-    const resultats = (await Promise.allSettled(promisesCdns))
-      .filter(item=>item.status==='fulfilled')
-      .map(item=>item.value)
-
-    // Trouver un CDN dans la liste par ordre de preference du site
-    for(let idx in resultats) {
-      const etatCdn = resultats[idx]
-      const etat = etatCdn.etat
-      if(etat === ETAT_ACTIF) {
-        cdnCourant = etatCdn
-        break
-      }
-    }
+    cdnCourant = choisirCdn(promisesCdns)
+    // const resultats = (await Promise.allSettled(promisesCdns))
+    //   .filter(item=>item.status==='fulfilled')
+    //   .map(item=>item.value)
+    //
+    // // Trouver un CDN dans la liste par ordre de preference du site
+    // for(let idx in resultats) {
+    //   const etatCdn = resultats[idx]
+    //   const etat = etatCdn.etat
+    //   if(etat === ETAT_ACTIF) {
+    //     cdnCourant = etatCdn
+    //     break
+    //   }
+    // }
   }
 
   console.debug("Etat CDNs : %O\nCDN courant %O", _etatCdns, cdnCourant)
@@ -369,8 +409,42 @@ function unzipResponse(blob) {
         console.error('Unzip Response error occurred:', err)
         return reject(err)
       }
-      console.log(buffer.toString())
       resolve(buffer.toString())
     })
   })
+}
+
+async function choisirCdn(promisesCdns) {
+  const cdnsResultats = await Promise.allSettled(promisesCdns)
+  console.debug("choisirCdn Resultat complet : %O", cdnsResultats)
+
+  // CDN prefere
+  const cdnIdPrefere = _siteConfiguration.cdns[0].cdn_id,
+        cdnIdLocal = _siteConfiguration.cdn_id_local
+
+  const cdns = cdnsResultats
+    .filter(item=>item.status==='fulfilled')
+    .map(item=>item.value)
+    .map(cdn=>{
+      cdn.tempsPondere = cdn.tempsReponse
+
+      // Donner un bonus de 250ms a la premiere connexion (config preferee)
+      if(cdn.config.cdn_id === cdnIdPrefere) cdn.tempsPondere = cdn.tempsReponse - 250
+
+      return cdn
+    })
+
+  // Trier les CDN par temps de reponse
+  cdns.sort((a,b)=>{return a.tempsPondere - b.tempsPondere})
+  console.debug("Liste triee de CDNs %O", cdns)
+
+  const cdnChoisi = cdns[0]
+  console.debug("Nouveau CDN courant : %O", cdnChoisi)
+  _cdnCourant = cdnChoisi
+
+  // Reset compteur erreurs
+  _compteurGetErreurs400 = 0
+  _compteurGetErreurs500 = 0
+
+  return cdnChoisi
 }
