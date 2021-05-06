@@ -50,8 +50,15 @@ function Section(props) {
 }
 
 function RenderSection(props) {
+  const section = props.section,
+        typeSection = section.type_section,
+        resolver = props.workers.resolver
 
-  const typeSection = props.section.type_section
+  // const [contenuSection, setContenuSection] = useState('')
+  // useEffect(_=>{chargerSection(resolver, section, setContenuSection)}, [])
+
+  // console.debug("Contenu section chargee : %O", contenuSection)
+
   var ElemSection = TypeSectionInconnue
   switch(typeSection) {
     case 'fichiers': ElemSection = SectionFichiers; break
@@ -74,3 +81,11 @@ function TypeSectionInconnue(props) {
     </Alert>
   )
 }
+
+// async function chargerSection(resolver, section, setContenuSection) {
+//   const sectionId = section.section_id,
+//         typeSection = section.type_section
+//   const {data} = await resolver.getSection(sectionId, typeSection)
+//   console.debug("Charger section - data : %O", data)
+//   setContenuSection(data)
+// }

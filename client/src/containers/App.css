@@ -77,6 +77,28 @@ div.table div.table-header {
   padding-bottom: 0.75rem;
 }
 
+.fichier-viewing-img {
+}
+
+.fichier-browsing-img {
+  width: 10em;
+  height: 10em;
+  padding: 0.2em;
+  margin: 0.3em;
+  float: left;
+}
+
+.fichier-browsing-img img {
+  width: 9.5em;
+  height: 9.5em;
+  object-fit: cover;
+}
+
+.fichier-viewing-img img {
+  object-fit: contain;
+  max-height: 65vh;
+}
+
 .collection-row {
   padding-bottom: 1rem;
 }
