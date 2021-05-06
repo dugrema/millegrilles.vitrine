@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react'
 import {Switch, Route} from 'react-router'
 import { Link, useParams, useLocation } from 'react-router-dom'
-import {Card} from 'react-bootstrap'
+import {Row, Col, Card} from 'react-bootstrap'
+import VisibilitySensor from 'react-visibility-sensor'
 
 import {ChampMultilingue} from '../components/ChampMultilingue'
 import {chargerCollections} from './SectionFichiers'
@@ -20,10 +21,6 @@ export default function SectionAlbum(props) {
 
   const entete = section.entete
 
-  // <AfficherCollectionsFichiers language={props.language}
-  //                              collectionsFichiers={collectionsFichiers}
-  //                              resolver={resolver} />
-
   return (
     <>
       <h2>
@@ -41,55 +38,103 @@ function AfficherAlbums(props) {
   const collectionsFichiers = props.collectionsFichiers
   if(!collectionsFichiers) return ''
 
-  const listeFichiers = Object.values(collectionsFichiers)
+  const collectionsUuid = Object.keys(collectionsFichiers)
 
-  if(listeFichiers.length === 1) {
-    // Mode direct, pas de navigation vers les collections
-    const collectionFichier = listeFichiers[0]
-    return (
-      <Switch>
-        <Route path="/vitrine/section/:sectionIdx/:uuidFichier">
-          <AfficherMedia collectionFichiers={collectionFichier}
-                         {...props} />
-        </Route>
-        <Route>
-          <AfficherAlbum collectionFichiers={collectionFichier} {...props} />
-        </Route>
-      </Switch>
-    )
-  } else {
     // Mode d'affichage de plusieurs collections
-    return <p>TODO</p>
-  }
+  return (
+    <Switch>
+      <Route path="/vitrine/section/:sectionIdx/:uuidCollection">
+        <Switch>
+          <Route path="/vitrine/section/:sectionIdx/:uuidCollection/:uuidFichier">
+            <AfficherMedia collectionsFichiers={collectionsFichiers}
+                           {...props} />
+          </Route>
+          <Route path="/vitrine/section/:sectionIdx/:uuidCollection">
+            <AfficherAlbum collectionsFichiers={collectionsFichiers}
+                           {...props} />
+          </Route>
+        </Switch>
+      </Route>
+      <Route>
+        <AfficherListeAlbums collectionsFichiers={collectionsFichiers} {...props} />
+      </Route>
+    </Switch>
+  )
 }
 
-// function AfficherCollectionsFichiers(props) {
-//   if(!props.collectionsFichiers) return ''
-//
-//   const listeFichiers = Object.values(props.collectionsFichiers)
-//   listeFichiers.sort((a,b)=>{return trierCollections(props.language, a, b)})
-//   // console.debug("Liste fichiers triee : %O", listeFichiers)
-//
-//   return listeFichiers.map(item=>(
-//     <AfficherAlbum key={item.uuid}
-//                    collectionFichiers={item}
-//                    {...props} />
-//   ))
-// }
+function AfficherListeAlbums(props) {
+  const collectionsFichiers = Object.values(props.collectionsFichiers)
+
+  if(!props.collectionsFichiers) return ''
+
+  // Trier par nom
+  collectionsFichiers.sort((a,b)=>{
+    const nomA = a.nom_collection || a.uuid,
+          nomB = b.nom_collection || b.uuid
+    return nomA.localeCompare(nomB)
+  })
+
+  console.debug("AffichierListeAlbums %O, collectionsFichiers: %O", props, collectionsFichiers)
+
+  return (
+    <>
+      <Row>
+        {collectionsFichiers.map(item=>(
+          <AfficherPosterCollection key={item.uuid} collection={item} {...props} />
+        ))}
+      </Row>
+    </>
+  )
+}
+
+function AfficherPosterCollection(props) {
+  const {sectionIdx} = useParams()
+  const locationFichiers = useLocation()
+
+  // Choisir un fichier de la liste (trier, prendre plus vieux fichier)
+  const listeFichiers = props.collection.fichiers
+  listeFichiers.sort(trierFichiers)
+  const fichier = listeFichiers[0]
+
+  const nomCollection = props.collection.nom_collection
+
+  return (
+    <AfficherPoster key={fichier.fuuid_v_courante}
+                    fichier={fichier}
+                    url={locationFichiers.pathname + '/' + props.collection.uuid}
+                    caption={nomCollection}
+                    {...props} />
+  )
+}
 
 function AfficherAlbum(props) {
-  const collectionFichiers = props.collectionFichiers,
-        nomCollection = collectionFichiers.nom_collection || collectionFichiers.uuid
+  var {uuidCollection} = useParams()
+  uuidCollection = uuidCollection || props.uuidCollection
 
-  const fichiersTries = collectionFichiers.fichiers
+  console.debug("AfficherAlbum : %O, uuidCollection %O", props, uuidCollection)
+
+  const [nombreAffiches, setNombreAffiches] = useState(20)
+  const nextPostBatch = _ => {
+    setNombreAffiches(nombreAffiches+20)
+  }
+
+  const collectionFichiers = Object.values(props.collectionsFichiers).filter(item=>item.uuid === uuidCollection)[0],
+        nomCollection = collectionFichiers.nom_collection || collectionFichiers.uuid,
+        fichiersTries = collectionFichiers.fichiers
+
   fichiersTries.sort(trierFichiers)
 
   return (
     <>
       <h3>{nomCollection}</h3>
-      {fichiersTries.map(item=>(
-        <AfficherPoster key={item.fuuid_v_courante} fichier={item} {...props} />
-      ))}
+
+      <Row>
+        {fichiersTries.slice(0, nombreAffiches).map(item=>(
+          <AfficherPoster key={item.fuuid_v_courante} fichier={item} {...props} />
+        ))}
+      </Row>
+
+      <FinListe nextPostBatch={nextPostBatch} />
     </>
   )
 }
@@ -100,6 +145,7 @@ function AfficherPoster(props) {
         resolver = props.resolver
 
   const {sectionIdx} = useParams()
+  const locationFichiers = useLocation()
 
   const [urlPreview, setUrlPreview] = useState('')
   useEffect( _ => {
@@ -111,8 +157,10 @@ function AfficherPoster(props) {
 
   // console.debug("URL fichier : %s, preview: %s", urlFichier, urlPreview)
 
+  const url = props.url || (locationFichiers.pathname + '/' + fichier.uuid)
+
   return (
-    <Link to={sectionIdx + '/' + fichier.uuid}>
+    <Link to={url}>
       <Card className="fichier-browsing-img">
         {urlPreview?
           <Card.Img variant="bottom" src={urlPreview} />
@@ -126,14 +174,17 @@ function AfficherPoster(props) {
 function AfficherMedia(props) {
   // console.debug("!!! AfficherMedia proppys %O", props)
   const locationPage = useLocation()
-  const {uuidFichier} = useParams()
+  var {uuidCollection, uuidFichier} = useParams()
+  uuidCollection = uuidCollection || props.uuidCollection
+
+  if(!props.collectionsFichiers) return ''
+
+  const collectionFichiers = Object.values(props.collectionsFichiers).filter(item=>item.uuid === uuidCollection)[0],
+        fichiers = collectionFichiers.fichiers || []
 
   var urlRetour = locationPage.pathname.split('/')
   urlRetour.pop()
   urlRetour = urlRetour.join('/')
-
-  const collectionFichiers = props.collectionFichiers || '',
-        fichiers = collectionFichiers.fichiers || []
 
   const fichier = fichiers.reduce((acc, item)=>{
     if(item.uuid === uuidFichier) return item
@@ -200,6 +251,19 @@ function AfficherVideo(props) {
 
   return (
     <Card.Img src={urlFichier} />
+  )
+}
+
+function FinListe(props) {
+  return (
+    <VisibilitySensor onChange={isVisible => {
+        // console.debug("Visible : %s", isVisible)
+        if(isVisible) {
+          props.nextPostBatch()
+        }
+      }}>
+      <Row><Col xs={12}><span className="invisible">Fine</span></Col></Row>
+    </VisibilitySensor>
   )
 }
 
