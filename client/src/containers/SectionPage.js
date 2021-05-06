@@ -45,7 +45,7 @@ function AfficherPartiesPages(props) {
     }
 
     return (
-      <div key={idx}>
+      <div key={idx} className="partie-page">
         <AfficherPartie partiePage={item}
                         {...props} />
       </div>

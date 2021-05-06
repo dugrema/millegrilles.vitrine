@@ -53,12 +53,12 @@ function AfficherCollectionFichiers(props) {
   fichiersTries.sort(trierFichiers)
 
   return (
-    <>
+    <div className="fichier-collection">
       <h3>{nomCollection}</h3>
       {fichiersTries.map(item=>(
         <AfficherRowFichier key={item.fuuid_v_courante} fichier={item} {...props} />
       ))}
-    </>
+    </div>
   )
 }
 
