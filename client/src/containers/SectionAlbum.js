@@ -185,8 +185,12 @@ function AfficherPoster(props) {
     <Link to={url}>
       <Card className="fichier-browsing-img">
         {urlPreview?
-          <Card.Img variant="bottom" src={urlPreview} />
+          <Card.Img variant="top" src={urlPreview} />
           :'Fichier'
+        }
+        {props.caption?
+          <Card.Footer>{props.caption}</Card.Footer>
+          :''
         }
       </Card>
     </Link>
