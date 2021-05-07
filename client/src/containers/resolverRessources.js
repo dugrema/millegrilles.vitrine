@@ -7,6 +7,7 @@ import mimetypeExtensions from '@dugrema/millegrilles.common/lib/mimetype_ext.js
 
 var _etatCdns = {},
     _siteConfiguration,
+    _proxySetSiteConfiguration,
     _certificateStore,
     _idmg,
     _cdnCourant,
@@ -21,7 +22,8 @@ const ETAT_INACTIF = 0,
 
 const LIMITE_ERREURS = 3
 
-export async function setSiteConfiguration(siteConfiguration) {
+export async function appliquerSiteConfiguration(siteConfiguration) {
+  console.debug('!!! resolverRessources.setSiteConfiguration update : %O', siteConfiguration)
   _siteConfiguration = siteConfiguration
 
   if(!_certificateStore) {
@@ -64,15 +66,26 @@ function mergeCdns(cdns) {
   return verifierConnexionCdns(opts)  // Conserver promise pour initialiser CDN
 }
 
-export async function chargerSiteConfiguration(url) {
+export async function chargerSiteConfiguration(url, proxySetSiteConfiguration) {
   const reponse = await getUrl(url, {noverif: true})
   const siteConfiguration = reponse.data
-  await setSiteConfiguration(siteConfiguration)
+  // await appliquerSiteConfiguration(siteConfiguration)
 
   if(!_intervalVerificationConnexions) {
     // Demarrer interval entretien connexion ressources
     _intervalVerificationConnexions = setInterval(verifierConnexionCdns, 300000)
   }
+
+  // Mettre a jour la configuration via callback (au besoin)
+  appliquerSiteConfiguration(siteConfiguration)
+  _proxySetSiteConfiguration = siteConfiguration => {
+    try {
+      proxySetSiteConfiguration(siteConfiguration)
+    } catch(err) {
+      console.error("Erreur maj site configuration : %O", err)
+    }
+  }
+  _proxySetSiteConfiguration(siteConfiguration)
 
   return siteConfiguration
 }
@@ -301,6 +314,7 @@ async function verifierEtatAccessPoint(cdnId) {
   try {
     const dateDebut = new Date().getTime()
     const reponse = await getUrl(urlRessource, {cdn: config, timeout: 3000})
+    _proxySetSiteConfiguration(reponse.data)  // MAJ config (si plus recente)
     const tempsReponse = new Date().getTime()-dateDebut
     etatCdn.etat = ETAT_ACTIF
     etatCdn.tempsReponse = tempsReponse
@@ -325,6 +339,7 @@ async function verifierEtatIpfs(cdnId) {
       // console.debug("Verifier capacite d'acceder a IPFS directement avec %s", url)
       const dateDebut = new Date().getTime()
       const reponse = await axios({method: 'get', url, timeout: 120000})
+      _proxySetSiteConfiguration(reponse.data)  // MAJ config (si plus recente)
       const tempsReponse = new Date().getTime()-dateDebut
       console.debug("Reponse via IPNS: %O", reponse)
 
@@ -353,6 +368,7 @@ async function verifierEtatIpfsGateway(cdnId) {
       // console.debug("Verifier capacite d'acceder a IPFS directement avec %s", url)
       const dateDebut = new Date().getTime()
       const reponse = await axios({method: 'get', url, timeout: 120000})
+      _proxySetSiteConfiguration(reponse.data)  // MAJ config (si plus recente)
       const tempsReponse = new Date().getTime()-dateDebut
       // console.debug("Reponse via IPNS: %O", reponse)
 

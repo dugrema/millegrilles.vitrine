@@ -1,12 +1,12 @@
 import {expose as comlinkExpose} from 'comlink'
 import {
-  setSiteConfiguration, chargerSiteConfiguration,
+  appliquerSiteConfiguration, chargerSiteConfiguration,
   getUrl, getSection,
   resolveUrlFuuid,
 } from '../containers/resolverRessources'
 
 comlinkExpose({
-  setSiteConfiguration, chargerSiteConfiguration,
+  appliquerSiteConfiguration, chargerSiteConfiguration,
   getUrl, getSection,
   resolveUrlFuuid,
 })

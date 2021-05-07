@@ -1,6 +1,7 @@
 import React, {Suspense, useState, useEffect, useTransition} from 'react'
 import { HashRouter as Router } from "react-router-dom"
 import {Alert} from 'react-bootstrap'
+import { proxy as comlinkProxy } from 'comlink'
 import {getResolver} from '../workers/workers.load'
 
 import '../components/i18n'
@@ -20,7 +21,9 @@ console.debug("React useTransition : %O", useTransition)
       // MG_INDEX_JSON = '/vitrine/index.json'  // '/./index.json'
 const MG_INDEX_JSON = '../../index.json'
 
-var _resolverWorker = null
+var _resolverWorker = null,
+    _proxySetSiteConfiguration = null,
+    _estampilleCourante = 0
     // _connexionWorker = null
 
 export default function App(props) {
@@ -52,9 +55,21 @@ function VitrineApp(props) {
   const [language, setLanguage] = useState('')
   const [err, setErr] = useState('')
 
+  const majSiteConfiguration = siteConfigurationRecue => {
+    const estampilleRecue = siteConfigurationRecue['en-tete'].estampille
+    // const estampilleCourante = siteConfiguration?siteConfiguration['en-tete'].estampille:0
+    if(estampilleRecue > _estampilleCourante) {
+      console.debug("MAJ site configuration (%d>%d) : %O", estampilleRecue, _estampilleCourante, siteConfigurationRecue)
+      _estampilleCourante = estampilleRecue
+      setSiteConfiguration(siteConfigurationRecue)
+      _resolverWorker.appliquerSiteConfiguration(siteConfigurationRecue)
+    }
+  }
+
   // Chargement au demarrage
   useEffect(_=>{
-    chargerSite(props.i18n, setSiteConfiguration, setLanguage, setErr)
+    _proxySetSiteConfiguration = comlinkProxy(majSiteConfiguration)
+    chargerSite(props.i18n, _proxySetSiteConfiguration, setLanguage, setErr)
   }, [props.i18n])
 
   // const changerLanguage = event => {
@@ -122,7 +137,7 @@ async function chargerSite(i18n, setSiteConfiguration, setLanguage, setErr) {
 
     // Charger configuration du site associe au domaine
     const url = MG_INDEX_JSON
-    const siteConfiguration = await _resolverWorker.chargerSiteConfiguration(url)
+    const siteConfiguration = await _resolverWorker.chargerSiteConfiguration(url, setSiteConfiguration)
 
     // Identifier le language de depart pour afficher la page
     // S'assurer que le language detecte existe pour le site
