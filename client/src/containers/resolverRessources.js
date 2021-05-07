@@ -23,14 +23,14 @@ const ETAT_INACTIF = 0,
 const LIMITE_ERREURS = 3
 
 export async function appliquerSiteConfiguration(siteConfiguration) {
-  console.debug('!!! resolverRessources.setSiteConfiguration update : %O', siteConfiguration)
+  // console.debug('!!! resolverRessources.setSiteConfiguration update : %O', siteConfiguration)
   _siteConfiguration = siteConfiguration
 
   if(!_certificateStore) {
     await chargerCertificateStore(siteConfiguration)
   }
 
-  console.debug("Set Site config : %O", siteConfiguration)
+  // console.debug("Set Site config : %O", siteConfiguration)
   _cdnCourant = mergeCdns(_siteConfiguration.cdns)
   // console.debug("CDNs initialises, commencer a verifier les sources")
 }

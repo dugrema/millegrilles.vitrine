@@ -39,7 +39,7 @@ function AfficherAlbums(props) {
   const collectionsFichiers = props.collectionsFichiers
   if(!collectionsFichiers) return ''
 
-  const collectionsUuid = Object.keys(collectionsFichiers)
+  // const collectionsUuid = Object.keys(collectionsFichiers)
 
     // Mode d'affichage de plusieurs collections
   return (
@@ -97,7 +97,7 @@ function AfficherListeAlbums(props) {
 }
 
 function AfficherPosterCollection(props) {
-  const {sectionIdx} = useParams()
+  // const {sectionIdx} = useParams()
   const locationFichiers = useLocation()
 
   // Choisir un fichier de la liste (trier, prendre plus vieux fichier)
@@ -166,7 +166,7 @@ function AfficherPoster(props) {
         versionCourante = fichier.version_courante,
         resolver = props.resolver
 
-  const {sectionIdx} = useParams()
+  // const {sectionIdx} = useParams()
   const locationFichiers = useLocation()
 
   const [urlPreview, setUrlPreview] = useState('')
@@ -271,7 +271,7 @@ function AfficherVideo(props) {
   // Extraire liste de formats video par defaut
   const resolutionMax = 720
   const dictFormats = Object.keys(video).reduce((acc, format)=>{
-    const [mimetype, resolution, bitrate] = format
+    const resolution = format[1]
     const infoVideo = video[format]
     const codecVideo = infoVideo.codecVideo
     console.debug("!!! format video : %O, info: %O, codec: %O", format, infoVideo, codecVideo)
@@ -320,7 +320,7 @@ function AfficherVideo(props) {
       console.debug("URLS : %O", urls)
       setUrlsVideo(urls)
     })
-  }, [resolver, fichier, versionCourante])
+  }, [resolver, fichier, versionCourante, listeFormats])
 
   if(!urlsVideo) return ''
 
