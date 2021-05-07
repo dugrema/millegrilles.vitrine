@@ -152,7 +152,10 @@ function AfficherAlbum(props) {
 
       <Row>
         {fichiersTries.slice(0, nombreAffiches).map(item=>(
-          <AfficherPoster key={item.fuuid_v_courante} fichier={item} {...props} />
+          <AfficherPoster key={item.fuuid_v_courante}
+                          collection={collectionFichiers}
+                          fichier={item}
+                          {...props} />
         ))}
       </Row>
 
@@ -166,16 +169,23 @@ function AfficherPoster(props) {
         versionCourante = fichier.version_courante,
         resolver = props.resolver
 
+  console.debug("!!! Poster proppys : %O", props)
+
   // const {sectionIdx} = useParams()
   const locationFichiers = useLocation()
+
+  const fuuidsInfos = props.collection.fuuids || {}
 
   const [urlPreview, setUrlPreview] = useState('')
   useEffect( _ => {
     if(versionCourante.fuuid_preview) {
-      resolver.resolveUrlFuuid(versionCourante.fuuid_preview, {mimetype: versionCourante.mimetype_preview})
+      const fuuid = versionCourante.fuuid_preview
+      const infoFuuid = fuuidsInfos[fuuid] || {mimetype: versionCourante.mimetype_preview}
+      console.debug("Fuuid : %s, infofuuid : %O", fuuid, infoFuuid)
+      resolver.resolveUrlFuuid(fuuid, infoFuuid)
       .then(val=>setUrlPreview(val))
     }
-  }, [resolver, versionCourante])
+  }, [resolver, versionCourante, props.collection])
 
   // console.debug("URL fichier : %s, preview: %s", urlFichier, urlPreview)
 
@@ -237,20 +247,27 @@ function AfficherMedia(props) {
       <Card.Header>
         <Link to={urlRetour}>Retour</Link>
       </Card.Header>
-      <Viewer fichier={fichier} {...props} />
+      <Viewer fichier={fichier}
+              collectionFichiers={collectionFichiers}
+              {...props} />
     </Card>
   )
 }
 
 function AfficherImage(props) {
+  console.debug("!!! AfficherImage proppys: %O", props)
   const fichier = props.fichier,
         versionCourante = fichier.version_courante,
         resolver = props.resolver
 
   const [urlFichier, setUrlFichier] = useState('')
+  const fuuidsInfo = props.collectionFichiers.fuuids || {}
 
   useEffect( _ => {
-    resolver.resolveUrlFuuid(fichier.fuuid_v_courante, versionCourante)
+    const fuuid = fichier.fuuid_v_courante
+    const fuuidInfo = {...fuuidsInfo[fuuid], ...versionCourante}
+    console.debug("!!! FUUIDS info AfficherImage : %O", fuuidInfo)
+    resolver.resolveUrlFuuid(fuuid, fuuidInfo)
     .then(val => setUrlFichier(val))
   }, [resolver, fichier, versionCourante])
 
