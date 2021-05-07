@@ -262,21 +262,75 @@ function AfficherImage(props) {
 }
 
 function AfficherVideo(props) {
+  console.debug("!!! PROPPYS video : %O", props)
   const fichier = props.fichier,
         versionCourante = fichier.version_courante,
+        video = versionCourante.video,
         resolver = props.resolver
 
-  const [urlFichier, setUrlFichier] = useState('')
+  // Extraire liste de formats video par defaut
+  const resolutionMax = 720
+  const dictFormats = Object.keys(video).reduce((acc, format)=>{
+    const [mimetype, resolution, bitrate] = format
+    const infoVideo = video[format]
+    const codecVideo = infoVideo.codecVideo
+    console.debug("!!! format video : %O, info: %O, codec: %O", format, infoVideo, codecVideo)
+    var infoFormat = acc[codecVideo]
+    if(infoFormat) {
+      // Plusieurs formats pour le meme mimetype
+      if(infoFormat.resolution < resolution && resolution <= resolutionMax) {
+        // Remplacer un format de resolution inferieur
+        return {...acc, [codecVideo]: infoVideo}
+      }
+    } else {
+      // Valeur initiale pour ce mimetype
+      return {...acc, [codecVideo]: infoVideo}
+    }
+    return acc
+  }, {})
+
+  console.debug("Dict formats video : %O", dictFormats)
+
+  // Trier les formats en ordre de preference
+  const listeFormats = Object.values(dictFormats).sort((a,b)=>{
+    const codecVideoA = a.codecVideo,
+          codecVideoB = b.codecVideo
+    if(codecVideoA === codecVideoB) return 0
+
+    // Mettre h264 a la fin de la liste
+    if(codecVideoA === 'h264') return 1
+    if(codecVideoB === 'h264') return -1
+
+    // S'assurer d'avoir un trie regulier
+    const mimetypeA = a.mimetype,
+          mimetypeB = b.mimetype
+    return mimetypeA.localeCompare(mimetypeB)
+  })
+
+  console.debug("Liste formats video : %O", listeFormats)
+
+  const [urlsVideo, setUrlsVideo] = useState('')
 
   useEffect( _ => {
-    resolver.resolveUrlFuuid(fichier.fuuid_v_courante, versionCourante)
-    .then(val=>setUrlFichier(val))
+    const promises = listeFormats.map(item=>{
+      return resolver.resolveUrlFuuid(item.fuuid, item)
+          .then(val=>{return {...item, url: val}})
+    })
+    Promise.all(promises).then(urls=>{
+      console.debug("URLS : %O", urls)
+      setUrlsVideo(urls)
+    })
   }, [resolver, fichier, versionCourante])
 
-  if(!urlFichier) return ''
+  if(!urlsVideo) return ''
 
   return (
-    <Card.Img src={urlFichier} />
+    <video className="video" controls autoPlay>
+      {urlsVideo.map(item=>(
+        <source src={item.url} type={item.mimetype} />
+      ))}
+        Your browser does not support the video tag.
+    </video>
   )
 }
 

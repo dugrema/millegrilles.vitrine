@@ -212,7 +212,7 @@ export async function resolveUrlFuuid(fuuid, fuuidInfo) {
     }
   } else if(typeCdn === 'awss3') {
     const accessPointUrl = _cdnCourant.config.access_point_url
-    const ext = mimetypeExtensions[mimetype]
+    const ext = mimetypeExtensions[mimetype] || 'bin'
     const pathFuuid = path.join('fichiers/public', fuuid + '.' + ext)
     const urlRessource = accessPointUrl + '/' + pathFuuid
     return urlRessource
@@ -220,7 +220,7 @@ export async function resolveUrlFuuid(fuuid, fuuidInfo) {
     const accessPointUrl = _cdnCourant.config.access_point_url
     const part1 = fuuid.slice(0, 5),
           part2 = fuuid.slice(5, 7)
-    const ext = mimetypeExtensions[mimetype]
+    const ext = mimetypeExtensions[mimetype] || 'bin'
 
     const pathFuuid = path.join('fichiers/public', part1, part2, fuuid + '.' + ext)
 

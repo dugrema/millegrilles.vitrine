@@ -114,6 +114,11 @@ div.table div.table-header {
   max-height: 65vh;
 }
 
+.fichier-viewing-img video, .video {
+  object-fit: contain;
+  max-height: 65vh;
+}
+
 .collection-row {
   padding-bottom: 1rem;
 }
