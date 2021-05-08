@@ -26,7 +26,8 @@ export default function ContenuSite(props) {
 
 function Accueil(props) {
   // L'accueil est la premiere section dans la liste
-  const section = props.siteConfiguration.liste_sections[0]
+  const siteConfiguration = props.siteConfiguration || {}
+  const section = siteConfiguration.liste_sections?siteConfiguration.liste_sections[0]:''
 
   if(section.accueil === true) {
     <RenderSection section={section}
