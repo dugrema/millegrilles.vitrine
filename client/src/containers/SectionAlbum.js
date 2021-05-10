@@ -169,7 +169,7 @@ function AfficherPoster(props) {
         versionCourante = fichier.version_courante,
         resolver = props.resolver
 
-  console.debug("!!! Poster proppys : %O", props)
+  // console.debug("!!! Poster proppys : %O", props)
 
   // const {sectionIdx} = useParams()
   const locationFichiers = useLocation()
@@ -181,7 +181,7 @@ function AfficherPoster(props) {
     if(versionCourante.fuuid_preview) {
       const fuuid = versionCourante.fuuid_preview
       const infoFuuid = fuuidsInfos[fuuid] || {mimetype: versionCourante.mimetype_preview}
-      console.debug("Fuuid : %s, infofuuid : %O", fuuid, infoFuuid)
+      // console.debug("Fuuid : %s, infofuuid : %O", fuuid, infoFuuid)
       resolver.resolveUrlFuuid(fuuid, infoFuuid)
       .then(val=>setUrlPreview(val))
     }
@@ -255,7 +255,7 @@ function AfficherMedia(props) {
 }
 
 function AfficherImage(props) {
-  console.debug("!!! AfficherImage proppys: %O", props)
+  // console.debug("!!! AfficherImage proppys: %O", props)
   const fichier = props.fichier,
         versionCourante = fichier.version_courante,
         resolver = props.resolver
@@ -266,7 +266,7 @@ function AfficherImage(props) {
   useEffect( _ => {
     const fuuid = fichier.fuuid_v_courante
     const fuuidInfo = {...fuuidsInfo[fuuid], ...versionCourante}
-    console.debug("!!! FUUIDS info AfficherImage : %O", fuuidInfo)
+    // console.debug("!!! FUUIDS info AfficherImage : %O", fuuidInfo)
     resolver.resolveUrlFuuid(fuuid, fuuidInfo)
     .then(val => setUrlFichier(val))
   }, [resolver, fichier, versionCourante])

@@ -128,6 +128,11 @@ function trierFichiers(a, b) {
 }
 
 export async function chargerCollections(resolver, section, setCollectionsFichiers) {
+  if(!section.collections) {
+    setCollectionsFichiers({})
+    return
+  }
+
   const collectionsFichiers = {}
   section.collections.forEach(async collectionId => {
     // console.debug("Charger collection - data : %O", collectionId)
