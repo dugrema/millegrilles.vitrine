@@ -1,5 +1,5 @@
 const debug = require('debug')('millegrilles:vitrine:siteMessageHandler');
-const {sauvegarderSites, sauvegarderPosts, sauvegarderCollections} = require('./filesystemDao')
+const {sauvegarderSites, sauvegarderCollectionFichiers, sauvegarderPage} = require('./filesystemDao')
 const {extrairePostids, extraireCollectionsRecursif} = require('./siteModel')
 const {chargerSites} = require('../models/siteDao')
 
@@ -24,14 +24,8 @@ class SiteMessageHandler {
       ['evenement.Publication.confirmationMajSite']
     )
 
-    this.mq.routingKeyManager.addRoutingKeyCallback(
-      function(routingKeys, message, opts) {majPost(mq, routingKeys, message, opts)},
-      ['evenement.Publication.confirmationMajPost']
-    )
-
-    this.mq.routingKeyManager.addRoutingKeyCallback(
-      function(routingKeys, message, opts) {majCollection(mq, routingKeys, message, opts)},
-      ['evenements.GrosFichiers.confirmationMajCollectionPublique']
+    this.mq.routingKeyManager.addResponseCorrelationId(
+      'publication.section', (message, opts) => {publicationSection(mq, message, opts)}
     )
 
   }
@@ -62,26 +56,39 @@ async function majSite(mq, routingKeys, message, noeudId, opts) {
   }
 }
 
-async function majPost(mq, routingKeys, message, opts) {
-  debug("MAJ post %O = %O", routingKeys, message)
-  await sauvegarderPosts(message, mq, {majSeulement: true})
+// async function majPost(mq, routingKeys, message, opts) {
+//   debug("MAJ post %O = %O", routingKeys, message)
+//   await sauvegarderPosts(message, mq, {majSeulement: true})
+//
+//   // Emettre evenement pour les clients
+//   await mq.routingKeyManager.socketio.emit('majPost', message)
+//
+// }
 
-  // Emettre evenement pour les clients
-  await mq.routingKeyManager.socketio.emit('majPost', message)
+// async function majCollection(mq, routingKeys, message, opts) {
+//   debug("MAJ collection %O = %O", routingKeys, message)
+//   const params = {
+//     _certificat: message._certificat,
+//     liste_collections: [message]
+//   }
+//   await sauvegarderCollections(params, mq)
+//
+//   // Emettre evenement pour les clients
+//   await mq.routingKeyManager.socketio.emit('majCollection', message)
+//
+// }
 
-}
+async function publicationSection(mq, message, opts) {
+  // Sauvegarder le fichier selon le type de section
+  const typeSection = message['type_section']
 
-async function majCollection(mq, routingKeys, message, opts) {
-  debug("MAJ collection %O = %O", routingKeys, message)
-  const params = {
-    _certificat: message._certificat,
-    liste_collections: [message]
+  debug("Publication section %s id: %s\n%O", typeSection, message.section_id, message)
+
+  switch(typeSection) {
+    case 'collection_fichiers': await sauvegarderCollectionFichiers(message, mq); break
+    case 'page': await sauvegarderPage(message, mq); break
+    default:
   }
-  await sauvegarderCollections(params, mq)
-
-  // Emettre evenement pour les clients
-  await mq.routingKeyManager.socketio.emit('majCollection', message)
-
 }
 
 module.exports = {SiteMessageHandler};

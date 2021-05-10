@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser')
 const { v4: uuidv4 } = require('uuid')
 const path = require('path')
 
-const { chargerSites } = require('../models/siteDao')
+const { chargerSites, chargerSections } = require('../models/siteDao')
 const { configurationEvenements } = require('../models/appSocketIo')
 // const { listerCollections } = require('../models/filesystemDao')
 
@@ -40,7 +40,12 @@ function initialiser(fctRabbitMQParIdmg, opts) {
   debug("Route /vitrine est initialisee")
 
   // Lancer chargement async des sites (si echec, va reessayer durant la maintenance)
-  chargerSites(amqpdao, noeudId)
+  Promise.all([
+    chargerSites(amqpdao, noeudId),
+    chargerSections(amqpdao, noeudId)
+  ]).catch(err=>{
+    console.error("Erreurs chargements site/sections: %O", err)
+  })
 
   function middlewareSocketio(socket, next) {
     debug("Middleware vitrine socket.io")

@@ -37,20 +37,65 @@ async function sauvegarderSites(noeudId, messageSites, amqpdao, opts) {
 //   }
 // }
 
-async function sauvegarderCollections(messageCollections, amqpdao, opts) {
+async function sauvegarderCollectionFichiers(message, amqpdao, opts) {
   if(!opts) opts = {}
+  const pki = amqpdao.pki
   const pathData = opts.pathData || '/var/opt/millegrilles/nginx/data'
-  const pathDataCollections = opts.pathDataCollections || path.join(pathData, 'vitrine/collections')
+  const pathDataCollections = opts.pathDataCollections || path.join(pathData, 'vitrine/data/fichiers')
 
-  debug("Sauvegarde collections sous %s :\n%O", pathDataCollections, messageCollections.liste_collections)
+  const messageCollection = message.contenu
+
+  debug("Sauvegarde collections sous %s :\n%O", pathDataCollections, messageCollection)
   await _mkdirs(pathDataCollections)
 
-  for(const idx in messageCollections.liste_collections) {
-    const collection = messageCollections.liste_collections[idx]
-    await _sauvegarderCollection(
-      collection, pathDataCollections, amqpdao, messageCollections._certificat)
+  const uuidCollection = messageCollection.uuid
+  const collectionJsonFile = path.join(pathDataCollections, uuidCollection + '.json')
+
+  // S'assurer que le repertoire du site existe
+  await _mkdirs(pathDataCollections)
+
+  const collectionCopy = {...messageCollection}
+
+  // Valider le message
+  if( ! pki.verifierMessage(collectionCopy) ) {
+    throw new Error("Signature de la collection %s est invalide", uuidCollection)
   }
+
+  // Conserver le contenu du site
+  const jsonContent = JSON.stringify(collectionCopy)
+  debug("Ecrire fichier : %s", collectionJsonFile)
+  await fsPromises.writeFile(collectionJsonFile, jsonContent)
+  await sauvegarderContenuGzip(collectionJsonFile + '.gz', collectionCopy)
 }
+
+async function sauvegarderPage(message, amqpdao, opts) {
+  if(!opts) opts = {}
+  const pki = amqpdao.pki
+  const pathData = opts.pathData || '/var/opt/millegrilles/nginx/data'
+  const pathDataPages = opts.pathDataCollections || path.join(pathData, 'vitrine/data/pages')
+
+  debug("Sauvegarde collections sous %s :\n%O", pathDataPages, message)
+  await _mkdirs(pathDataPages)
+
+  const sectionId = message.section_id,
+        contenu = {...message.contenu}
+  const pathFichierJson = path.join(pathDataPages, sectionId + '.json')
+
+  // S'assurer que le repertoire du site existe
+  await _mkdirs(pathDataPages)
+
+  // Valider le message
+  if( ! pki.verifierMessage(contenu) ) {
+    throw new Error("Signature de la page %s est invalide", sectionId)
+  }
+
+  // Conserver le contenu du site
+  const jsonContent = JSON.stringify(contenu)
+  debug("Ecrire fichier : %s", pathFichierJson)
+  await fsPromises.writeFile(pathFichierJson, jsonContent)
+  await sauvegarderContenuGzip(pathFichierJson + '.gz', contenu)
+}
+
 
 async function listerCollections() {
   // Fait une liste de toutes les collections (ids)
@@ -109,7 +154,7 @@ async function _sauvegarderIndex(mapping, pathDataVitrine, amqpdao) {
   await fsPromises.writeFile(mappingJsonFile, jsonContent, {encoding: 'utf8'})
 
   // Sauvegarder version gzip
-  await sauvegarderContenuGzip(jsonContent, mappingJsonFile + '.gz')
+  await sauvegarderContenuGzip(mappingJsonFile + '.gz', jsonContent)
 }
 
 function _sauvegarderSite(site, pathDataSites, amqpdao) {
@@ -134,7 +179,7 @@ function _sauvegarderSite(site, pathDataSites, amqpdao) {
     })
 
     // Sauvegarder version gzip
-    await sauvegarderContenuGzip(jsonContent, siteJsonFile + '.gz')
+    await sauvegarderContenuGzip(siteJsonFile + '.gz', jsonContent)
   })
 }
 
@@ -181,34 +226,34 @@ function _sauvegarderPost(post, pathDataPosts, amqpdao, certificat, opts) {
   })
 }
 
-function _sauvegarderCollection(collection, pathDataCollections, amqpdao, certificat) {
-  const pki = amqpdao.pki
-
-  debug("Sauvegarder collection %O", collection)
-
-  const uuidCollection = collection.uuid
-  const subFolder = path.join(pathDataCollections, uuidCollection.substring(0, 2))
-  const collectionJsonFile = path.join(subFolder, uuidCollection + '.json')
-
-  return new Promise(async (resolve, reject)=>{
-    // S'assurer que le repertoire du site existe
-    await _mkdirs(subFolder)
-
-    const collectionCopy = {...collection, _certificat: certificat}
-
-    // Valider le message
-    if( ! pki.verifierMessage(collectionCopy) ) {
-      return reject(new Error("Signature de la collection %s est invalide", uuidCollection))
-    }
-
-    // Conserver le contenu du site
-    const jsonContent = JSON.stringify(collectionCopy)
-    fs.writeFile(collectionJsonFile, jsonContent, {encoding: 'utf8'}, err=>{
-      if(err) return reject(err)
-      resolve()
-    })
-  })
-}
+// function _sauvegarderCollection(collection, pathDataCollections, amqpdao, certificat) {
+//   const pki = amqpdao.pki
+//
+//   debug("Sauvegarder collection %O", collection)
+//
+//   const uuidCollection = collection.uuid
+//   const subFolder = path.join(pathDataCollections, uuidCollection.substring(0, 2))
+//   const collectionJsonFile = path.join(subFolder, uuidCollection + '.json')
+//
+//   return new Promise(async (resolve, reject)=>{
+//     // S'assurer que le repertoire du site existe
+//     await _mkdirs(subFolder)
+//
+//     const collectionCopy = {...collection, _certificat: certificat}
+//
+//     // Valider le message
+//     if( ! pki.verifierMessage(collectionCopy) ) {
+//       return reject(new Error("Signature de la collection %s est invalide", uuidCollection))
+//     }
+//
+//     // Conserver le contenu du site
+//     const jsonContent = JSON.stringify(collectionCopy)
+//     fs.writeFile(collectionJsonFile, jsonContent, {encoding: 'utf8'}, err=>{
+//       if(err) return reject(err)
+//       resolve()
+//     })
+//   })
+// }
 
 function _mkdirs(pathRepertoire) {
   return new Promise((resolve, reject)=>{
@@ -219,7 +264,7 @@ function _mkdirs(pathRepertoire) {
   })
 }
 
-function sauvegarderContenuGzip(message, pathFichier) {
+function sauvegarderContenuGzip(pathFichier, message) {
   const writeStream = fs.createWriteStream(pathFichier)
   const gzip = zlib.createGzip()
   gzip.pipe(writeStream)
@@ -239,6 +284,6 @@ function sauvegarderContenuGzip(message, pathFichier) {
 }
 
 module.exports = {
-  sauvegarderSites,
+  sauvegarderSites, sauvegarderCollectionFichiers, sauvegarderPage,
   // sauvegarderPosts, sauvegarderCollections, listerCollections
 }

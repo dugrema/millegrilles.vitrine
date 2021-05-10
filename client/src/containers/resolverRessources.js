@@ -253,6 +253,12 @@ export async function resolveUrlFuuid(fuuid, fuuidInfo) {
     const pathFuuid = path.join('fichiers/public', fuuid + '.' + ext)
     const urlRessource = accessPointUrl + '/' + pathFuuid
     return urlRessource
+  } else if(typeCdn === 'mq') {
+    const accessPointUrl = _cdnCourant.config.access_point_url
+    const urlBase = new URL(accessPointUrl)
+    const pathFuuid = path.join('/fichiers/public', fuuid)
+    urlBase.pathname = pathFuuid
+    return ''+urlBase
   } else {
     const accessPointUrl = _cdnCourant.config.access_point_url
     const part1 = fuuid.slice(0, 5),

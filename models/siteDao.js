@@ -5,8 +5,6 @@ const {extrairePostids, extraireCollectionsRecursif} = require('../models/siteMo
 async function chargerSites(amqpdao, noeudId) {
   const messageSites = await _chargerSites(amqpdao, noeudId)
   debug("siteDao.chargerSites message configuration : %O", messageSites)
-
-
   await sauvegarderSites(noeudId, messageSites, amqpdao)
 
   // Extraire post ids
@@ -48,26 +46,36 @@ async function _chargerSites(amqpdao, noeudId) {
   return await amqpdao.transmettreRequete(domaineAction, requete, {decoder: true})
 }
 
-async function chargerPosts(amqpdao, postIds) {
-  debug("Charger post ids: %O", postIds)
+async function chargerSections(amqpdao, noeudId) {
+  debug("Demander chargement des sections")
+  const domaineAction = 'Publication.pousserSections',
+        commande = {noeud_id: noeudId}
 
-  const domaineAction = 'Publication.posts',
-        requete = {post_ids: postIds}
-
-  return await amqpdao.transmettreRequete(domaineAction, requete, {decoder: true})
+  // Transmettre commande (note: payload va etre mis directement sur la Q)
+  const confirmation = await amqpdao.transmettreCommande(domaineAction, commande, {decoder: true})
+  debug("Confirmation pousser sections : %O, sections")
 }
 
-async function chargerCollection(amqpdao, collectionsIds) {
-  debug("Charger collections ids : %O", collectionsIds)
+// async function chargerPosts(amqpdao, postIds) {
+//   debug("Charger post ids: %O", postIds)
+//
+//   const domaineAction = 'Publication.posts',
+//         requete = {post_ids: postIds}
+//
+//   return await amqpdao.transmettreRequete(domaineAction, requete, {decoder: true})
+// }
+//
+// async function chargerCollection(amqpdao, collectionsIds) {
+//   debug("Charger collections ids : %O", collectionsIds)
+//
+//   const domaineAction = 'GrosFichiers.detailCollectionsPubliques',
+//         requete = {}
+//
+//   if(collectionsIds) {
+//     requete.collections = collectionsIds
+//   }
+//
+//   return await amqpdao.transmettreRequete(domaineAction, requete, {decoder: true})
+// }
 
-  const domaineAction = 'GrosFichiers.detailCollectionsPubliques',
-        requete = {}
-
-  if(collectionsIds) {
-    requete.collections = collectionsIds
-  }
-
-  return await amqpdao.transmettreRequete(domaineAction, requete, {decoder: true})
-}
-
-module.exports = {chargerSites, chargerPosts}
+module.exports = {chargerSites, chargerSections}

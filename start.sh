@@ -31,7 +31,9 @@ export MG_CONSIGNATION_HTTP=https://$HOST:3003
 # export SERVER_TYPE=spdy
 
 # Parametre module logging debug
-export DEBUG=millegrilles:*
+# export DEBUG=millegrilles:*
+export DEBUG=millegrilles:vitrine:siteMessageHandler,millegrilles:vitrine:filesystemDao
+
 export NODE_ENV=dev
 export DEV=1
 # export IDMG=JPtGcNcFSkfSdw49YsDpQHKxqTHMitpbPZW17a2JC54T
