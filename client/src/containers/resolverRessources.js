@@ -169,9 +169,14 @@ export async function getUrl(url, opts) {
 
   if(!opts.noverif) {
     // Verifier la signature de la ressource
-    let signatureValide = await verifierSignatureMessage(data, data._certificat, _certificateStore)
+    let signatureValide
+    try {
+      signatureValide = await verifierSignatureMessage(data, data._certificat, _certificateStore)
+    } catch(err) {
+      console.error("Erreur verification resultat : %O", data)
+    }
     if(!signatureValide) {
-      throw new Error(`Signature {$url} invalide`)
+      throw new Error(`Signature ${url} invalide`)
     }
     // console.debug("Signature %s est valide", url)
   }

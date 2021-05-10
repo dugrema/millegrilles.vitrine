@@ -51,8 +51,13 @@ function Section(props) {
 }
 
 function RenderSection(props) {
-  const section = props.section,
-        typeSection = section.type_section
+  const section = props.section
+  if(!section) {
+    console.error("Section vite, props: %O", props)
+    return ''
+  }
+
+  const typeSection = section.type_section
 
   // const [contenuSection, setContenuSection] = useState('')
   // useEffect(_=>{chargerSection(resolver, section, setContenuSection)}, [])

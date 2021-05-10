@@ -279,7 +279,7 @@ function AfficherImage(props) {
 }
 
 function AfficherVideo(props) {
-  console.debug("!!! PROPPYS video : %O", props)
+  // console.debug("!!! PROPPYS video : %O", props)
   const fichier = props.fichier,
         versionCourante = fichier.version_courante,
         video = versionCourante.video,
@@ -291,7 +291,7 @@ function AfficherVideo(props) {
     const resolution = format[1]
     const infoVideo = video[format]
     const codecVideo = infoVideo.codecVideo
-    console.debug("!!! format video : %O, info: %O, codec: %O", format, infoVideo, codecVideo)
+    // console.debug("!!! format video : %O, info: %O, codec: %O", format, infoVideo, codecVideo)
     var infoFormat = acc[codecVideo]
     if(infoFormat) {
       // Plusieurs formats pour le meme mimetype
@@ -306,7 +306,7 @@ function AfficherVideo(props) {
     return acc
   }, {})
 
-  console.debug("Dict formats video : %O", dictFormats)
+  // console.debug("Dict formats video : %O", dictFormats)
 
   // Trier les formats en ordre de preference
   const listeFormats = Object.values(dictFormats).sort((a,b)=>{
@@ -324,7 +324,7 @@ function AfficherVideo(props) {
     return mimetypeA.localeCompare(mimetypeB)
   })
 
-  console.debug("Liste formats video : %O", listeFormats)
+  // console.debug("Liste formats video : %O", listeFormats)
 
   const [urlsVideo, setUrlsVideo] = useState('')
 
@@ -334,7 +334,7 @@ function AfficherVideo(props) {
           .then(val=>{return {...item, url: val}})
     })
     Promise.all(promises).then(urls=>{
-      console.debug("URLS : %O", urls)
+      // console.debug("URLS : %O", urls)
       setUrlsVideo(urls)
     })
   }, [resolver, fichier, versionCourante, listeFormats])
@@ -344,7 +344,7 @@ function AfficherVideo(props) {
   return (
     <video className="video" controls autoPlay>
       {urlsVideo.map(item=>(
-        <source src={item.url} type={item.mimetype} />
+        <source key={item.url} src={item.url} type={item.mimetype} />
       ))}
         Your browser does not support the video tag.
     </video>
