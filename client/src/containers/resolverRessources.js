@@ -6,6 +6,7 @@ import {verifierIdmg} from '@dugrema/millegrilles.common/lib/idmg'
 import mimetypeExtensions from '@dugrema/millegrilles.common/lib/mimetype_ext.json'
 
 var _etatCdns = {},
+    _siteId,
     _siteConfiguration,
     _proxySetSiteConfiguration,
     _certificateStore,
@@ -66,9 +67,30 @@ function mergeCdns(cdns) {
   return verifierConnexionCdns(opts)  // Conserver promise pour initialiser CDN
 }
 
-export async function chargerSiteConfiguration(url, proxySetSiteConfiguration) {
+export async function chargerMappingSite(url) {
+  // Le mapping est un fichier index.json accessible a la racine de tous les CDN
+  // et du code deploye de Vitrine/Place,
   const reponse = await getUrl(url, {noverif: true})
-  const siteConfiguration = reponse.data
+  const mappingSite = reponse.data
+
+  await chargerCertificateStore(mappingSite)
+  console.debug("Chargement certificat store complete")
+
+  return mappingSite
+}
+
+export async function chargerSiteConfiguration(cdns, siteId, proxySetSiteConfiguration) {
+  // Conserver le siteId pour verifications des CDNs
+  _siteId = siteId
+  _proxySetSiteConfiguration = proxySetSiteConfiguration
+
+  // Merge les CDNs initiaux et fetch la configuration (tout en un)
+  await mergeCdns(cdns)
+
+  // const siteConfiguration = await verifierConnexionCdns({initial: true})
+
+  // const reponse = await getUrl(url, {noverif: true})
+  // const siteConfiguration = reponse.data
   // await appliquerSiteConfiguration(siteConfiguration)
 
   if(!_intervalVerificationConnexions) {
@@ -77,17 +99,19 @@ export async function chargerSiteConfiguration(url, proxySetSiteConfiguration) {
   }
 
   // Mettre a jour la configuration via callback (au besoin)
-  appliquerSiteConfiguration(siteConfiguration)
-  _proxySetSiteConfiguration = siteConfiguration => {
-    try {
-      proxySetSiteConfiguration(siteConfiguration)
-    } catch(err) {
-      console.error("Erreur maj site configuration : %O", err)
-    }
-  }
-  _proxySetSiteConfiguration(siteConfiguration)
+  // appliquerSiteConfiguration(siteConfiguration)
+  // _proxySetSiteConfiguration = siteConfiguration => {
+  //   try {
+  //     proxySetSiteConfiguration(siteConfiguration)
+  //   } catch(err) {
+  //     console.error("Erreur maj site configuration : %O", err)
+  //   }
+  // }
+  // _proxySetSiteConfiguration(siteConfiguration)
 
-  return siteConfiguration
+  console.debug("Site configuration : %O", _siteConfiguration)
+  await _cdnCourant
+  return _siteConfiguration
 }
 
 export async function getUrl(url, opts) {
@@ -248,7 +272,14 @@ async function verifierConnexionCdns(opts) {
   // console.debug("!!! debut verifierConnexionCdns")
 
   // Extraire CDN en ordre de preference de la configuration
-  const cdnIds = _siteConfiguration.cdns.reduce((acc, item)=>{return [...acc, item.cdn_id]}, [])
+  console.debug("VerifierConnexionCdns : _siteId %s, _siteConfiguration %O, _etatCdns %O",
+    _siteId, _siteConfiguration, _etatCdns)
+  let cdnIds
+  if(_siteConfiguration) {
+    cdnIds = _siteConfiguration.cdns.reduce((acc, item)=>{return [...acc, item.cdn_id]}, [])
+  } else {
+    cdnIds = Object.values(_etatCdns).map(item=>item.config.cdn_id)
+  }
 
   // Verifier la presence de path/index.json sur chaque CDN
   var promisesCdns = []
@@ -259,6 +290,7 @@ async function verifierConnexionCdns(opts) {
       case 'sftp':
       case 'awss3':
       case 'hiddenService':
+      case 'mq':
       case 'manuel':
         etatCdn.promiseCheck = verifierEtatAccessPoint(cdnId)
         break
@@ -309,7 +341,9 @@ async function verifierEtatAccessPoint(cdnId) {
         config = etatCdn.config
 
   const accessPointUrl = config.access_point_url
-  var urlRessource = accessPointUrl + '/index.json'
+  var urlRessource = accessPointUrl + '/sites/' + _siteId + '.json'
+
+  console.debug("Verification %s", urlRessource)
 
   try {
     const dateDebut = new Date().getTime()
@@ -432,7 +466,7 @@ function unzipResponse(blob) {
 
 async function choisirCdn(promisesCdns) {
   const cdnsResultats = await Promise.allSettled(promisesCdns)
-  // console.debug("choisirCdn Resultat complet : %O", cdnsResultats)
+  console.debug("choisirCdn Resultat complet : %O", cdnsResultats)
 
   // CDN prefere
   const cdnIdPrefere = _siteConfiguration.cdns[0].cdn_id,

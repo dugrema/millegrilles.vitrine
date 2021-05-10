@@ -44,6 +44,7 @@
     ]
   },
   "homepage": "/vitrine",
+  "proxy": "https://mg-dev4.maple.maceroc.com:3003/vitrine",
   "devDependencies": {
     "@rescripts/cli": "0.0.16",
     "rescript-worker-loader": "^1.0.4",

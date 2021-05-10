@@ -1,37 +1,41 @@
 const debug = require('debug')('millegrilles:vitrine:filesystemDao')
 const path = require('path')
 const fs = require('fs')
+const fsPromises = require('fs/promises')
 const readdirp = require('readdirp')
+const zlib = require('zlib')
+const { Readable } = require('stream')
 
 async function sauvegarderSites(noeudId, messageSites, amqpdao, opts) {
   if(!opts) opts = {}
   const pathData = opts.pathData || '/var/opt/millegrilles/nginx/data'
-  const pathDataSites = opts.pathDataSites || path.join(pathData, 'vitrine/sites')
+  const pathDataVitrine = opts.pathDataVitrine || path.join(pathData, 'vitrine')
+  const pathDataSites = opts.pathDataSites || path.join(pathDataVitrine, 'sites')
 
-  debug("Sauvegarde sites sous %s", pathDataSites)
+  debug("Sauvegarde mapping sites sous %s", pathDataSites)
   await _mkdirs(pathDataSites)
 
-  const sitesParUrl = _mapperSitesParUrl(noeudId, messageSites)
-  debug("Sauvegarder mapping sites par url local : \n%O", sitesParUrl)
-  for(const url in sitesParUrl) {
-    const site = sitesParUrl[url]
-    await _sauvegarderSite(url, site, pathDataSites, amqpdao)
+  await _sauvegarderIndex(messageSites.mapping, pathDataVitrine, amqpdao)
+
+  debug("Sauvegarder sites : \n%O", messageSites.sites)
+  for await(let site of messageSites.sites) {
+    await _sauvegarderSite(site, pathDataSites, amqpdao)
   }
 }
-
-async function sauvegarderPosts(messagePosts, amqpdao, opts) {
-  if(!opts) opts = {}
-  const pathData = opts.pathData || '/var/opt/millegrilles/nginx/data'
-  const pathDataPosts = opts.pathDataPosts || path.join(pathData, 'vitrine/posts')
-
-  debug("Sauvegarde posts sous %s", pathDataPosts)
-  await _mkdirs(pathDataPosts)
-
-  for(const idx in messagePosts.liste_posts) {
-    const post = messagePosts.liste_posts[idx]
-    await _sauvegarderPost(post, pathDataPosts, amqpdao, messagePosts._certificat, opts)
-  }
-}
+//
+// async function sauvegarderPosts(messagePosts, amqpdao, opts) {
+//   if(!opts) opts = {}
+//   const pathData = opts.pathData || '/var/opt/millegrilles/nginx/data'
+//   const pathDataPosts = opts.pathDataPosts || path.join(pathData, 'vitrine/posts')
+//
+//   debug("Sauvegarde posts sous %s", pathDataPosts)
+//   await _mkdirs(pathDataPosts)
+//
+//   for(const idx in messagePosts.liste_posts) {
+//     const post = messagePosts.liste_posts[idx]
+//     await _sauvegarderPost(post, pathDataPosts, amqpdao, messagePosts._certificat, opts)
+//   }
+// }
 
 async function sauvegarderCollections(messageCollections, amqpdao, opts) {
   if(!opts) opts = {}
@@ -70,32 +74,52 @@ async function listerCollections() {
   return collections
 }
 
-function _mapperSitesParUrl(noeudId, messageSites) {
-  const listeSites = messageSites.liste_sites,
-        certs = messageSites._certificat
-  const sitesParUrl = {}
-  listeSites.forEach(site=>{
-    try {
-      const urlsSite = site.noeuds_urls[noeudId]
-      urlsSite.forEach(url=>{
-        sitesParUrl[url] = {...site, _certificat: certs}
-      })
-    } catch(err) {
-      debug("Erreur chargement urls pour site %s : %O", site.site_id, err)
-    }
-  })
+// function _mapperSitesParUrl(noeudId, messageSites) {
+//   const listeSites = messageSites.sites,
+//         certs = messageSites._certificat
+//   const sitesParUrl = {}
+//   listeSites.forEach(site=>{
+//     try {
+//       const urlsSite = site.noeuds_urls[noeudId]
+//       urlsSite.forEach(url=>{
+//         sitesParUrl[url] = {...site, _certificat: certs}
+//       })
+//     } catch(err) {
+//       debug("Erreur chargement urls pour site %s : %O", site.site_id, err)
+//     }
+//   })
+//
+//   return sitesParUrl
+// }
 
-  return sitesParUrl
+async function _sauvegarderIndex(mapping, pathDataVitrine, amqpdao) {
+  const pki = amqpdao.pki
+  const mappingJsonFile = path.join(pathDataVitrine, 'index.json')
+
+  // S'assurer que le repertoire du site existe
+  await _mkdirs(pathDataVitrine)
+
+  // Valider le message
+  if( ! pki.verifierMessage(mapping) ) {
+    return reject(new Error("Signature du mapping (index.json) est invalide"))
+  }
+
+  // Conserver le contenu du site
+  const jsonContent = JSON.stringify(mapping)
+  await fsPromises.writeFile(mappingJsonFile, jsonContent, {encoding: 'utf8'})
+
+  // Sauvegarder version gzip
+  await sauvegarderContenuGzip(jsonContent, mappingJsonFile + '.gz')
 }
 
-function _sauvegarderSite(urlDomain, site, pathDataSites, amqpdao) {
+function _sauvegarderSite(site, pathDataSites, amqpdao) {
   const pki = amqpdao.pki
-  const pathSite = path.join(pathDataSites, urlDomain)
-  const siteJsonFile = path.join(pathSite, 'index.json')
+  const site_id = site.site_id
+  const siteJsonFile = path.join(pathDataSites, site_id + '.json')
 
   return new Promise(async (resolve, reject)=>{
     // S'assurer que le repertoire du site existe
-    await _mkdirs(pathSite)
+    await _mkdirs(pathDataSites)
 
     // Valider le message
     if( ! pki.verifierMessage(site) ) {
@@ -108,6 +132,9 @@ function _sauvegarderSite(urlDomain, site, pathDataSites, amqpdao) {
       if(err) return reject(err)
       resolve()
     })
+
+    // Sauvegarder version gzip
+    await sauvegarderContenuGzip(jsonContent, siteJsonFile + '.gz')
   })
 }
 
@@ -192,4 +219,26 @@ function _mkdirs(pathRepertoire) {
   })
 }
 
-module.exports = {sauvegarderSites, sauvegarderPosts, sauvegarderCollections, listerCollections}
+function sauvegarderContenuGzip(message, pathFichier) {
+  const writeStream = fs.createWriteStream(pathFichier)
+  const gzip = zlib.createGzip()
+  gzip.pipe(writeStream)
+
+  const promise = new Promise((resolve, reject)=>{
+    writeStream.on('finish', _=>{resolve()})
+    writeStream.on('error', err=>{reject(err)})
+  })
+
+  const readable = new Readable()
+  readable._read = () => {}
+  readable.pipe(gzip)
+  readable.push(JSON.stringify(message))
+  readable.push(null)
+
+  return promise
+}
+
+module.exports = {
+  sauvegarderSites,
+  // sauvegarderPosts, sauvegarderCollections, listerCollections
+}

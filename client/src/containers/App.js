@@ -19,7 +19,8 @@ console.debug("React useTransition : %O", useTransition)
 
 // const MG_SOCKETIO_URL = '/vitrine/socket.io'
       // MG_INDEX_JSON = '/vitrine/index.json'  // '/./index.json'
-const MG_INDEX_JSON = '../../index.json'
+const MG_INDEX_JSON = '../../index.json',
+      MG_SITES = '../../sites'
 
 var _resolverWorker = null,
     _proxySetSiteConfiguration = null,
@@ -63,13 +64,28 @@ function VitrineApp(props) {
       _estampilleCourante = estampilleRecue
       setSiteConfiguration(siteConfigurationRecue)
       _resolverWorker.appliquerSiteConfiguration(siteConfigurationRecue)
+
+      // Identifier le language de depart pour afficher la page
+      // S'assurer que le language detecte existe pour le site
+      const i18n = props.i18n
+      var language = i18n.language
+      if( ! language || ! siteConfigurationRecue.languages.includes(language) ) {
+        // Langague non fourni ou non supporte
+        // Utiliser le language par defaut du site (1er dans la liste)
+        language = siteConfigurationRecue.languages[0]
+        i18n.changeLanguage(language)
+      }
+
+      document.title = siteConfigurationRecue.titre[language]
+      // setSiteConfiguration(siteConfiguration)
+      setLanguage(language)
     }
   }
 
   // Chargement au demarrage
   useEffect(_=>{
     _proxySetSiteConfiguration = comlinkProxy(majSiteConfiguration)
-    chargerSite(props.i18n, _proxySetSiteConfiguration, setLanguage, setErr)
+    chargerSite(_proxySetSiteConfiguration, setLanguage, setErr)
   }, [props.i18n])
 
   // const changerLanguage = event => {
@@ -127,7 +143,7 @@ function AfficherErreur(props) {
   )
 }
 
-async function chargerSite(i18n, setSiteConfiguration, setLanguage, setErr) {
+async function chargerSite(setSiteConfiguration, setLanguage, setErr) {
   console.debug("!!! Page location : %O", window.location)
   try {
     if(!_resolverWorker) {
@@ -136,22 +152,13 @@ async function chargerSite(i18n, setSiteConfiguration, setLanguage, setErr) {
     }
 
     // Charger configuration du site associe au domaine
-    const url = MG_INDEX_JSON
-    const siteConfiguration = await _resolverWorker.chargerSiteConfiguration(url, setSiteConfiguration)
+    const urlMapping = MG_INDEX_JSON
+    const mapping = await _resolverWorker.chargerMappingSite(urlMapping)
+    const siteIdDefault = mapping.sites.defaut
+    console.debug("Mapping site : %O", mapping)
 
-    // Identifier le language de depart pour afficher la page
-    // S'assurer que le language detecte existe pour le site
-    var language = i18n.language
-    if( ! language || ! siteConfiguration.languages.includes(language) ) {
-      // Langague non fourni ou non supporte
-      // Utiliser le language par defaut du site (1er dans la liste)
-      language = siteConfiguration.languages[0]
-      i18n.changeLanguage(language)
-    }
-
-    document.title = siteConfiguration.titre[language]
-    setSiteConfiguration(siteConfiguration)
-    setLanguage(language)
+    // Charger la configuraiton - transmise via callback setSiteConfiguration
+    await _resolverWorker.chargerSiteConfiguration(mapping.cdns, siteIdDefault, setSiteConfiguration)
   } catch(err) {
     console.error("Erreur chargement site : %O", err)
     setErr(''+err)
