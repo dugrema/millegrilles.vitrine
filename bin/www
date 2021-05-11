@@ -7,7 +7,7 @@ const socketApp = require('../models/appSocketIo')
 
 const vitrine = require('../routes/vitrine')
 const { chargerMapping, chargerSections } = require('../models/siteDao')
-const {SiteMessageHandler} = require('../models/siteMessageHandler')
+const siteMessageHandler = require('../models/siteMessageHandler')
 
 async function init() {
 
@@ -21,6 +21,7 @@ async function init() {
   const opts = {
     exchange: '1.public',
     pathApp: '/vitrine',
+    public: true,  // Desactive authentification, socket.io verif headers
   }
   const {server, socketIo, amqpdao} = await server4(app, socketApp.configurerEvenements, opts)
 
@@ -82,7 +83,8 @@ async function initialiserDonnees(amqpdao, noeudId) {
 
 async function initialiserRoutingKeys(rabbitMQ, noeudId, socketIo) {
   // Creer objets de connexion a MQ - importer librairies requises
-  await rabbitMQ.enregistrerListenerConnexion(new SiteMessageHandler(rabbitMQ, noeudId, socketIo))
+  siteMessageHandler.init(rabbitMQ, noeudId, socketIo)
+  await rabbitMQ.enregistrerListenerConnexion(siteMessageHandler)
 }
 
 // Demarrer le serveur

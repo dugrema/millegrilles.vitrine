@@ -2,7 +2,7 @@ import React, {Suspense, useState, useEffect, useTransition} from 'react'
 import { HashRouter as Router } from "react-router-dom"
 import {Alert} from 'react-bootstrap'
 import { proxy as comlinkProxy } from 'comlink'
-import {getResolver} from '../workers/workers.load'
+import {getResolver, getConnexion} from '../workers/workers.load'
 
 import '../components/i18n'
 import { withTranslation } from 'react-i18next';
@@ -22,6 +22,7 @@ console.debug("React useTransition : %O", useTransition)
 const MG_INDEX_JSON = '../../index.json'
 
 var _resolverWorker = null,
+    _connexionWorker = null,
     _proxySetSiteConfiguration = null,
     _estampilleCourante = 0
     // _connexionWorker = null
@@ -52,6 +53,7 @@ function ChargementEnCours(props) {
 function VitrineApp(props) {
 
   const [siteConfiguration, setSiteConfiguration] = useState('')
+  const [urlSocketio, setUrlSocketio] = useState('')
   const [language, setLanguage] = useState('')
   const [err, setErr] = useState('')
 
@@ -78,6 +80,31 @@ function VitrineApp(props) {
       document.title = siteConfigurationRecue.titre[language]
       // setSiteConfiguration(siteConfiguration)
       setLanguage(language)
+
+      new Promise(async (resolve, reject)=>{
+        try{
+          if(!urlSocketio) {
+            if(!_connexionWorker) {
+              // Preparer resolver
+              _connexionWorker = (await getConnexion()).webWorker
+              // const verifierMessage = message => {
+              //   console.debug("Verifier message : %O", message)
+              //   return _resolverWorker.verifierSignature(message)
+              // }
+              // const proxyVerifierMessage = comlinkProxy(verifierMessage)
+              // _connexionWorker.setVerifierSignature(proxyVerifierMessage)
+              _connexionWorker.setResolverWorker(_resolverWorker)
+            }
+
+            console.debug("Tenter une connexion a socket.io")
+            _connexionWorker.connecter('https://mg-dev4.maple.maceroc.com')
+          }
+        } catch(err) {
+          console.error("Erreur demarrage connexionWorker %O", err)
+        }
+        resolve()
+      })
+
     }
   }
 

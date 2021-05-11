@@ -509,3 +509,17 @@ async function choisirCdn(promisesCdns) {
 
   return cdnChoisi
 }
+
+export async function verifierSignature(message) {
+  // Methode de verification de la signature d'un message
+  let signatureValide
+  try {
+    signatureValide = await verifierSignatureMessage(message, message._certificat, _certificateStore)
+  } catch(err) {
+    console.error("Erreur verification resultat : %O", message)
+  }
+  if(!signatureValide) {
+    throw new Error(`Signature message invalide`)
+  }
+  return signatureValide
+}

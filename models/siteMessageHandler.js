@@ -3,76 +3,64 @@ const {sauvegarderMapping, sauvegarderSite, sauvegarderCollectionFichiers, sauve
 const {extrairePostids, extraireCollectionsRecursif} = require('./siteModel')
 const {chargerSites} = require('../models/siteDao')
 
-class SiteMessageHandler {
+var _mq,
+    _noeudId,
+    _socketIo
 
-  constructor(mq, noeudId) {
-    this.mq = mq
-    this.noeudId = noeudId
-  }
+function init(mq, noeudId, socketIo) {
+  _mq = mq
+  _noeudId = noeudId
+  _socketIo = socketIo
+}
 
-  // Appele lors d'une reconnexion MQ
-  on_connecter() {
-    this.enregistrerChannel()
-  }
+// Appele lors d'une reconnexion MQ
+function on_connecter() {
+  enregistrerChannel()
+}
 
-  enregistrerChannel() {
-    const mq = this.mq,
-          noeudId = this.noeudId
+function enregistrerChannel() {
+  _mq.routingKeyManager.addRoutingKeyCallback(
+    function(routingKeys, message, opts) {majSite(routingKeys, message, opts)},
+    ['evenement.Publication.confirmationMajSiteconfig'],
+    {exchange: '1.public'}
+  )
 
-    this.mq.routingKeyManager.addRoutingKeyCallback(
-      function(routingKeys, message, opts) {majSite(mq, routingKeys, message, noeudId, opts)},
-      ['evenement.Publication.confirmationMajSiteconfig'],
-      {exchange: '1.public'}
-    )
+  _mq.routingKeyManager.addRoutingKeyCallback(
+    function(routingKeys, message, opts) {majSection(routingKeys, message, opts)},
+    [
+      'evenement.Publication.confirmationMajPage',
+      'evenement.Publication.confirmationMajCollectionFichiers',
+    ],
+    {exchange: '1.public'}
+  )
 
-    this.mq.routingKeyManager.addRoutingKeyCallback(
-      function(routingKeys, message, opts) {majSection(mq, routingKeys, message, noeudId, opts)},
-      [
-        'evenement.Publication.confirmationMajPage',
-        'evenement.Publication.confirmationMajCollectionFichiers',
-      ],
-      {exchange: '1.public'}
-    )
-
-    this.mq.routingKeyManager.addResponseCorrelationId(
-      'publication.section', (message, opts) => {publicationSection(mq, message, opts)}
-    )
-
-  }
+  _mq.routingKeyManager.addResponseCorrelationId(
+    'publication.section', (message, opts) => {publicationSection(message, opts)}
+  )
 
 }
 
-async function majMapping(mq, routingKeys, message, noeudId, opts) {
+async function majMapping(routingKeys, message, opts) {
   debug("MAJ mapping %O = %O", routingKeys, message)
-
-  // if(message.noeuds_urls[noeudId]) {
-  //   const params = {
-  //     noeud_id: noeudId,
-  //     liste_sites: [message],
-  //     _certificat: message._certificat,
-  //   }
-  //   // La signature du message a deja ete validee - sauvegarder la maj
-  //   await sauvegarderSites(noeudId, params, mq)
-  //
-  //   // Importer tous les posts, collections du site
-  //   // Raccourci - On recharge le noeud au complet
-  //   await chargerSites(mq, noeudId)
-  //
-  //   // Emettre evenement pour les clients
-  //   await mq.routingKeyManager.socketio.emit('majSite', message)
-  //
-  // } else {
-  //   debug("Site recu sur exchange public, ne correspond pas au noeudId %s : %O", noeudId, message.noeuds_urls)
-  // }
 }
 
-async function majSite(mq, routingKeys, message, noeudId, opts) {
+async function majSite(routingKeys, message, opts) {
   debug("MAJ site %O = %O", routingKeys, message)
-  return sauvegarderSite(message, mq)
+  await sauvegarderSite(message, _mq)
+
+  // Emettre evenement socket.io de mise a jour de site
+  const evenement = {
+    site_id: message.site_id,
+    estampille: message['en-tete'].estampille
+  }
+
+  debug("Emettre evenement sur socket.io/site majSiteConfig : %O", evenement)
+  _socketIo.to('site').emit('majSiteconfig', evenement)
+  _socketIo.to('site/data').emit('majSiteconfig', message)
 }
 
-function majSection(mq, routingKeys, message, noeudId, opts) {
-  debug("MAJ section routingKeys : %O\nmessage: %O", routingKeys, message)
+async function majSection(routingKeys, message, opts) {
+  debug("MAJ section routingKeys : %O", routingKeys)
   // const action = routingKeys.split('.').pop()
   //
   // let type_section;
@@ -88,7 +76,20 @@ function majSection(mq, routingKeys, message, noeudId, opts) {
     contenu: message,
   }
 
-  return publicationSection(mq, messageEnveloppe, opts)
+  await publicationSection(_mq, messageEnveloppe, opts)
+
+  const evenement = {
+    type_section: message.type_section,
+    estampille: message['en-tete'].estampille,
+  }
+  const champs = ['section_id', 'uuid']
+  champs.forEach(item=>{
+    if(message[item]) evenement[item] = message[item]
+  })
+
+  debug("Emettre evenement sur socket.io/section majSection : %O", evenement)
+  _socketIo.to('section').emit('majSection', evenement)
+  _socketIo.to('section/data').emit('majSection', message)
 }
 
 // async function majPost(mq, routingKeys, message, opts) {
@@ -113,17 +114,17 @@ function majSection(mq, routingKeys, message, noeudId, opts) {
 //
 // }
 
-async function publicationSection(mq, message, opts) {
+async function publicationSection(message, opts) {
   // Sauvegarder le fichier selon le type de section
   const typeSection = message['type_section']
 
   debug("Publication section %s id: %s\n%O", typeSection, message.section_id, message)
 
   switch(typeSection) {
-    case 'collection_fichiers': await sauvegarderCollectionFichiers(message, mq); break
-    case 'page': await sauvegarderPage(message, mq); break
+    case 'collection_fichiers': await sauvegarderCollectionFichiers(message, _mq); break
+    case 'page': await sauvegarderPage(message, _mq); break
     default:
   }
 }
 
-module.exports = {SiteMessageHandler};
+module.exports = {init, on_connecter, enregistrerChannel};

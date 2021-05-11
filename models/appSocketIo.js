@@ -5,12 +5,11 @@ const routingKeysPublic = [
   'appSocketio.nodejs',  // Juste pour trouver facilement sur exchange - debug
 ]
 
-function configurationEvenements(socket) {
+function configurerEvenements(socket) {
   const configurationEvenements = {
-    listenersPrives: [
-      // {eventName: 'vitrine/', callback: (params, cb) => {getDocumentsParUuid(socket, params, cb)}},
-    ],
-    listenersProteges: [
+    listenersPublics: [
+      {eventName: 'challenge', callback: (params, cb) => {challenge(socket, params, cb)}},
+      {eventName: 'ecouterMaj', callback: _ => {ecouterMaj(socket)}},
     ]
   }
 
@@ -32,6 +31,23 @@ function configurationEvenements(socket) {
 //   }
 // }
 
+async function challenge(socket, params, cb) {
+  // Repondre avec un message signe
+  const reponse = {
+    reponse: params.challenge,
+    message: 'Trust no one'
+  }
+  const reponseSignee = await socket.amqpdao.pki.formatterMessage(reponse, 'challenge', {ajouterCertificat: true})
+  console.debug("Reponse signee : %O", reponseSignee)
+  cb(reponseSignee)
+}
+
+async function ecouterMaj(socket) {
+  debug("Ajout evenements maj pour socket")
+  socket.join('site')
+  socket.join('section')
+}
+
 module.exports = {
-  configurationEvenements
+  configurerEvenements
 }
