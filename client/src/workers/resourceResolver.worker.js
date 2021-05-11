@@ -1,6 +1,7 @@
 import {expose as comlinkExpose} from 'comlink'
 import {
   chargerMappingSite, appliquerSiteConfiguration, chargerSiteConfiguration,
+  rechargerConfiguration,
   getUrl, getSection,
   resolveUrlFuuid,
   verifierSignature,
@@ -8,6 +9,7 @@ import {
 
 comlinkExpose({
   chargerMappingSite, appliquerSiteConfiguration, chargerSiteConfiguration,
+  rechargerConfiguration,
   getUrl, getSection,
   resolveUrlFuuid,
   verifierSignature,

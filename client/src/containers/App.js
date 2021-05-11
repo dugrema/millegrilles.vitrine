@@ -173,8 +173,13 @@ function traiterConfiguration(siteConfigurationRecue, setSiteConfiguration, setL
   }
 }
 
-function siteConfigMaj(message) {
+async function siteConfigMaj(message) {
   console.debug("Callback siteConfigMaj %O", message)
+  const estampilleRecue = message.estampille
+  if(estampilleRecue > _estampilleCourante) {
+    console.debug("Trigger renouvellement configuration")
+    _resolverWorker.rechargerConfiguration()
+  }
 }
 
 function sectionMaj(message) {

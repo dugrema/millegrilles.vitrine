@@ -87,31 +87,19 @@ export async function chargerSiteConfiguration(cdns, siteId, proxySetSiteConfigu
   // Merge les CDNs initiaux et fetch la configuration (tout en un)
   await mergeCdns(cdns)
 
-  // const siteConfiguration = await verifierConnexionCdns({initial: true})
-
-  // const reponse = await getUrl(url, {noverif: true})
-  // const siteConfiguration = reponse.data
-  // await appliquerSiteConfiguration(siteConfiguration)
-
   if(!_intervalVerificationConnexions) {
     // Demarrer interval entretien connexion ressources
     _intervalVerificationConnexions = setInterval(verifierConnexionCdns, 300000)
   }
 
-  // Mettre a jour la configuration via callback (au besoin)
-  // appliquerSiteConfiguration(siteConfiguration)
-  // _proxySetSiteConfiguration = siteConfiguration => {
-  //   try {
-  //     proxySetSiteConfiguration(siteConfiguration)
-  //   } catch(err) {
-  //     console.error("Erreur maj site configuration : %O", err)
-  //   }
-  // }
-  // _proxySetSiteConfiguration(siteConfiguration)
-
   console.debug("Site configuration : %O", _siteConfiguration)
   await _cdnCourant
   return _siteConfiguration
+}
+
+export async function rechargerSiteConfiguration() {
+  console.debug("Site configuration : %O", _siteConfiguration)
+
 }
 
 export async function getUrl(url, opts) {
@@ -297,24 +285,25 @@ async function verifierConnexionCdns(opts) {
   for await (let cdnId of cdnIds) {
     const etatCdn = _etatCdns[cdnId]
     const typeCdn = etatCdn.config.type_cdn
-    switch(typeCdn) {
-      case 'sftp':
-      case 'awss3':
-      case 'hiddenService':
-      case 'mq':
-      case 'manuel':
-        etatCdn.promiseCheck = verifierEtatAccessPoint(cdnId)
-        break
-      case 'ipfs':
-        etatCdn.promiseCheck = verifierEtatIpfs(cdnId)
-        break
-      case 'ipfs_gateway':
-        etatCdn.promiseCheck = verifierEtatIpfsGateway(cdnId)
-        break
-      default:
-        console.debug("Type CDN inconnu : %s", typeCdn)
-        continue
-    }
+    chargerConfiguration(etatCdn)
+    // switch(typeCdn) {
+    //   case 'sftp':
+    //   case 'awss3':
+    //   case 'hiddenService':
+    //   case 'mq':
+    //   case 'manuel':
+    //     etatCdn.promiseCheck = verifierEtatAccessPoint(cdnId)
+    //     break
+    //   case 'ipfs':
+    //     etatCdn.promiseCheck = verifierEtatIpfs(cdnId)
+    //     break
+    //   case 'ipfs_gateway':
+    //     etatCdn.promiseCheck = verifierEtatIpfsGateway(cdnId)
+    //     break
+    //   default:
+    //     console.debug("Type CDN inconnu : %s", typeCdn)
+    //     continue
+    // }
     promisesCdns.push(etatCdn.promiseCheck)
   }
 
@@ -345,6 +334,34 @@ async function verifierConnexionCdns(opts) {
   console.debug("Etat CDNs : %O\nCDN courant %O", _etatCdns, cdnCourant)
   _cdnCourant = cdnCourant
   return cdnCourant
+}
+
+function chargerConfiguration(etatCdn) {
+  const cdnId = etatCdn.config.cdn_id
+  const typeCdn = etatCdn.config.type_cdn
+  switch(typeCdn) {
+    case 'sftp':
+    case 'awss3':
+    case 'hiddenService':
+    case 'mq':
+    case 'manuel':
+      etatCdn.promiseCheck = verifierEtatAccessPoint(cdnId)
+      break
+    case 'ipfs':
+      etatCdn.promiseCheck = verifierEtatIpfs(cdnId)
+      break
+    case 'ipfs_gateway':
+      etatCdn.promiseCheck = verifierEtatIpfsGateway(cdnId)
+      break
+    default:
+      console.debug("Type CDN inconnu : %s", typeCdn)
+  }
+
+  return etatCdn.promiseCheck
+}
+
+export function rechargerConfiguration() {
+  chargerConfiguration(_cdnCourant)
 }
 
 async function verifierEtatAccessPoint(cdnId) {
