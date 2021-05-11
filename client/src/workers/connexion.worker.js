@@ -79,21 +79,15 @@ async function onConnect() {
   // _socket.join('site')
   // _socket.join('section')
   _socket.on('majSiteconfig', message=>{
-    console.debug("site/majSiteconfig : %O", message)
+    if(_callbackSiteMaj) _callbackSiteMaj(message)
   })
   _socket.on('majSection', message=>{
-    console.debug("section/majSection : %O", message)
+    if(_callbackSectionMaj) _callbackSectionMaj(message)
   })
 }
 
 function setResolverWorker(resolverWorker) {
-  console.debug("RESOLVER WORKER : %O", resolverWorker)
   _resolverWorker = resolverWorker
-}
-
-function setVerifierSignature(verifierSignature) {
-  console.debug("VERIFIER SIGNATURE : %O", verifierSignature)
-  _verifierSignature = verifierSignature
 }
 
 function setCallbacks(siteMaj, sectionMaj, setEtatConnexion) {
@@ -104,5 +98,5 @@ function setCallbacks(siteMaj, sectionMaj, setEtatConnexion) {
 
 comlinkExpose({
   connecter,
-  setResolverWorker, setVerifierSignature, setCallbacks,
+  setResolverWorker, setCallbacks,
 })

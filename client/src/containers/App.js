@@ -14,9 +14,6 @@ import { LayoutMillegrilles } from './Layout'
 
 console.info("Vitrine version %s, %s", manifest.version, manifest.date)
 
-console.debug("REACT : %O", React)
-console.debug("React useTransition : %O", useTransition)
-
 // const MG_SOCKETIO_URL = '/vitrine/socket.io'
       // MG_INDEX_JSON = '/vitrine/index.json'  // '/./index.json'
 const MG_INDEX_JSON = '../../index.json'
@@ -24,8 +21,8 @@ const MG_INDEX_JSON = '../../index.json'
 var _resolverWorker = null,
     _connexionWorker = null,
     _proxySetSiteConfiguration = null,
-    _estampilleCourante = 0
-    // _connexionWorker = null
+    _estampilleCourante = 0,
+    _majSiteConfiguration = null
 
 export default function App(props) {
 
@@ -57,68 +54,18 @@ function VitrineApp(props) {
   const [language, setLanguage] = useState('')
   const [err, setErr] = useState('')
 
-  const majSiteConfiguration = siteConfigurationRecue => {
-    const estampilleRecue = siteConfigurationRecue['en-tete'].estampille
-    // const estampilleCourante = siteConfiguration?siteConfiguration['en-tete'].estampille:0
-    if(estampilleRecue > _estampilleCourante) {
-      console.debug("MAJ site configuration (%d>%d) : %O", estampilleRecue, _estampilleCourante, siteConfigurationRecue)
-      _estampilleCourante = estampilleRecue
-      setSiteConfiguration(siteConfigurationRecue)
-      _resolverWorker.appliquerSiteConfiguration(siteConfigurationRecue)
-
-      // Identifier le language de depart pour afficher la page
-      // S'assurer que le language detecte existe pour le site
-      const i18n = props.i18n
-      var language = i18n.language
-      if( ! language || ! siteConfigurationRecue.languages.includes(language) ) {
-        // Langague non fourni ou non supporte
-        // Utiliser le language par defaut du site (1er dans la liste)
-        language = siteConfigurationRecue.languages[0]
-        i18n.changeLanguage(language)
-      }
-
-      document.title = siteConfigurationRecue.titre[language]
-      // setSiteConfiguration(siteConfiguration)
-      setLanguage(language)
-
-      if(siteConfigurationRecue.listeSocketio && siteConfigurationRecue.listeSocketio[0]) {
-        const url = siteConfigurationRecue.listeSocketio[0]
-        console.debug("Set URL socketio : %O", url)
-        setUrlSocketio(url)
-      }
-
-    }
+  _majSiteConfiguration = siteConfigurationRecue => {
+    traiterConfiguration(siteConfigurationRecue, setSiteConfiguration, setLanguage, setUrlSocketio, props.i18n)
   }
 
   // Chargement au demarrage
   useEffect(_=>{
-    _proxySetSiteConfiguration = comlinkProxy(majSiteConfiguration)
+    _proxySetSiteConfiguration = comlinkProxy(_majSiteConfiguration)
     chargerSite(_proxySetSiteConfiguration, setLanguage, setErr)
   }, [props.i18n])
 
   // Chargement de socketIo (optionnel)
   useEffect(_=>{connecterSocketio(urlSocketio)}, [urlSocketio])
-
-  // const changerLanguage = event => {
-  //   // console.debug("Changer language : %O\n%O", event, this.props)
-  //   const i18n = props.i18n
-  //   const langueCourante = i18n.language
-  //   var langueProchaine = ''
-  //
-  //   // Trouver les language dans le site, toggle si juste 2
-  //   const languagesSite = siteConfiguration.languages
-  //   const languesDifferentes = languagesSite.filter(langue=>langue!==langueCourante)
-  //   if(languesDifferentes.length === 1) {
-  //     // Une seule langue differente, on la choisit
-  //     langueProchaine = languesDifferentes[0]
-  //   } else {
-  //     throw new Error("Langue switch - plusieurs langues candidates, il faut choisir")
-  //   }
-  //
-  //   document.title = siteConfiguration.titre[langueProchaine]
-  //   props.i18n.changeLanguage(langueProchaine)
-  //   setLanguage(langueProchaine)
-  // }
 
   const workers = {
     resolver: _resolverWorker,
@@ -182,8 +129,58 @@ async function connecterSocketio(urlSocketio) {
   if(!_connexionWorker) {
     _connexionWorker = (await getConnexion()).webWorker
     _connexionWorker.setResolverWorker(_resolverWorker)
+    _connexionWorker.setCallbacks(
+      comlinkProxy(siteConfigMaj),
+      comlinkProxy(sectionMaj),
+      comlinkProxy(setEtatConnexion)
+    )
   }
 
   console.debug("Tenter une connexion a socket.io")
   _connexionWorker.connecter(urlSocketio)
+}
+
+function traiterConfiguration(siteConfigurationRecue, setSiteConfiguration, setLanguage, setUrlSocketio, i18n) {
+  const estampilleRecue = siteConfigurationRecue['en-tete'].estampille
+  // const estampilleCourante = siteConfiguration?siteConfiguration['en-tete'].estampille:0
+  if(estampilleRecue > _estampilleCourante) {
+    console.debug("MAJ site configuration (%d>%d) : %O", estampilleRecue, _estampilleCourante, siteConfigurationRecue)
+    _estampilleCourante = estampilleRecue
+    setSiteConfiguration(siteConfigurationRecue)
+    _resolverWorker.appliquerSiteConfiguration(siteConfigurationRecue)
+
+    // Identifier le language de depart pour afficher la page
+    // S'assurer que le language detecte existe pour le site
+    // const i18n = props.i18n
+    var language = i18n.language
+    if( ! language || ! siteConfigurationRecue.languages.includes(language) ) {
+      // Langague non fourni ou non supporte
+      // Utiliser le language par defaut du site (1er dans la liste)
+      language = siteConfigurationRecue.languages[0]
+      i18n.changeLanguage(language)
+    }
+
+    document.title = siteConfigurationRecue.titre[language]
+    // setSiteConfiguration(siteConfiguration)
+    setLanguage(language)
+
+    if(siteConfigurationRecue.listeSocketio && siteConfigurationRecue.listeSocketio[0]) {
+      const url = siteConfigurationRecue.listeSocketio[0]
+      console.debug("Set URL socketio : %O", url)
+      setUrlSocketio(url)
+    }
+
+  }
+}
+
+function siteConfigMaj(message) {
+  console.debug("Callback siteConfigMaj %O", message)
+}
+
+function sectionMaj(message) {
+  console.debug("Callback sectionMaj %O", message)
+}
+
+function setEtatConnexion(etat) {
+  console.debug("Callback setEtatConnexion %O", etat)
 }
