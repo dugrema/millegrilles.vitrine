@@ -3,8 +3,6 @@ import { io } from 'socket.io-client'
 import { getRandomValues } from '@dugrema/millegrilles.common/lib/chiffrage'
 import multibase from 'multibase'
 
-console.debug("RANDOM VALUES : %O", getRandomValues)
-
 var _socket,
     _callbackSiteMaj,
     _callbackSectionMaj,
@@ -13,9 +11,14 @@ var _socket,
     _verifierSignature   // web worker resolver (utilise pour valider signature messages)
 
 function connecter(url) {
-  console.debug("Connecter socket.io a url %s", url)
-  _socket = io('/', {
-    path: '/vitrine/socket.io',
+
+  const urlInfo = new URL(url)
+  const hostname = 'https://' + urlInfo.host
+  const pathSocketio = urlInfo.pathname
+
+  console.debug("Connecter socket.io a url host: %s, path: %s", hostname, pathSocketio)
+  _socket = io(hostname, {
+    path: pathSocketio,  // '/vitrine/socket.io',
     transport: ['websocket'],
   })
 
@@ -65,6 +68,9 @@ async function onConnect() {
   if(!signatureValide) {
     throw new Error("Signature de la reponse invalide, serveur non fiable")
   }
+
+  // On vient de confirmer que le serveur a un certificat valide qui correspond
+  // a la MilleGrille.
 
   // Emettre l'evenement qui va faire enregistrer les evenements de mise a jour
   // pour le mapping, siteconfig et sections

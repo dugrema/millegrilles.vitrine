@@ -81,29 +81,11 @@ function VitrineApp(props) {
       // setSiteConfiguration(siteConfiguration)
       setLanguage(language)
 
-      new Promise(async (resolve, reject)=>{
-        try{
-          if(!urlSocketio) {
-            if(!_connexionWorker) {
-              // Preparer resolver
-              _connexionWorker = (await getConnexion()).webWorker
-              // const verifierMessage = message => {
-              //   console.debug("Verifier message : %O", message)
-              //   return _resolverWorker.verifierSignature(message)
-              // }
-              // const proxyVerifierMessage = comlinkProxy(verifierMessage)
-              // _connexionWorker.setVerifierSignature(proxyVerifierMessage)
-              _connexionWorker.setResolverWorker(_resolverWorker)
-            }
-
-            console.debug("Tenter une connexion a socket.io")
-            _connexionWorker.connecter('https://mg-dev4.maple.maceroc.com')
-          }
-        } catch(err) {
-          console.error("Erreur demarrage connexionWorker %O", err)
-        }
-        resolve()
-      })
+      if(siteConfigurationRecue.listeSocketio && siteConfigurationRecue.listeSocketio[0]) {
+        const url = siteConfigurationRecue.listeSocketio[0]
+        console.debug("Set URL socketio : %O", url)
+        setUrlSocketio(url)
+      }
 
     }
   }
@@ -113,6 +95,9 @@ function VitrineApp(props) {
     _proxySetSiteConfiguration = comlinkProxy(majSiteConfiguration)
     chargerSite(_proxySetSiteConfiguration, setLanguage, setErr)
   }, [props.i18n])
+
+  // Chargement de socketIo (optionnel)
+  useEffect(_=>{connecterSocketio(urlSocketio)}, [urlSocketio])
 
   // const changerLanguage = event => {
   //   // console.debug("Changer language : %O\n%O", event, this.props)
@@ -189,4 +174,16 @@ async function chargerSite(setSiteConfiguration, setLanguage, setErr) {
     console.error("Erreur chargement site : %O", err)
     setErr(''+err)
   }
+}
+
+async function connecterSocketio(urlSocketio) {
+  if(!urlSocketio) return
+
+  if(!_connexionWorker) {
+    _connexionWorker = (await getConnexion()).webWorker
+    _connexionWorker.setResolverWorker(_resolverWorker)
+  }
+
+  console.debug("Tenter une connexion a socket.io")
+  _connexionWorker.connecter(urlSocketio)
 }
