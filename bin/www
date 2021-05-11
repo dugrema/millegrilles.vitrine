@@ -6,7 +6,7 @@ const server4 = require('@dugrema/millegrilles.common/lib/server4')
 const socketApp = require('../models/appSocketIo')
 
 const vitrine = require('../routes/vitrine')
-const { chargerSites, chargerSections } = require('../models/siteDao')
+const { chargerMapping, chargerSections } = require('../models/siteDao')
 const {SiteMessageHandler} = require('../models/siteMessageHandler')
 
 async function init() {
@@ -24,7 +24,7 @@ async function init() {
   }
   const {server, socketIo, amqpdao} = await server4(app, socketApp.configurerEvenements, opts)
 
-  await initialiserRoutingKeys(amqpdao, noeudId)
+  await initialiserRoutingKeys(amqpdao, noeudId, socketIo)
 
   // Ajouter les routes
   const routeVitrine = vitrine()
@@ -72,7 +72,7 @@ async function initialiserDonnees(amqpdao, noeudId) {
   // Lancer chargement async des sites (si echec, va reessayer durant la maintenance)
   try {
     await Promise.all([
-      chargerSites(amqpdao, noeudId),
+      chargerMapping(amqpdao, noeudId),
       chargerSections(amqpdao, noeudId),
     ])
   } catch(err) {
@@ -80,9 +80,9 @@ async function initialiserDonnees(amqpdao, noeudId) {
   }
 }
 
-async function initialiserRoutingKeys(rabbitMQ, noeudId) {
+async function initialiserRoutingKeys(rabbitMQ, noeudId, socketIo) {
   // Creer objets de connexion a MQ - importer librairies requises
-  await rabbitMQ.enregistrerListenerConnexion(new SiteMessageHandler(rabbitMQ, noeudId))
+  await rabbitMQ.enregistrerListenerConnexion(new SiteMessageHandler(rabbitMQ, noeudId, socketIo))
 }
 
 // Demarrer le serveur

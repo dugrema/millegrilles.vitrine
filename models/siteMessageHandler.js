@@ -1,5 +1,5 @@
 const debug = require('debug')('millegrilles:vitrine:siteMessageHandler');
-const {sauvegarderSites, sauvegarderCollectionFichiers, sauvegarderPage} = require('./filesystemDao')
+const {sauvegarderMapping, sauvegarderSite, sauvegarderCollectionFichiers, sauvegarderPage} = require('./filesystemDao')
 const {extrairePostids, extraireCollectionsRecursif} = require('./siteModel')
 const {chargerSites} = require('../models/siteDao')
 
@@ -21,7 +21,17 @@ class SiteMessageHandler {
 
     this.mq.routingKeyManager.addRoutingKeyCallback(
       function(routingKeys, message, opts) {majSite(mq, routingKeys, message, noeudId, opts)},
-      ['evenement.Publication.confirmationMajSite']
+      ['evenement.Publication.confirmationMajSiteconfig'],
+      {exchange: '1.public'}
+    )
+
+    this.mq.routingKeyManager.addRoutingKeyCallback(
+      function(routingKeys, message, opts) {majSection(mq, routingKeys, message, noeudId, opts)},
+      [
+        'evenement.Publication.confirmationMajPage',
+        'evenement.Publication.confirmationMajCollectionFichiers',
+      ],
+      {exchange: '1.public'}
     )
 
     this.mq.routingKeyManager.addResponseCorrelationId(
@@ -32,28 +42,53 @@ class SiteMessageHandler {
 
 }
 
+async function majMapping(mq, routingKeys, message, noeudId, opts) {
+  debug("MAJ mapping %O = %O", routingKeys, message)
+
+  // if(message.noeuds_urls[noeudId]) {
+  //   const params = {
+  //     noeud_id: noeudId,
+  //     liste_sites: [message],
+  //     _certificat: message._certificat,
+  //   }
+  //   // La signature du message a deja ete validee - sauvegarder la maj
+  //   await sauvegarderSites(noeudId, params, mq)
+  //
+  //   // Importer tous les posts, collections du site
+  //   // Raccourci - On recharge le noeud au complet
+  //   await chargerSites(mq, noeudId)
+  //
+  //   // Emettre evenement pour les clients
+  //   await mq.routingKeyManager.socketio.emit('majSite', message)
+  //
+  // } else {
+  //   debug("Site recu sur exchange public, ne correspond pas au noeudId %s : %O", noeudId, message.noeuds_urls)
+  // }
+}
+
 async function majSite(mq, routingKeys, message, noeudId, opts) {
   debug("MAJ site %O = %O", routingKeys, message)
+  return sauvegarderSite(message, mq)
+}
 
-  if(message.noeuds_urls[noeudId]) {
-    const params = {
-      noeud_id: noeudId,
-      liste_sites: [message],
-      _certificat: message._certificat,
-    }
-    // La signature du message a deja ete validee - sauvegarder la maj
-    await sauvegarderSites(noeudId, params, mq)
+function majSection(mq, routingKeys, message, noeudId, opts) {
+  debug("MAJ section routingKeys : %O\nmessage: %O", routingKeys, message)
+  // const action = routingKeys.split('.').pop()
+  //
+  // let type_section;
+  // switch(action) {
+  //   case 'confirmationMajCollectionFichiers': type_section = 'collection_fichiers'; break
+  //   case 'confirmationMajPage': type_section = 'page'; break
+  //   default:
+  // }
 
-    // Importer tous les posts, collections du site
-    // Raccourci - On recharge le noeud au complet
-    await chargerSites(mq, noeudId)
-
-    // Emettre evenement pour les clients
-    await mq.routingKeyManager.socketio.emit('majSite', message)
-
-  } else {
-    debug("Site recu sur exchange public, ne correspond pas au noeudId %s : %O", noeudId, message.noeuds_urls)
+  const messageEnveloppe = {
+    type_section: message.type_section,
+    section_id: message.section_id,
+    contenu: message,
   }
+
+  return publicationSection(mq, messageEnveloppe, opts)
 }
 
 // async function majPost(mq, routingKeys, message, opts) {

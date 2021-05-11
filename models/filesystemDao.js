@@ -6,7 +6,7 @@ const readdirp = require('readdirp')
 const zlib = require('zlib')
 const { Readable } = require('stream')
 
-async function sauvegarderSites(noeudId, messageSites, amqpdao, opts) {
+async function sauvegarderMapping(noeudId, messageSites, amqpdao, opts) {
   if(!opts) opts = {}
   const pathData = opts.pathData || '/var/opt/millegrilles/nginx/data'
   const pathDataVitrine = opts.pathDataVitrine || path.join(pathData, 'vitrine')
@@ -22,6 +22,19 @@ async function sauvegarderSites(noeudId, messageSites, amqpdao, opts) {
     await _sauvegarderSite(site, pathDataSites, amqpdao)
   }
 }
+
+async function sauvegarderSite(messageSiteconfig, amqpdao, opts) {
+  if(!opts) opts = {}
+  const pathData = opts.pathData || '/var/opt/millegrilles/nginx/data'
+  const pathDataVitrine = opts.pathDataVitrine || path.join(pathData, 'vitrine')
+  const pathDataSites = opts.pathDataSites || path.join(pathDataVitrine, 'data/sites')
+
+  debug("Sauvegarde siteconfig sous %s", pathDataSites)
+  await _mkdirs(pathDataSites)
+
+  await _sauvegarderSite(messageSiteconfig, pathDataSites, amqpdao)
+}
+
 //
 // async function sauvegarderPosts(messagePosts, amqpdao, opts) {
 //   if(!opts) opts = {}
@@ -41,7 +54,8 @@ async function sauvegarderCollectionFichiers(message, amqpdao, opts) {
   if(!opts) opts = {}
   const pki = amqpdao.pki
   const pathData = opts.pathData || '/var/opt/millegrilles/nginx/data'
-  const pathDataCollections = opts.pathDataCollections || path.join(pathData, 'vitrine/data/fichiers')
+  const pathDataVitrine = opts.pathDataVitrine || path.join(pathData, 'vitrine')
+  const pathDataCollections = opts.pathDataCollections || path.join(pathDataVitrine, 'data/fichiers')
 
   const messageCollection = message.contenu
 
@@ -285,6 +299,6 @@ function sauvegarderContenuGzip(pathFichier, message) {
 }
 
 module.exports = {
-  sauvegarderSites, sauvegarderCollectionFichiers, sauvegarderPage,
+  sauvegarderMapping, sauvegarderSite, sauvegarderCollectionFichiers, sauvegarderPage,
   // sauvegarderPosts, sauvegarderCollections, listerCollections
 }

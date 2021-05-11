@@ -1,8 +1,8 @@
 const debug = require('debug')('millegrilles:vitrine:siteDao')
-const {sauvegarderSites, sauvegarderPosts, sauvegarderCollections} = require('../models/filesystemDao')
+const {sauvegarderMapping, sauvegarderPosts, sauvegarderCollections} = require('../models/filesystemDao')
 const {extrairePostids, extraireCollectionsRecursif} = require('../models/siteModel')
 
-async function chargerSites(amqpdao, noeudId) {
+async function chargerMapping(amqpdao, noeudId) {
   const domaineAction = 'Publication.configurationSitesNoeud',
         requete = {noeud_id: noeudId}
 
@@ -10,7 +10,7 @@ async function chargerSites(amqpdao, noeudId) {
 
   // const messageSites = await _chargerSites(amqpdao, noeudId)
   debug("siteDao.chargerSites message configuration : %O", messageSites)
-  await sauvegarderSites(noeudId, messageSites, amqpdao)
+  await sauvegarderMapping(noeudId, messageSites, amqpdao)
 }
 
 async function chargerSections(amqpdao, noeudId) {
@@ -23,4 +23,4 @@ async function chargerSections(amqpdao, noeudId) {
   debug("Confirmation pousser sections : %O", confirmation)
 }
 
-module.exports = {chargerSites, chargerSections}
+module.exports = {chargerMapping, chargerSections}
