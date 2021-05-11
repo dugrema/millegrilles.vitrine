@@ -352,7 +352,7 @@ async function verifierEtatAccessPoint(cdnId) {
         config = etatCdn.config
 
   const accessPointUrl = config.access_point_url
-  var urlRessource = accessPointUrl + '/sites/' + _siteId + '.json'
+  var urlRessource = accessPointUrl + '/data/sites/' + _siteId + '.json'
 
   console.debug("Verification %s", urlRessource)
 

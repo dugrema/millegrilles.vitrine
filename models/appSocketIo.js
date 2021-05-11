@@ -8,27 +8,29 @@ const routingKeysPublic = [
 function configurationEvenements(socket) {
   const configurationEvenements = {
     listenersPrives: [
-      {eventName: 'vitrine/', callback: (params, cb) => {getDocumentsParUuid(socket, params, cb)}},
+      // {eventName: 'vitrine/', callback: (params, cb) => {getDocumentsParUuid(socket, params, cb)}},
     ],
     listenersProteges: [
     ]
   }
 
+  debug("appSocketIo.configurationEvenements complete")
+
   return configurationEvenements
 }
 
-async function getDocumentsParUuid(socket, params, cb) {
-  const dao = socket.grosFichiersDao
-  try {
-    const uuidsDocuments = params.uuids_documents
-    debug("Demande documents pas uuid : %O", )
-    const documents = await dao.getDocumentsParUuid(uuidsDocuments)
-    cb(documents)
-  } catch(err) {
-    debug("Erreur getDocumentsParUuid\n%O", err)
-    cb({err: 'Erreur: ' + err})
-  }
-}
+// async function getDocumentsParUuid(socket, params, cb) {
+//   const dao = socket.grosFichiersDao
+//   try {
+//     const uuidsDocuments = params.uuids_documents
+//     debug("Demande documents pas uuid : %O", )
+//     const documents = await dao.getDocumentsParUuid(uuidsDocuments)
+//     cb(documents)
+//   } catch(err) {
+//     debug("Erreur getDocumentsParUuid\n%O", err)
+//     cb({err: 'Erreur: ' + err})
+//   }
+// }
 
 module.exports = {
   configurationEvenements

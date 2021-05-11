@@ -3,7 +3,13 @@ const {sauvegarderSites, sauvegarderPosts, sauvegarderCollections} = require('..
 const {extrairePostids, extraireCollectionsRecursif} = require('../models/siteModel')
 
 async function chargerSites(amqpdao, noeudId) {
-  const messageSites = await _chargerSites(amqpdao, noeudId)
+
+  const domaineAction = 'Publication.configurationSitesNoeud',
+        requete = {noeud_id: noeudId}
+
+  const messageSites = await amqpdao.transmettreRequete(domaineAction, requete, {decoder: true})
+
+  // const messageSites = await _chargerSites(amqpdao, noeudId)
   debug("siteDao.chargerSites message configuration : %O", messageSites)
   await sauvegarderSites(noeudId, messageSites, amqpdao)
 
@@ -37,15 +43,6 @@ async function chargerSites(amqpdao, noeudId) {
 
 }
 
-async function _chargerSites(amqpdao, noeudId) {
-  debug("Charger sites pour noeud id: %s", noeudId)
-
-  const domaineAction = 'Publication.configurationSitesNoeud',
-        requete = {noeud_id: noeudId}
-
-  return await amqpdao.transmettreRequete(domaineAction, requete, {decoder: true})
-}
-
 async function chargerSections(amqpdao, noeudId) {
   debug("Demander chargement des sections")
   const domaineAction = 'Publication.pousserSections',
@@ -53,7 +50,7 @@ async function chargerSections(amqpdao, noeudId) {
 
   // Transmettre commande (note: payload va etre mis directement sur la Q)
   const confirmation = await amqpdao.transmettreCommande(domaineAction, commande, {decoder: true})
-  debug("Confirmation pousser sections : %O, sections")
+  debug("Confirmation pousser sections : %O", confirmation)
 }
 
 // async function chargerPosts(amqpdao, postIds) {

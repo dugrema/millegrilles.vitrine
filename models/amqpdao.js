@@ -47,7 +47,7 @@ async function init() {
 async function initialiserRoutingKeys(rabbitMQ, noeudId) {
   // Creer objets de connexion a MQ - importer librairies requises
   const {SiteMessageHandler} = require('./siteMessageHandler');
-  rabbitMQ.enregistrerListenerConnexion(new SiteMessageHandler(rabbitMQ, noeudId));
+  rabbitMQ.enregistrerListenerConnexion(new SiteMessageHandler(rabbitMQ, noeudId))
 
   return {rabbitMQ};
 }

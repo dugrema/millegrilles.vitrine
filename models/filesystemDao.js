@@ -10,7 +10,7 @@ async function sauvegarderSites(noeudId, messageSites, amqpdao, opts) {
   if(!opts) opts = {}
   const pathData = opts.pathData || '/var/opt/millegrilles/nginx/data'
   const pathDataVitrine = opts.pathDataVitrine || path.join(pathData, 'vitrine')
-  const pathDataSites = opts.pathDataSites || path.join(pathDataVitrine, 'sites')
+  const pathDataSites = opts.pathDataSites || path.join(pathDataVitrine, 'data/sites')
 
   debug("Sauvegarde mapping sites sous %s", pathDataSites)
   await _mkdirs(pathDataSites)
@@ -145,8 +145,9 @@ async function _sauvegarderIndex(mapping, pathDataVitrine, amqpdao) {
   await _mkdirs(pathDataVitrine)
 
   // Valider le message
-  if( ! pki.verifierMessage(mapping) ) {
-    return reject(new Error("Signature du mapping (index.json) est invalide"))
+  if( ! mapping || ! pki.verifierMessage(mapping) ) {
+    console.error("ERROR filesystemDao._sauvegarderIndex mapping vide ou signature invalide \nmapping: %O", mapping)
+    throw new Error("Mapping vide ou signature du mapping (index.json) est invalide")
   }
 
   // Conserver le contenu du site

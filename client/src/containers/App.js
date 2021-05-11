@@ -19,8 +19,7 @@ console.debug("React useTransition : %O", useTransition)
 
 // const MG_SOCKETIO_URL = '/vitrine/socket.io'
       // MG_INDEX_JSON = '/vitrine/index.json'  // '/./index.json'
-const MG_INDEX_JSON = '../../index.json',
-      MG_SITES = '../../sites'
+const MG_INDEX_JSON = '../../index.json'
 
 var _resolverWorker = null,
     _proxySetSiteConfiguration = null,

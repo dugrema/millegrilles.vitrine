@@ -1,102 +1,233 @@
 #!/usr/bin/env node
 
+// const debug = require('debug')('millegrilles:vitrine:www')
+// const express = require('express')
+// const session = require('express-session')
+// const MemoryStore = require('memorystore')(session)
+// const socketioSession = require('express-socket.io-session')
+// const amqpdao = require('../models/amqpdao')
+// const server4 = require('@dugrema/millegrilles.common/lib/server4')
+// const socketApp = require('../server/socketApp')
+//
+// const secretCookiesPassword = 'moncookiesecret98321'
+// const hostname = process.env.HOST
+//
+// const sessionMiddleware = session({
+//   secret: secretCookiesPassword,
+//   cookie: { path: '/', domain: hostname, sameSite: 'strict', secure: true, maxAge: 3600000 },
+//   store: new MemoryStore({
+//     checkPeriod: 3600000 // prune expired entries every 1h
+//   }),
+//   proxy: true,
+//   resave: false,
+// })
+// const socketioSessionMiddleware = socketioSession(sessionMiddleware, {autoSave: true})
+//
+// async function init() {
+//
+//   // Connexion AMQ
+//   const {amqpdao: instAmqpdao} = await amqpdao.init()
+//   const idmg = instAmqpdao.pki.idmg
+//
+//   function stubDev(req, res, next) {
+//     req.amqpdao = instAmqpdao
+//     req.idmg = idmg
+//     // if(!req.session) req.session = {}
+//     // req.session.estProprietaire = true
+//     // req.session.idmgCompte = idmg
+//
+//     next()
+//   }
+//
+//   debug("Initialisation serveur Vitrine avec IDMG : %s", idmg)
+//
+//   // Creer une collection avec la connexion a MQ (format qui supporte hebergement)
+//   const rabbitMQParIdmg = {
+//     [idmg]: instAmqpdao
+//   }
+//   const mqList = [instAmqpdao]
+//
+//   const fctRabbitMQParIdmg = (idmg) => {
+//     return rabbitMQParIdmg[idmg]
+//   }
+//
+//   // Initalier les apps individuelles, mapper dans dict (cle est path relatif)
+//   const vitrine = await initialiserVitrine(fctRabbitMQParIdmg, {idmg})
+//   // const devRoute = devRouteStub(instAmqpdao, {idmg})
+//   // const mappingApps = {devRoute, coupdoeil}
+//   const mappingApps = [
+//     // {path: 'devRoute', ...devRoute},
+//     {path: 'vitrine', ...vitrine},
+//   ]
+//
+//   const root = express()
+//   root.use(sessionMiddleware)
+//   // root.use(stubDev)
+//
+//   const serverInstance = initialiserServer(
+//     root, mappingApps,
+//     {
+//       pathSocketio: 'vitrine',
+//       sessionMiddleware: socketioSessionMiddleware,
+//       fctRabbitMQParIdmg,
+//       mqList
+//     },
+//   )
+//
+// }
+//
+// // function devRouteStub(instAmqpdao, opts) {
+// //   const routeTest = express()
+// //   // Aucune fonctionnalite n'est disponible via REST, tout est sur socket.io
+// //   routeTest.get('/index.html', (req, res)=>{res.end("Allo")})
+// //   routeTest.use(function(req, res, next) {res.sendStatus(404)});
+// //
+// //   // Ajouter parametres de hook commun pour Socket.IO (dev)
+// //   const socketio = {
+// //     callbackPreSetup: socketio=>preconfigSocketioCallback(socketio, instAmqpdao),
+// //   }
+// //
+// //   return {route: routeTest, socketio}
+// // }
+//
+// // function preconfigSocketioCallback(socketIo, instAmqpdao) {
+// //   debug("Callback, preconfig socket.io avec middleware")
+// //   instAmqpdao.routingKeyManager.socketio = socketIo
+// //   socketIo.use((socket, next)=>{
+// //     debug("Ajout dev params dans req sur socket.io")
+// //     next()
+// //   })
+// // }
+//
+// init()
+
+
 const debug = require('debug')('millegrilles:vitrine:www')
 const express = require('express')
-const session = require('express-session')
-const MemoryStore = require('memorystore')(session)
-const socketioSession = require('express-socket.io-session')
-const amqpdao = require('../models/amqpdao')
-const {initialiser: initialiserServer} = require('@dugrema/millegrilles.common/lib/server3')
-const {initialiser: initialiserVitrine} = require('../routes/vitrine')
 
-const secretCookiesPassword = 'moncookiesecret98321'
-const hostname = process.env.HOST
+const server4 = require('@dugrema/millegrilles.common/lib/server4')
+const socketApp = require('../models/appSocketIo')
 
-const sessionMiddleware = session({
-  secret: secretCookiesPassword,
-  cookie: { path: '/', domain: hostname, sameSite: 'strict', secure: true, maxAge: 3600000 },
-  store: new MemoryStore({
-    checkPeriod: 3600000 // prune expired entries every 1h
-  }),
-  proxy: true,
-  resave: false,
-})
-const socketioSessionMiddleware = socketioSession(sessionMiddleware, {autoSave: true})
+const vitrine = require('../routes/vitrine')
+const { chargerSites, chargerSections } = require('../models/siteDao')
+const {SiteMessageHandler} = require('../models/siteMessageHandler')
+
+// const forumDao = require('../server/forumDao')
+// const postProcessing = require('../server/postProcessing')
 
 async function init() {
 
-  // Connexion AMQ
-  const {amqpdao: instAmqpdao} = await amqpdao.init()
-  const idmg = instAmqpdao.pki.idmg
+  // Validations des variables au demarrage
+  const noeudId = process.env.MG_NOEUD_ID
+  if(!noeudId) throw new Error("Il faut fournir MG_NOEUD_ID")
 
-  function stubDev(req, res, next) {
-    req.amqpdao = instAmqpdao
-    req.idmg = idmg
-    // if(!req.session) req.session = {}
-    req.session.estProprietaire = true
-    req.session.idmgCompte = idmg
+  // Initialiser server et routes
+  const app = express()
 
-    next()
+  const opts = {
+    exchange: '1.public',
+    pathApp: '/vitrine',
   }
+  const {server, socketIo, amqpdao} = await server4(app, socketApp.configurerEvenements, opts)
 
-  debug("Initialisation serveur Vitrine avec IDMG : %s", idmg)
+  await initialiserRoutingKeys(amqpdao, noeudId)
 
-  // Creer une collection avec la connexion a MQ (format qui supporte hebergement)
-  const rabbitMQParIdmg = {
-    [idmg]: instAmqpdao
-  }
-  const mqList = [instAmqpdao]
+  // Preparer DAOs
+  // forumDao.init(amqpdao)
+  // routeVitrine.use((req, res, next)=>{
+  //   req.forumDao = forumDao
+  //   next()
+  // })
+  // socketIo.use((socket, next)=>{
+  //   socket.forumDao = forumDao
+  //
+  //   // Join rooms pour recevoir les maj
+  //   socket.join('maj')
+  //
+  //   next()
+  // })
 
-  const fctRabbitMQParIdmg = (idmg) => {
-    return rabbitMQParIdmg[idmg]
-  }
+  // Ajouter les routes
+  const routeVitrine = vitrine()
+  app.use('/vitrine', routeVitrine)
 
-  // Initalier les apps individuelles, mapper dans dict (cle est path relatif)
-  const vitrine = await initialiserVitrine(fctRabbitMQParIdmg, {idmg})
-  const devRoute = devRouteStub(instAmqpdao, {idmg})
-  // const mappingApps = {devRoute, coupdoeil}
-  const mappingApps = [
-    {path: 'devRoute', ...devRoute},
-    {path: 'vitrine', ...vitrine},
-  ]
+  // Lancer chargement async des sites (si echec, va reessayer durant la maintenance)
+  initialiserDonnees(amqpdao, noeudId)
 
-  const root = express()
-  root.use(sessionMiddleware)
-  root.use(stubDev)
+  // Inserer les routes apres l'initialisation, permet d'avoir le middleware
+  // attache avant (app.use comme le logging morgan, injection amqpdao, etc.)
+  // routePlace.get('/$|index.htm(l)?', (req, res)=>{res.send('Allo!')})
 
-  const serverInstance = initialiserServer(
-    root, mappingApps,
-    {
-      pathSocketio: 'vitrine',
-      sessionMiddleware: socketioSessionMiddleware,
-      fctRabbitMQParIdmg,
-      mqList
-    },
-  )
-
+  // Routes de contenu
+  // const routeForumData = express.Router()
+  // routePlace.use('/data', routeForumData)
+  //
+  // routeForumData.get('/forums.json.gz', cacheContenu, express.static('data/'))
+  // routeForumData.get('/forumsPosts/:forumId/:sortType.json.gz', cacheContenu, express.static('data/'), postProcessing.chargerForumPosts)
+  // routeForumData.get('/postsComments/*/:postId.json.gz', cacheContenu, express.static('data/'), postProcessing.chargerPostComments)
+  //
+  // // Aller chercher le contenu sous static
+  // routePlace.get('*', cacheRes, express.static('static/place'))
+  //
+  // // Enregistrer callbacks MQ
+  // const pathFichiers = process.env['DATA_PATH'] || './data'
+  // postProcessing.init(amqpdao, pathFichiers, socketIo)
+  // postProcessing.enregistrerCallbacks()
+  //
+  // // Rafraichir tous les forums et posts
+  // postProcessing.rafraichirContenu()
 }
 
-function devRouteStub(instAmqpdao, opts) {
-  const routeTest = express()
-  // Aucune fonctionnalite n'est disponible via REST, tout est sur socket.io
-  routeTest.get('/index.html', (req, res)=>{res.end("Allo")})
-  routeTest.use(function(req, res, next) {res.sendStatus(404)});
+function cacheContenu(req, res, next) {
+  res.append('Content-Encoding', 'gzip')
+  res.type('json')
 
-  // Ajouter parametres de hook commun pour Socket.IO (dev)
-  const socketio = {
-    callbackPreSetup: socketio=>preconfigSocketioCallback(socketio, instAmqpdao),
+  // Caching
+  res.append('Cache-Control', 'max-age=0')
+  res.append('Cache-Control', 'stale-if-error=3600')
+  res.append('Cache-Control', 'public')
+
+  next()
+}
+
+function cacheRes(req, res, next) {
+
+  const url = req.url
+  debug("Cache res URL : %s", url)
+  if(url.endsWith('.chunk.js') || url.endsWith('.chunk.css') ||
+     url.endsWith('.chunk.js.map') || url.endsWith('.chunk.css.map')) {
+
+       // Pour les .chunk.js, on peut faire un cache indefini (immutable)
+    res.append('Cache-Control', 'max-age=86400')
+    res.append('Cache-Control', 'immutable')
+
+  } else {
+    // Pour les autrres, faire un cachee limite (e.g. .worker.js, nom ne change pas)
+    res.append('Cache-Control', 'max-age=60')
   }
 
-  return {route: routeTest, socketio}
+  // res.append('Cache-Control', 'max-age=86400')
+  res.append('Cache-Control', 'public')
+
+  next()
 }
 
-function preconfigSocketioCallback(socketIo, instAmqpdao) {
-  debug("Callback, preconfig socket.io avec middleware")
-  instAmqpdao.routingKeyManager.socketio = socketIo
-  socketIo.use((socket, next)=>{
-    debug("Ajout dev params dans req sur socket.io")
-    next()
-  })
+async function initialiserDonnees(amqpdao, noeudId) {
+  // Lancer chargement async des sites (si echec, va reessayer durant la maintenance)
+  try {
+    await Promise.all([
+      chargerSites(amqpdao, noeudId),
+      chargerSections(amqpdao, noeudId),
+    ])
+  } catch(err) {
+    console.error("Erreurs chargements site/sections: %O", err)
+  }
 }
 
+async function initialiserRoutingKeys(rabbitMQ, noeudId) {
+  // Creer objets de connexion a MQ - importer librairies requises
+  await rabbitMQ.enregistrerListenerConnexion(new SiteMessageHandler(rabbitMQ, noeudId))
+}
+
+// Demarrer le serveur
 init()

@@ -9,3 +9,4 @@ react_build
 .env.test.local
 .env.production.local
 static/
+sessions/
