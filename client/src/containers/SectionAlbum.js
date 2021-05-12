@@ -12,8 +12,10 @@ export default function SectionAlbum(props) {
         resolver = props.workers.resolver
 
   // console.debug("Section : %O", section)
-  const [collectionsFichiers, setCollectionsFichiers] = useState('')
+  //const [collectionsFichiers, setCollectionsFichiers] = useState('')
   // console.debug("CollectionsFichiers : %O", collectionsFichiers)
+
+  const {contenuSection: collectionsFichiers, setContenuSection: setCollectionsFichiers} = props
 
   useEffect(_=>{
     chargerCollections(resolver, section, setCollectionsFichiers)

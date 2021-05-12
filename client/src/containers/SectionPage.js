@@ -8,7 +8,8 @@ export default function SectionPage(props) {
         resolver = props.workers.resolver,
         sectionId = section.section_id
 
-  const [contenuSection, setContenuSection] = useState('')
+  //const [contenuSection, setContenuSection] = useState('')
+  const {contenuSection, setContenuSection} = props
   useEffect(_ =>{
     chargerSection(resolver, sectionId, setContenuSection)
   }, [resolver, sectionId])

@@ -53,6 +53,7 @@ function VitrineApp(props) {
   const [urlSocketio, setUrlSocketio] = useState('')
   const [language, setLanguage] = useState('')
   const [err, setErr] = useState('')
+  const [contenuSection, setContenuSection] = useState('')
 
   _majSiteConfiguration = siteConfigurationRecue => {
     traiterConfiguration(siteConfigurationRecue, setSiteConfiguration, setLanguage, setUrlSocketio, props.i18n)
@@ -81,6 +82,8 @@ function VitrineApp(props) {
                             manifest={manifest}>
 
           <ContenuSite siteConfiguration={siteConfiguration}
+                       contenuSection={contenuSection}
+                       setContenuSection={setContenuSection}
                        language={language}
                        workers={workers} />
 
