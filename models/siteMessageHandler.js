@@ -41,11 +41,11 @@ function enregistrerChannel() {
 }
 
 async function majMapping(routingKeys, message, opts) {
-  debug("MAJ mapping %O = %O", routingKeys, message)
+  debug("MAJ mapping %O", routingKeys)
 }
 
 async function majSite(routingKeys, message, opts) {
-  debug("MAJ site %O = %O", routingKeys, message)
+  debug("MAJ site %O", routingKeys)
   await sauvegarderSite(message, _mq)
 
   // Emettre evenement socket.io de mise a jour de site
@@ -61,22 +61,14 @@ async function majSite(routingKeys, message, opts) {
 
 async function majSection(routingKeys, message, opts) {
   debug("MAJ section routingKeys : %O", routingKeys)
-  // const action = routingKeys.split('.').pop()
-  //
-  // let type_section;
-  // switch(action) {
-  //   case 'confirmationMajCollectionFichiers': type_section = 'collection_fichiers'; break
-  //   case 'confirmationMajPage': type_section = 'page'; break
-  //   default:
-  // }
-
   const messageEnveloppe = {
     type_section: message.type_section,
     section_id: message.section_id,
-    contenu: message,
+    uuid: message.uuid,
+    contenu_signe: message,
   }
 
-  await publicationSection(_mq, messageEnveloppe, opts)
+  await publicationSection(messageEnveloppe, opts)
 
   const evenement = {
     type_section: message.type_section,
@@ -92,33 +84,13 @@ async function majSection(routingKeys, message, opts) {
   _socketIo.to('section/data').emit('majSection', message)
 }
 
-// async function majPost(mq, routingKeys, message, opts) {
-//   debug("MAJ post %O = %O", routingKeys, message)
-//   await sauvegarderPosts(message, mq, {majSeulement: true})
-//
-//   // Emettre evenement pour les clients
-//   await mq.routingKeyManager.socketio.emit('majPost', message)
-//
-// }
-
-// async function majCollection(mq, routingKeys, message, opts) {
-//   debug("MAJ collection %O = %O", routingKeys, message)
-//   const params = {
-//     _certificat: message._certificat,
-//     liste_collections: [message]
-//   }
-//   await sauvegarderCollections(params, mq)
-//
-//   // Emettre evenement pour les clients
-//   await mq.routingKeyManager.socketio.emit('majCollection', message)
-//
-// }
-
 async function publicationSection(message, opts) {
   // Sauvegarder le fichier selon le type de section
   const typeSection = message['type_section']
 
-  debug("Publication section %s id: %s\n%O", typeSection, message.section_id, message)
+  const idSection = message.section_id || message.uuid
+  debug("Publication section %s id: %s", typeSection, idSection)
+  // debug("Message: %O", message)
 
   switch(typeSection) {
     case 'collection_fichiers': await sauvegarderCollectionFichiers(message, _mq); break

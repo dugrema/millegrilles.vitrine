@@ -17,7 +17,7 @@ async function sauvegarderMapping(noeudId, messageSites, amqpdao, opts) {
 
   await _sauvegarderIndex(messageSites.mapping, pathDataVitrine, amqpdao)
 
-  debug("Sauvegarder sites : \n%O", messageSites.sites)
+  // debug("Sauvegarder sites : \n%O", messageSites.sites)
   for await(let site of messageSites.sites) {
     await _sauvegarderSite(site, pathDataSites, amqpdao)
   }
@@ -59,7 +59,7 @@ async function sauvegarderCollectionFichiers(message, amqpdao, opts) {
 
   const messageCollection = message.contenu_signe
 
-  debug("Sauvegarde collections sous %s :\n%O", pathDataCollections, messageCollection)
+  debug("Sauvegarde collections sous %s", pathDataCollections)
   await _mkdirs(pathDataCollections)
 
   const uuidCollection = messageCollection.uuid
@@ -88,7 +88,7 @@ async function sauvegarderPage(message, amqpdao, opts) {
   const pathData = opts.pathData || '/var/opt/millegrilles/nginx/data'
   const pathDataPages = opts.pathDataCollections || path.join(pathData, 'vitrine/data/pages')
 
-  debug("Sauvegarde collections sous %s :\n%O", pathDataPages, message)
+  debug("Sauvegarde collections sous %s", pathDataPages)
   await _mkdirs(pathDataPages)
 
   const sectionId = message.section_id,
