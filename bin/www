@@ -8,6 +8,7 @@ const socketApp = require('../models/appSocketIo')
 const vitrine = require('../routes/vitrine')
 const { chargerMapping, chargerSections } = require('../models/siteDao')
 const siteMessageHandler = require('../models/siteMessageHandler')
+const preparerCode = require('../models/preparerCode')
 
 async function init() {
 
@@ -29,10 +30,16 @@ async function init() {
 
   // Ajouter les routes
   const routeVitrine = vitrine()
-  app.use('/vitrine', cacheRes, routeVitrine)
+  app.get('/vitrine/*', routeVitrine)
 
   // Lancer chargement async des sites (si echec, va reessayer durant la maintenance)
   initialiserDonnees(amqpdao, noeudId)
+
+  // Copier le code de vitrine vers le repertoire approprie (e.g. nginx)
+  preparerCode()
+    .catch(err=>{
+      console.error("ERROR www.preparerCode %O", err)
+    })
 }
 
 function cacheContenu(req, res, next) {

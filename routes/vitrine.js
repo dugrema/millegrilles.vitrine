@@ -8,13 +8,13 @@ function ajouterStaticRoute(route) {
   var folderStatic =
     process.env.MG_VITRINE_STATIC_RES ||
     process.env.MG_STATIC_RES ||
-    'static/vitrine'
-  route.use(express.static(folderStatic))
+    'static'
+  route.get('*', express.static(folderStatic))
 
   // Exposer path data - noter que NGINX devrait intercepter ce path en production
   const pathData = '/var/opt/millegrilles/nginx/data' || process.env.MG_VITRINE_DATA
   const pathDataVitrine = path.join(pathData, 'vitrine')
-  route.use(express.static(pathDataVitrine))
+  route.get('*', express.static(pathDataVitrine))
 
 }
 
