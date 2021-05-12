@@ -286,24 +286,6 @@ async function verifierConnexionCdns(opts) {
     const etatCdn = _etatCdns[cdnId]
     const typeCdn = etatCdn.config.type_cdn
     chargerConfiguration(etatCdn)
-    // switch(typeCdn) {
-    //   case 'sftp':
-    //   case 'awss3':
-    //   case 'hiddenService':
-    //   case 'mq':
-    //   case 'manuel':
-    //     etatCdn.promiseCheck = verifierEtatAccessPoint(cdnId)
-    //     break
-    //   case 'ipfs':
-    //     etatCdn.promiseCheck = verifierEtatIpfs(cdnId)
-    //     break
-    //   case 'ipfs_gateway':
-    //     etatCdn.promiseCheck = verifierEtatIpfsGateway(cdnId)
-    //     break
-    //   default:
-    //     console.debug("Type CDN inconnu : %s", typeCdn)
-    //     continue
-    // }
     promisesCdns.push(etatCdn.promiseCheck)
   }
 
@@ -316,19 +298,6 @@ async function verifierConnexionCdns(opts) {
     cdnCourant = await Promise.any(promisesCdns)
   } else {
     cdnCourant = choisirCdn(promisesCdns)
-    // const resultats = (await Promise.allSettled(promisesCdns))
-    //   .filter(item=>item.status==='fulfilled')
-    //   .map(item=>item.value)
-    //
-    // // Trouver un CDN dans la liste par ordre de preference du site
-    // for(let idx in resultats) {
-    //   const etatCdn = resultats[idx]
-    //   const etat = etatCdn.etat
-    //   if(etat === ETAT_ACTIF) {
-    //     cdnCourant = etatCdn
-    //     break
-    //   }
-    // }
   }
 
   console.debug("Etat CDNs : %O\nCDN courant %O", _etatCdns, cdnCourant)

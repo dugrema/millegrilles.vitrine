@@ -14,8 +14,6 @@ import { LayoutMillegrilles } from './Layout'
 
 console.info("Vitrine version %s, %s", manifest.version, manifest.date)
 
-// const MG_SOCKETIO_URL = '/vitrine/socket.io'
-      // MG_INDEX_JSON = '/vitrine/index.json'  // '/./index.json'
 const MG_INDEX_JSON = '../../index.json'
 
 var _resolverWorker = null,
