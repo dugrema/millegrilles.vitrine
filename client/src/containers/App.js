@@ -20,7 +20,8 @@ var _resolverWorker = null,
     _connexionWorker = null,
     _proxySetSiteConfiguration = null,
     _estampilleCourante = 0,
-    _majSiteConfiguration = null
+    _majSiteConfiguration = null,
+    _majSection = null
 
 export default function App(props) {
 
@@ -55,6 +56,9 @@ function VitrineApp(props) {
 
   _majSiteConfiguration = siteConfigurationRecue => {
     traiterConfiguration(siteConfigurationRecue, setSiteConfiguration, setLanguage, setUrlSocketio, props.i18n)
+  }
+  _majSection = evenementSection => {
+    traiterSection(evenementSection, contenuSection, setContenuSection)
   }
 
   // Chargement au demarrage
@@ -174,6 +178,34 @@ function traiterConfiguration(siteConfigurationRecue, setSiteConfiguration, setL
   }
 }
 
+function traiterSection(evenementSection, contenuSection, setContenuSection) {
+  console.debug("App.traiterSection : evenementSection: %O, contenuSection: %O", evenementSection, contenuSection)
+  if(!contenuSection || !evenementSection) return
+
+  const estampilleRecue = evenementSection.estampille,
+        estampilleCourante = contenuSection['en-tete'].estampille,
+        typeSectionRecue = evenementSection.type_section,
+        typeSectionCourante = contenuSection.type_section
+
+  if(typeSectionRecue === typeSectionCourante && estampilleCourante < estampilleRecue) {
+    if(typeSectionRecue === 'collection_fichiers') {
+      const uuidRecu = evenementSection.uuid,
+            uuidCourant = contenuSection.uuid
+      if(uuidRecu === uuidCourant) {
+        console.debug("Trigger reload collection fichiers %s", uuidRecu)
+        setContenuSection('')  // Clear, va indiquer a la section qu'il fait faire un reload
+      }
+    } else {
+      const sectionIdRecu = evenementSection.section_id
+      const sectionIdCourant = contenuSection.section_id
+      if(sectionIdRecu === sectionIdCourant) {
+        console.debug("Trigger reload section %s", sectionIdRecu)
+        setContenuSection('')  // Clear, va indiquer a la section qu'il fait faire un reload
+      }
+    }
+  }
+}
+
 async function siteConfigMaj(message) {
   console.debug("Callback siteConfigMaj %O", message)
   const estampilleRecue = message.estampille
@@ -185,6 +217,7 @@ async function siteConfigMaj(message) {
 
 function sectionMaj(message) {
   console.debug("Callback sectionMaj %O", message)
+  _majSection(message)
 }
 
 function setEtatConnexion(etat) {

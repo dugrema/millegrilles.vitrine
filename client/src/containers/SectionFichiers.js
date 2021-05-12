@@ -11,11 +11,23 @@ export default function SectionFichiers(props) {
   // const [collectionsFichiers, setCollectionsFichiers] = useState('')
   // console.debug("CollectionsFichiers : %O", collectionsFichiers)
 
-  const {contenuSection: collectionsFichiers, setContenuSection: setCollectionsFichiers} = props
+  const [collectionsFichiers, setCollectionsFichiers] = useState('')
+  const {contenuSection: contenuSectionEvent, setContenuSection: setContenuSectionEvent} = props
+
+  // Reset contenu global sur load et unload de la page
+  useEffect(_=>{setContenuSectionEvent('')}, [])
 
   useEffect(_=>{
-    chargerCollections(resolver, section, setCollectionsFichiers)
-  }, [resolver, section])
+    // On a eu un changement de section, recharger le contenu
+    const setContenuSectionCb = contenuSection => {
+      console.debug("Load collection fichiers %O", contenuSection)
+      setCollectionsFichiers(contenuSection)
+      setContenuSectionEvent(contenuSection)
+    }
+    if(!contenuSectionEvent) {
+      chargerCollections(resolver, section, setCollectionsFichiers)
+    }
+  }, [contenuSectionEvent, resolver, section])
 
   const entete = section.entete
 

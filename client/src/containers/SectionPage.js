@@ -8,11 +8,23 @@ export default function SectionPage(props) {
         resolver = props.workers.resolver,
         sectionId = section.section_id
 
-  //const [contenuSection, setContenuSection] = useState('')
-  const {contenuSection, setContenuSection} = props
-  useEffect(_ =>{
-    chargerSection(resolver, sectionId, setContenuSection)
-  }, [resolver, sectionId])
+  const [contenuSection, setContenuSection] = useState('')
+  const {contenuSection: contenuSectionEvent, setContenuSection: setContenuSectionEvent} = props
+
+  // Reset contenu global sur load pour s'assurer de recharger la page
+  useEffect(_=>{setContenuSectionEvent('')}, [])
+
+  useEffect(_=>{
+    // On a eu un changement de section, recharger le contenu
+    const setContenuSectionCb = contenuSection => {
+      console.debug("Load section %O", contenuSection)
+      setContenuSection(contenuSection)
+      setContenuSectionEvent(contenuSection)
+    }
+    if(!contenuSectionEvent) {
+      chargerSection(resolver, sectionId, setContenuSectionCb)
+    }
+  }, [contenuSectionEvent, resolver, sectionId])
 
   const partiesPages = contenuSection.parties_pages,
         entete = section.entete

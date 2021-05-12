@@ -57,7 +57,7 @@ async function sauvegarderCollectionFichiers(message, amqpdao, opts) {
   const pathDataVitrine = opts.pathDataVitrine || path.join(pathData, 'vitrine')
   const pathDataCollections = opts.pathDataCollections || path.join(pathDataVitrine, 'data/fichiers')
 
-  const messageCollection = message.contenu
+  const messageCollection = message.contenu_signe
 
   debug("Sauvegarde collections sous %s :\n%O", pathDataCollections, messageCollection)
   await _mkdirs(pathDataCollections)
@@ -92,7 +92,7 @@ async function sauvegarderPage(message, amqpdao, opts) {
   await _mkdirs(pathDataPages)
 
   const sectionId = message.section_id,
-        contenu = {...message.contenu}
+        contenu = {...message.contenu_signe}
   const pathFichierJson = path.join(pathDataPages, sectionId + '.json')
 
   // S'assurer que le repertoire du site existe
