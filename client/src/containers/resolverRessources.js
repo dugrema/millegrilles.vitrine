@@ -7,6 +7,7 @@ import mimetypeExtensions from '@dugrema/millegrilles.common/lib/mimetype_ext.js
 
 var _etatCdns = {},
     _siteId,
+    _ipnsId,
     _siteConfiguration,
     _proxySetSiteConfiguration,
     _certificateStore,
@@ -79,9 +80,10 @@ export async function chargerMappingSite(url) {
   return mappingSite
 }
 
-export async function chargerSiteConfiguration(cdns, siteId, proxySetSiteConfiguration) {
+export async function chargerSiteConfiguration(cdns, mappingSite, proxySetSiteConfiguration) {
   // Conserver le siteId pour verifications des CDNs
-  _siteId = siteId
+  _siteId = mappingSite.site_id
+  _ipnsId = mappingSite.ipns_id
   _proxySetSiteConfiguration = proxySetSiteConfiguration
 
   // Merge les CDNs initiaux et fetch la configuration (tout en un)

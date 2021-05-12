@@ -1,5 +1,5 @@
 const debug = require('debug')('millegrilles:vitrine:siteMessageHandler');
-const {sauvegarderMapping, sauvegarderSite, sauvegarderCollectionFichiers, sauvegarderPage} = require('./filesystemDao')
+const {sauvegarderMajMapping, sauvegarderSite, sauvegarderCollectionFichiers, sauvegarderPage} = require('./filesystemDao')
 const {extrairePostids, extraireCollectionsRecursif} = require('./siteModel')
 const {chargerSites} = require('../models/siteDao')
 
@@ -26,6 +26,12 @@ function enregistrerChannel() {
   )
 
   _mq.routingKeyManager.addRoutingKeyCallback(
+    function(routingKeys, message, opts) {majMapping(routingKeys, message, opts)},
+    ['evenement.Publication.confirmationMajMapping'],
+    {exchange: '1.public'}
+  )
+
+  _mq.routingKeyManager.addRoutingKeyCallback(
     function(routingKeys, message, opts) {majSection(routingKeys, message, opts)},
     [
       'evenement.Publication.confirmationMajPage',
@@ -42,6 +48,16 @@ function enregistrerChannel() {
 
 async function majMapping(routingKeys, message, opts) {
   debug("MAJ mapping %O", routingKeys)
+  await sauvegarderMajMapping(message, _mq)
+
+  // Emettre evenement socket.io de mise a jour de site
+  const evenement = {
+    estampille: message['en-tete'].estampille
+  }
+
+  debug("Emettre evenement sur socket.io/site majMapping : %O", evenement)
+  _socketIo.to('site').emit('majMapping', evenement)
+  _socketIo.to('site/data').emit('majMapping', message)
 }
 
 async function majSite(routingKeys, message, opts) {

@@ -15,11 +15,33 @@ async function sauvegarderMapping(noeudId, messageSites, amqpdao, opts) {
   debug("Sauvegarde mapping sites sous %s", pathDataSites)
   await _mkdirs(pathDataSites)
 
-  await _sauvegarderIndex(messageSites.mapping, pathDataVitrine, amqpdao)
+  try {
+    await _sauvegarderIndex(messageSites.mapping.contenu_signe, pathDataVitrine, amqpdao)
+  } catch(err) {
+    console.error("ERROR filesystemDao.sauvegarderMapping - index - %O", err)
+  }
 
   // debug("Sauvegarder sites : \n%O", messageSites.sites)
   for await(let site of messageSites.sites) {
-    await _sauvegarderSite(site, pathDataSites, amqpdao)
+    try {
+      await _sauvegarderSite(site.contenu_signe, pathDataSites, amqpdao)
+    } catch(err) {
+      console.error("ERROR filesystemDao.sauvegarderMapping - site id %s - %O", site.site_id, err)
+    }
+  }
+}
+
+async function sauvegarderMajMapping(message, amqpdao, opts) {
+  opts = opts || {}
+  debug("Maj mapping recu : %O", message)
+
+  const pathData = opts.pathData || '/var/opt/millegrilles/nginx/data'
+  const pathDataVitrine = opts.pathDataVitrine || path.join(pathData, 'vitrine')
+
+  try {
+    await _sauvegarderIndex(message, pathDataVitrine, amqpdao)
+  } catch(err) {
+    console.error("ERROR filesystemDao.sauvegarderMapping - index - %O", err)
   }
 }
 
@@ -169,7 +191,7 @@ async function _sauvegarderIndex(mapping, pathDataVitrine, amqpdao) {
   await fsPromises.writeFile(mappingJsonFile, jsonContent, {encoding: 'utf8'})
 
   // Sauvegarder version gzip
-  await sauvegarderContenuGzip(mappingJsonFile + '.gz', jsonContent)
+  await sauvegarderContenuGzip(mappingJsonFile + '.gz', mapping)
 }
 
 function _sauvegarderSite(site, pathDataSites, amqpdao) {
@@ -194,7 +216,7 @@ function _sauvegarderSite(site, pathDataSites, amqpdao) {
     })
 
     // Sauvegarder version gzip
-    await sauvegarderContenuGzip(siteJsonFile + '.gz', jsonContent)
+    await sauvegarderContenuGzip(siteJsonFile + '.gz', site)
   })
 }
 
@@ -300,5 +322,6 @@ function sauvegarderContenuGzip(pathFichier, message) {
 
 module.exports = {
   sauvegarderMapping, sauvegarderSite, sauvegarderCollectionFichiers, sauvegarderPage,
+  sauvegarderMajMapping,
   // sauvegarderPosts, sauvegarderCollections, listerCollections
 }

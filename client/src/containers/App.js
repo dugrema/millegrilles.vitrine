@@ -107,7 +107,8 @@ function AfficherErreur(props) {
 }
 
 async function chargerSite(setSiteConfiguration, setLanguage, setErr) {
-  console.debug("!!! Page location : %O", window.location)
+  // console.debug("Page location : %O", window.location)
+  const locationString = window.location.href
   try {
     if(!_resolverWorker) {
       // Preparer resolver
@@ -117,11 +118,23 @@ async function chargerSite(setSiteConfiguration, setLanguage, setErr) {
     // Charger configuration du site associe au domaine
     const urlMapping = MG_INDEX_JSON
     const mapping = await _resolverWorker.chargerMappingSite(urlMapping)
-    const siteIdDefault = mapping.sites.defaut
     console.debug("Mapping site : %O", mapping)
 
+    const matchSites = Object.keys(mapping.sites).filter(item=>{
+      return locationString.startsWith(item)
+    })
+
+    let siteChoisi
+    if(matchSites.length > 0) {
+      const siteHref = matchSites[0]
+      siteChoisi = mapping.sites[siteHref]
+    } else {
+      siteChoisi = mapping.site_defaut
+    }
+    console.debug("Site choisi: %O", siteChoisi)
+
     // Charger la configuraiton - transmise via callback setSiteConfiguration
-    await _resolverWorker.chargerSiteConfiguration(mapping.cdns, siteIdDefault, setSiteConfiguration)
+    await _resolverWorker.chargerSiteConfiguration(mapping.cdns, siteChoisi, setSiteConfiguration)
   } catch(err) {
     console.error("Erreur chargement site : %O", err)
     setErr(''+err)
