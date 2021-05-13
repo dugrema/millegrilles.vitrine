@@ -23,6 +23,10 @@ async function init() {
     exchange: '1.public',
     pathApp: '/vitrine',
     public: true,  // Desactive authentification, socket.io verif headers
+    socketIoCORS: {
+      origin: "*",
+      methods: ["GET", "POST"]
+    },
   }
   const {server, socketIo, amqpdao} = await server4(app, socketApp.configurerEvenements, opts)
 
