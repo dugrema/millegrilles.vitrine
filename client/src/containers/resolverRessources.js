@@ -94,8 +94,8 @@ export async function chargerSiteConfiguration(cdns, mappingSite, proxySetSiteCo
     _intervalVerificationConnexions = setInterval(verifierConnexionCdns, 300000)
   }
 
-  console.debug("Site configuration : %O", _siteConfiguration)
   await _cdnCourant
+  console.debug("Site configuration : %O", _siteConfiguration)
   return _siteConfiguration
 }
 
@@ -180,15 +180,15 @@ export async function getSection(uuidSection, typeSection) {
   const typeCdn = _cdnCourant.config.type_cdn
   var urlComplet, opts = {}
   if(typeCdn === 'ipfs') {
-    const ipnsMapping = _siteConfiguration.ipns_map
-    console.debug("IPNS map : %O", ipnsMapping)
-    if(ipnsMapping) {
-      const ipns_id = ipnsMapping[uuidSection]
-      urlComplet = 'ipns://' + ipns_id
+    const ipfsMapping = _siteConfiguration.ipfs_map
+    console.debug("IPFS map : %O", ipfsMapping)
+    if(ipfsMapping) {
+      const cid = ipfsMapping[uuidSection]
+      urlComplet = 'ipfs://' + cid
       opts.timeout = 120000
       opts.responseType = 'json.gzip'
     } else {
-      console.warn("IPNS map de sactions n'est pas disponible dans _siteConfiguration")
+      console.warn("IPFS map de sections n'est pas disponible dans _siteConfiguration")
     }
   } else if(typeCdn === 'ipfs_gateway') {
     const accessPointUrl = _cdnCourant.config.access_point_url
@@ -233,7 +233,7 @@ export async function resolveUrlFuuid(fuuid, fuuidInfo) {
     if(fuuidInfo.cid) {
       return 'ipfs://' + fuuidInfo.cid
     } else {
-      console.warn("FUUID %s, aucun CID defini pour IPFS", fuuid)
+      console.warn("FUUID %s, aucun CID defini pour IPFS %O", fuuid, fuuidInfo)
     }
   } else if(typeCdn === 'ipfs_gateway') {
     if(fuuidInfo.cid) {
@@ -347,7 +347,7 @@ async function verifierEtatAccessPoint(cdnId) {
   try {
     const dateDebut = new Date().getTime()
     const reponse = await getUrl(urlRessource, {cdn: config, timeout: 3000})
-    _proxySetSiteConfiguration(reponse.data)  // MAJ config (si plus recente)
+    await _proxySetSiteConfiguration(reponse.data)  // MAJ config (si plus recente)
     const tempsReponse = new Date().getTime()-dateDebut
     etatCdn.etat = ETAT_ACTIF
     etatCdn.tempsReponse = tempsReponse
@@ -362,26 +362,37 @@ async function verifierEtatAccessPoint(cdnId) {
 }
 
 async function verifierEtatIpfs(cdnId) {
-  const etatCdn = _etatCdns[cdnId],
-        config = etatCdn.config
+  const etatCdn = _etatCdns[cdnId]
 
-  const ipnsId = _siteConfiguration.ipns_id
-  if(ipnsId) {
+  if(_ipnsId) {
     try {
-      const url = "ipns://" + ipnsId
+      const url = "ipns://" + _ipnsId
       // console.debug("Verifier capacite d'acceder a IPFS directement avec %s", url)
       const dateDebut = new Date().getTime()
-      const reponse = await axios({method: 'get', url, timeout: 120000})
-      _proxySetSiteConfiguration(reponse.data)  // MAJ config (si plus recente)
+
+      const axiosParams = {
+        method: 'get',
+        url,
+        timeout: 120000,
+        responseType: 'blob',
+      }
+
+      const reponse = await axios(axiosParams)
       const tempsReponse = new Date().getTime()-dateDebut
-      console.debug("Reponse via IPNS: %O", reponse)
+      console.debug("verifierEtatIpfs: Reponse IPFS (%d ms): %O", tempsReponse, reponse)
+
+      const responseStr = await unzipResponse(reponse.data)
+      const data = JSON.parse(responseStr)
+      console.debug("verifierEtatIpfs: data : %O", data)
+
+      await _proxySetSiteConfiguration(data)  // MAJ config (si plus recente)
 
       etatCdn.etat = ETAT_ACTIF
       etatCdn.tempsReponse = tempsReponse
     } catch(err) {
       etatCdn.etat = ETAT_ERREUR
       etatCdn.tempsReponse = -1
-      console.error("Erreur access point : %O\n%O", etatCdn, err)
+      console.error("Erreur verifierEtatIpfs : %O\n%O", etatCdn, err)
       throw err
     }
   }
@@ -474,6 +485,7 @@ async function choisirCdn(promisesCdns) {
   const cdns = cdnsResultats
     .filter(item=>item.status==='fulfilled')
     .map(item=>item.value)
+    .filter(item=>item.etat === ETAT_ACTIF)
     .map(cdn=>{
       cdn.tempsPondere = cdn.tempsReponse
 

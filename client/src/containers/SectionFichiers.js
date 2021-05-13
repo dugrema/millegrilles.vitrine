@@ -69,7 +69,9 @@ function AfficherCollectionFichiers(props) {
     <div className="fichier-collection">
       <h3>{nomCollection}</h3>
       {fichiersTries.map(item=>(
-        <AfficherRowFichier key={item.fuuid_v_courante} fichier={item} {...props} />
+        <AfficherRowFichier key={item.fuuid_v_courante}
+                            fichier={item}
+                            {...props} />
       ))}
     </div>
   )
@@ -80,20 +82,27 @@ function AfficherRowFichier(props) {
         versionCourante = fichier.version_courante,
         resolver = props.resolver
 
-  const nomFichier = fichier.nom_fichier || fichier.fuuid_v_courante
+  const fuuid = fichier.fuuid_v_courante
+  const nomFichier = fichier.nom_fichier || fuuid
+  const fuuids = props.collectionFichiers.fuuids || {}
+  console.debug("AfficherRowFichier props: %O, fuuids : %O", props, fuuids)
 
   const [urlFichier, setUrlFichier] = useState('')
   useEffect(_ => {
-    resolver.resolveUrlFuuid(fichier.fuuid_v_courante, versionCourante)
+    const fuuidsInfos = fuuids[fuuid]
+    console.debug("AfficherRowFichier fuuidsInfos : %O", fuuidsInfos)
+    resolver.resolveUrlFuuid(fichier.fuuid_v_courante, {...fuuidsInfos, ...versionCourante})
     .then(val=>setUrlFichier(val))
-  }, [resolver, fichier, versionCourante])
+  }, [resolver, fichier, fuuids])
   const [urlPreview, setUrlPreview] = useState('')
   useEffect(_ => {
     if(versionCourante.fuuid_preview) {
-      resolver.resolveUrlFuuid(versionCourante.fuuid_preview, {mimetype: versionCourante.mimetype_preview})
+      const fuuidsInfos = fuuids[versionCourante.fuuid_preview]
+      console.debug("AfficherRowFichier fuuidsInfos : %O", fuuidsInfos)
+      resolver.resolveUrlFuuid(versionCourante.fuuid_preview, {...fuuidsInfos, mimetype: versionCourante.mimetype_preview})
       .then(val=>setUrlPreview(val))
     }
-  }, [resolver, versionCourante])
+  }, [resolver, fuuids])
 
   // console.debug("URL fichier : %s, preview: %s", urlFichier, urlPreview)
 
