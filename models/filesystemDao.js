@@ -3,8 +3,8 @@ const path = require('path')
 const fs = require('fs')
 const fsPromises = require('fs/promises')
 const readdirp = require('readdirp')
-const zlib = require('zlib')
-const { Readable } = require('stream')
+const gzipUtils = require('./gzipUtils')
+const preparerCode = require('./preparerCode')
 
 async function sauvegarderMapping(noeudId, messageSites, amqpdao, opts) {
   if(!opts) opts = {}
@@ -101,7 +101,7 @@ async function sauvegarderCollectionFichiers(message, amqpdao, opts) {
   const jsonContent = JSON.stringify(collectionCopy)
   debug("Ecrire fichier : %s", collectionJsonFile)
   await fsPromises.writeFile(collectionJsonFile, jsonContent)
-  await sauvegarderContenuGzip(collectionJsonFile + '.gz', collectionCopy)
+  await gzipUtils.sauvegarderContenuGzip(collectionJsonFile + '.gz', collectionCopy)
 }
 
 async function sauvegarderPage(message, amqpdao, opts) {
@@ -129,7 +129,7 @@ async function sauvegarderPage(message, amqpdao, opts) {
   const jsonContent = JSON.stringify(contenu)
   debug("Ecrire fichier : %s", pathFichierJson)
   await fsPromises.writeFile(pathFichierJson, jsonContent)
-  await sauvegarderContenuGzip(pathFichierJson + '.gz', contenu)
+  await gzipUtils.sauvegarderContenuGzip(pathFichierJson + '.gz', contenu)
 }
 
 
@@ -189,9 +189,10 @@ async function _sauvegarderIndex(mapping, pathDataVitrine, amqpdao) {
   // Conserver le contenu du site
   const jsonContent = JSON.stringify(mapping)
   await fsPromises.writeFile(mappingJsonFile, jsonContent, {encoding: 'utf8'})
+  await gzipUtils.sauvegarderContenuGzip(mappingJsonFile + '.gz', mapping)
 
-  // Sauvegarder version gzip
-  await sauvegarderContenuGzip(mappingJsonFile + '.gz', mapping)
+  await preparerCode.sauvegarder('index.json', jsonContent, {encoding: 'utf8', gzip: true})
+
 }
 
 function _sauvegarderSite(site, pathDataSites, amqpdao) {
@@ -216,7 +217,7 @@ function _sauvegarderSite(site, pathDataSites, amqpdao) {
     })
 
     // Sauvegarder version gzip
-    await sauvegarderContenuGzip(siteJsonFile + '.gz', site)
+    await gzipUtils.sauvegarderContenuGzip(siteJsonFile + '.gz', site)
   })
 }
 
@@ -299,25 +300,6 @@ function _mkdirs(pathRepertoire) {
       resolve()
     })
   })
-}
-
-function sauvegarderContenuGzip(pathFichier, message) {
-  const writeStream = fs.createWriteStream(pathFichier)
-  const gzip = zlib.createGzip()
-  gzip.pipe(writeStream)
-
-  const promise = new Promise((resolve, reject)=>{
-    writeStream.on('finish', _=>{resolve()})
-    writeStream.on('error', err=>{reject(err)})
-  })
-
-  const readable = new Readable()
-  readable._read = () => {}
-  readable.pipe(gzip)
-  readable.push(JSON.stringify(message))
-  readable.push(null)
-
-  return promise
 }
 
 module.exports = {

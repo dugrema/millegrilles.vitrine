@@ -36,7 +36,8 @@ async function init() {
   initialiserDonnees(amqpdao, noeudId)
 
   // Copier le code de vitrine vers le repertoire approprie (e.g. nginx)
-  preparerCode()
+  preparerCode.init()
+  preparerCode.copierCode()
     .catch(err=>{
       console.error("ERROR www.preparerCode %O", err)
     })
