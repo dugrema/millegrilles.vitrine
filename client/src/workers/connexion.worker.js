@@ -19,6 +19,9 @@ function connecter(url) {
   console.debug("Connecter socket.io a url host: %s, path: %s", hostname, pathSocketio)
   _socket = io(hostname, {
     path: pathSocketio,  // '/vitrine/socket.io',
+    reconnectionDelay: 3000,
+    reconnectionDelayMax: 60000,
+    timeout: 20000,
     transport: [
       // 'polling',
       'websocket'
