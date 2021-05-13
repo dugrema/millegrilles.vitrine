@@ -32,10 +32,12 @@ export MG_HTTPPROXY_SECURE=false
 export MG_CONSIGNATION_HTTP=https://$HOST:3003
 
 # export SERVER_TYPE=spdy
+export CODE_DEST_FOLDER=/var/opt/millegrilles/nginx/html/vitrine
 
 # Parametre module logging debug
 # export DEBUG=millegrilles:*
-export DEBUG=millegrilles:vitrine:siteMessageHandler,millegrilles:common:server4
+# export DEBUG=millegrilles:vitrine:siteMessageHandler,millegrilles:common:server4
+export DEBUG=millegrilles:vitrine:preparerCode,millegrilles:common:server4
 
 export NODE_ENV=dev
 export DEV=1

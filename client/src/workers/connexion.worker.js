@@ -19,7 +19,10 @@ function connecter(url) {
   console.debug("Connecter socket.io a url host: %s, path: %s", hostname, pathSocketio)
   _socket = io(hostname, {
     path: pathSocketio,  // '/vitrine/socket.io',
-    transport: ['websocket'],
+    transport: [
+      // 'polling',
+      'websocket'
+    ],
   })
 
   _socket.on('connect', _=>{
