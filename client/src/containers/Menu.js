@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { Link } from "react-router-dom"
 import { Nav, Navbar } from 'react-bootstrap'
 
@@ -8,6 +8,7 @@ import {ChampMultilingue} from '../components/ChampMultilingue'
 
 export function Menu(props) {
   const { t } = useTranslation()
+  const [expanded, setExpanded] = useState(false)
 
   const siteConfiguration = props.siteConfiguration || {},
         titre = siteConfiguration.titre || {},
@@ -22,7 +23,7 @@ export function Menu(props) {
   }
 
   return (
-    <Navbar collapseOnSelect expand="md" bg="info" variant="dark" fixed="top">
+    <Navbar collapseOnSelect expand="md" bg="info" variant="dark" fixed="top" expanded={expanded} onToggle={setExpanded}>
       <Navbar.Brand href='/vitrine'>
         {titreSite}
       </Navbar.Brand>
@@ -30,7 +31,8 @@ export function Menu(props) {
       <Navbar.Collapse id="responsive-navbar-menu">
         <MenuItems siteConfiguration={siteConfiguration}
                    language={language}
-                   changerPage={props.changerPage} />
+                   changerPage={props.changerPage}
+                   setExpanded={setExpanded} />
         <Nav className="justify-content-end">
           {changerLangue}
         </Nav>
@@ -51,14 +53,15 @@ export function MenuItems(props) {
       return <MenuItemSection key={idx}
                               section={section}
                               sectionIdx={idx}
-                              language={language} />
+                              language={language}
+                              setExpanded={props.setExpanded} />
     })
 
   return (
     <Nav className="mr-auto">
 
       <Nav.Item>
-        <Link to="/vitrine" className="nav-link">
+        <Link to="./" className="nav-link" onClick={_=>{props.setExpanded(false)}}>
           <i className="fa fa-home"/>{' '}<Trans>menu.Accueil</Trans>
         </Link>
       </Nav.Item>
@@ -72,7 +75,7 @@ export function MenuItems(props) {
 function MenuItemSection(props) {
   return (
     <Nav.Item>
-      <Link to={'/vitrine/section/' + props.sectionIdx} className="nav-link">
+      <Link to={'/vitrine/section/' + props.sectionIdx} className="nav-link" onClick={_=>{props.setExpanded(false)}}>
         <ChampMultilingue language={props.language} contenu={props.section.entete} />
       </Link>
     </Nav.Item>
