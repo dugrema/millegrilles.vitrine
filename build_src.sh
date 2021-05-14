@@ -29,11 +29,18 @@ build_react() {
   echo "Build application React (/vitrine)"
 
   mkdir -p $REP_STATIC_GLOBAL
+  rm -rf $REP_STATIC_GLOBAL/vitrine
 
   REP_COMPTES_SRC="$REP_COURANT/client"
   build_app $REP_COMPTES_SRC $REP_STATIC_GLOBAL
 
   cd $REP_STATIC_GLOBAL
+
+  # Compresser tous les fichiers ressources en gzip (et conserver l'original)
+  # rm ${REP_STATIC_GLOBAL}/vitrine/index.js*
+  FICHIERS_GZ=`find $REP_STATIC_GLOBAL/vitrine -type f \( -name "*.js" -o -name "*.css" -o -name "*.map" -o -name "*.json" \)`
+  for FICHIER in ${FICHIERS_GZ[@]}; do gzip -k $FICHIER; done
+
   tar -zcf ../$BUILD_FILE .
 }
 
