@@ -1,4 +1,5 @@
-FROM node:12
+# FROM node:12
+FROM docker.maceroc.com/millegrilles_webappbase:1.42.0
 
 ENV APP_FOLDER=/usr/src/app \
     NODE_ENV=production \
