@@ -1,6 +1,6 @@
 {
   "name": "millegrilles.vitrine",
-  "version": "1.42.0",
+  "version": "1.42.1",
   "description": "Client web pour MilleGrilles",
   "main": "./bin/www.js",
   "scripts": {
