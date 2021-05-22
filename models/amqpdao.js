@@ -26,8 +26,8 @@ async function init() {
 
   var mqConnectionUrl = process.env.MG_MQ_URL
   if( ! mqConnectionUrl ) {
-    var host = process.env.MQ_HOST,
-        port = process.env.MQ_PORT
+    var host = process.env.MG_MQ_HOST || process.env.MQ_HOST,
+        port = process.env.MG_MQ_PORT || process.env.MQ_PORT
     mqConnectionUrl = 'amqps://' + host + ':' + port
   }
 
