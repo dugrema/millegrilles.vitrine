@@ -11,11 +11,11 @@ export HOST=`hostname --fqdn`
 #export HOSTMQ=`hostname -s`
 # export HOSTMQ=mg-dev4.maple.maceroc.com
 # Host pour MQ, doit correspondre au cert (generalement nodename)
-export HOSTMQ=`hostname -s`
-export MG_MQ_URL=amqps://$HOSTMQ:5673
+#export HOSTMQ=`hostname -s`
+#export MG_MQ_URL=amqps://$HOSTMQ:5673
 
-#export MQ_HOST=`hostname -s`
-#export MQ_PORT=5673
+export MQ_HOST=`hostname -s`
+export MQ_PORT=5673
 
 # export COUPDOEIL_SESSION_TIMEOUT=15000
 export MG_MQ_CAFILE=$CERT_FOLDER/pki.millegrille.cert
