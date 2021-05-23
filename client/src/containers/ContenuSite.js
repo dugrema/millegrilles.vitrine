@@ -29,14 +29,16 @@ function Accueil(props) {
   const siteConfiguration = props.siteConfiguration || {}
   const section = siteConfiguration.liste_sections?siteConfiguration.liste_sections[0]:''
 
-  if(section.accueil === true) {
+  return (
+  //if(section.accueil === true) {
     <RenderSection section={section}
                    {...props} />
-  } else {
-    return (
-      <p>Accueil vide</p>
-    )
-  }
+  // } else {
+  //   return (
+  //     <p>Accueil vide</p>
+  //   )
+  // }
+  )
 }
 
 function Section(props) {

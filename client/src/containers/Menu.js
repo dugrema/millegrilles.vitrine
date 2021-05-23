@@ -57,14 +57,14 @@ export function MenuItems(props) {
                               setExpanded={props.setExpanded} />
     })
 
+    // <Nav.Item>
+    //   <Link to="./" className="nav-link" onClick={_=>{props.setExpanded(false)}}>
+    //     <i className="fa fa-home"/>{' '}<Trans>menu.Accueil</Trans>
+    //   </Link>
+    // </Nav.Item>
+
   return (
     <Nav className="mr-auto">
-
-      <Nav.Item>
-        <Link to="./" className="nav-link" onClick={_=>{props.setExpanded(false)}}>
-          <i className="fa fa-home"/>{' '}<Trans>menu.Accueil</Trans>
-        </Link>
-      </Nav.Item>
 
       {mappingSections}
 
