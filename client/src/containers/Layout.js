@@ -12,7 +12,8 @@ export function LayoutMillegrilles(props) {
     <>
       <Entete siteConfiguration={props.siteConfiguration}
               language={props.language}
-              changerPage={props.changerPage} />
+              changerPage={props.changerPage}
+              changerLangue={props.changerLangue} />
 
       <div className="flex-wrapper">
         <div className="contenu">

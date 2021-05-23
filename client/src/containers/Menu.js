@@ -18,8 +18,10 @@ export function Menu(props) {
   var titreSite = titre[language],
       changerLangue = ''
 
-  if(languages.length > 1) {
-    changerLangue = <Nav.Link onClick={props.changerLanguage}>{t('menu.changerLangue')}</Nav.Link>
+  const languesDisponibles = languages.filter(item=>item!==language)
+  if(languesDisponibles.length === 1) {
+    const fctChangerLangue = _ => {props.changerLangue(languesDisponibles[0])}
+    changerLangue = <Nav.Link onClick={fctChangerLangue}>{t('menu.changerLangue')}</Nav.Link>
   }
 
   return (

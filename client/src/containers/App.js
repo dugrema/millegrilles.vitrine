@@ -70,6 +70,13 @@ function VitrineApp(props) {
   // Chargement de socketIo (optionnel)
   useEffect(_=>{connecterSocketio(urlSocketio)}, [urlSocketio])
 
+  const changerLangue = lang => {
+    if(siteConfiguration.languages.includes(lang)) {
+      props.i18n.changeLanguage(language)
+      setLanguage(lang)
+    }
+  }
+
   const workers = {
     resolver: _resolverWorker,
   }
@@ -81,7 +88,8 @@ function VitrineApp(props) {
       <Router>
         <LayoutMillegrilles siteConfiguration={siteConfiguration}
                             language={language}
-                            manifest={manifest}>
+                            manifest={manifest}
+                            changerLangue={changerLangue}>
 
           <ContenuSite siteConfiguration={siteConfiguration}
                        contenuSection={contenuSection}
