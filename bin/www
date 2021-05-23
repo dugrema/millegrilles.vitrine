@@ -19,12 +19,15 @@ async function init() {
   // Initialiser server et routes
   const app = express()
 
+  var socketIoCorsOrigin = process.env.CORS_ORIGIN || '*'
+
   const opts = {
     exchange: '1.public',
     pathApp: '/vitrine',
-    public: true,  // Desactive authentification, socket.io verif headers
+    noPreAuth: true,  // Desactive authentification, socket.io verif headers
+    public: true,  // Desactive evenements prives sur socket.io
     socketIoCORS: {
-      origin: "*",
+      origin: socketIoCorsOrigin,
       methods: ["GET", "POST"]
     },
   }
