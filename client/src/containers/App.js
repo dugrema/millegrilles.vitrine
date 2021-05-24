@@ -104,7 +104,7 @@ function VitrineApp(props) {
 
 function AfficherErreur(props) {
   return (
-    <Alert show={props.err?true:false} variant="danger">
+    <Alert show={props.err?true:false} variant="danger" className='erreur-top'>
       <Alert.Heading>
         Site non disponible / Site unavailable
       </Alert.Heading>
@@ -125,9 +125,11 @@ async function chargerSite(setSiteConfiguration, setErr) {
     // Charger configuration du site associe au domaine
     const urlMapping = MG_INDEX_JSON
     const mapping = await _resolverWorker.chargerMappingSite(urlMapping)
-    console.debug("Mapping site : %O", mapping)
+    console.debug("Mapping site : %O avec location %s", mapping, locationString)
 
-    const matchSites = Object.keys(mapping.sites).filter(item=>{
+    // Trier les sites par ordre naturel decroissant - permet de faire correspondre
+    // les URLs plus specifiques (plus longs) en premier.
+    const matchSites = Object.keys(mapping.sites).sort().reverse().filter(item=>{
       return locationString.startsWith(item)
     })
 
@@ -140,8 +142,17 @@ async function chargerSite(setSiteConfiguration, setErr) {
     }
     console.debug("Site choisi: %O", siteChoisi)
 
-    // Charger la configuraiton - transmise via callback setSiteConfiguration
-    await _resolverWorker.chargerSiteConfiguration(mapping.cdns, siteChoisi, setSiteConfiguration)
+    if(siteChoisi) {
+      // Charger la configuraiton - transmise via callback setSiteConfiguration
+      await _resolverWorker.chargerSiteConfiguration(mapping.cdns, siteChoisi, setSiteConfiguration)
+    } else {
+      console.error("Erreur chargement site, aucun site ne correspond")
+      setErr(`
+        Aucune configuration ne correspond a ${locationString}.
+        
+        No configuration corresponds to ${locationString}.
+        `)
+    }
   } catch(err) {
     console.error("Erreur chargement site : %O", err)
     setErr(''+err)

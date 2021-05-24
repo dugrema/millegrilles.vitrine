@@ -134,3 +134,7 @@ div.table div.table-header {
 .fichier-collection {
   padding-bottom: 2rem;
 }
+
+.erreur-top {
+  padding-top: 4rem;
+}
