@@ -50,12 +50,12 @@ function VitrineApp(props) {
 
   const [siteConfiguration, setSiteConfiguration] = useState('')
   const [urlSocketio, setUrlSocketio] = useState('')
-  const [language, setLanguage] = useState('')
   const [err, setErr] = useState('')
   const [contenuSection, setContenuSection] = useState('')
+  const language = props.i18n.language
 
   _majSiteConfiguration = siteConfigurationRecue => {
-    traiterConfiguration(siteConfigurationRecue, setSiteConfiguration, setLanguage, setUrlSocketio, props.i18n)
+    traiterConfiguration(siteConfigurationRecue, setSiteConfiguration, setUrlSocketio, props.i18n)
   }
   _majSection = evenementSection => {
     traiterSection(evenementSection, contenuSection, setContenuSection)
@@ -64,16 +64,15 @@ function VitrineApp(props) {
   // Chargement au demarrage
   useEffect(_=>{
     _proxySetSiteConfiguration = comlinkProxy(_majSiteConfiguration)
-    chargerSite(_proxySetSiteConfiguration, setLanguage, setErr)
-  }, [props.i18n])
+    chargerSite(_proxySetSiteConfiguration, setErr)
+  }, [])
 
   // Chargement de socketIo (optionnel)
   useEffect(_=>{connecterSocketio(urlSocketio)}, [urlSocketio])
 
   const changerLangue = lang => {
     if(siteConfiguration.languages.includes(lang)) {
-      props.i18n.changeLanguage(language)
-      setLanguage(lang)
+      props.i18n.changeLanguage(lang)
     }
   }
 
@@ -114,7 +113,7 @@ function AfficherErreur(props) {
   )
 }
 
-async function chargerSite(setSiteConfiguration, setLanguage, setErr) {
+async function chargerSite(setSiteConfiguration, setErr) {
   // console.debug("Page location : %O", window.location)
   const locationString = window.location.href
   try {
@@ -166,7 +165,7 @@ async function connecterSocketio(urlSocketio) {
   _connexionWorker.connecter(urlSocketio)
 }
 
-function traiterConfiguration(siteConfigurationRecue, setSiteConfiguration, setLanguage, setUrlSocketio, i18n) {
+function traiterConfiguration(siteConfigurationRecue, setSiteConfiguration, setUrlSocketio, i18n) {
   const estampilleRecue = siteConfigurationRecue['en-tete'].estampille
   // const estampilleCourante = siteConfiguration?siteConfiguration['en-tete'].estampille:0
   if(estampilleRecue > _estampilleCourante) {
@@ -187,8 +186,6 @@ function traiterConfiguration(siteConfigurationRecue, setSiteConfiguration, setL
     }
 
     document.title = siteConfigurationRecue.titre[language]
-    // setSiteConfiguration(siteConfiguration)
-    setLanguage(language)
 
     if(siteConfigurationRecue.listeSocketio && siteConfigurationRecue.listeSocketio[0]) {
       const url = siteConfigurationRecue.listeSocketio[0]

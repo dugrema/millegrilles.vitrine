@@ -15,14 +15,7 @@ export function Menu(props) {
         languages = siteConfiguration.languages || [],
         language = props.language
 
-  var titreSite = titre[language],
-      changerLangue = ''
-
-  const languesDisponibles = languages.filter(item=>item!==language)
-  if(languesDisponibles.length === 1) {
-    const fctChangerLangue = _ => {props.changerLangue(languesDisponibles[0])}
-    changerLangue = <Nav.Link onClick={fctChangerLangue}>{t('menu.changerLangue')}</Nav.Link>
-  }
+  var titreSite = titre[language]
 
   return (
     <Navbar collapseOnSelect expand="md" bg="info" variant="dark" fixed="top" expanded={expanded} onToggle={setExpanded}>
@@ -36,11 +29,25 @@ export function Menu(props) {
                    changerPage={props.changerPage}
                    setExpanded={setExpanded} />
         <Nav className="justify-content-end">
-          {changerLangue}
+          <LanguageNavLinks languages={languages}
+                            {...props} />
         </Nav>
       </Navbar.Collapse>
     </Navbar>
   )
+}
+
+function LanguageNavLinks(props) {
+  const {t, i18n} = useTranslation()
+  var changerLangue = ''
+
+  const languesDisponibles = props.languages.filter(item=>item!==i18n.language)
+  if(languesDisponibles.length === 1) {
+    const fctChangerLangue = _ => {props.changerLangue(languesDisponibles[0])}
+    changerLangue = <Nav.Link onClick={fctChangerLangue}>{t('menu.changerLangue')}</Nav.Link>
+  }
+
+  return changerLangue
 }
 
 export function MenuItems(props) {
