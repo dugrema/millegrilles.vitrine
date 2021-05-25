@@ -21,7 +21,10 @@ export default function SectionAlbum(props) {
   const {contenuSection: contenuSectionEvent, setContenuSection: setContenuSectionEvent} = props
 
   // Reset contenu global sur load et unload de la page
-  useEffect(_=>{setContenuSectionEvent('')}, [])
+  useEffect(_=>{
+    console.debug("!!! Update, contenuSection : %O", contenuSectionEvent)
+    setContenuSectionEvent('')
+  }, [contenuSectionEvent])
 
   useEffect(_=>{
     // On a eu un changement de section, recharger le contenu
@@ -84,13 +87,19 @@ function AfficherListeAlbums(props) {
   const collectionsFichiers = Object.values(props.collectionsFichiers)
   const locationPath = useLocation()
 
-  if(props.section.collections.length === 1) {
+  console.debug("!!! AfficherListeAlbums proppys : %O", props)
+
+  if(props.section.collections && props.section.collections.length === 1) {
     const uuidCollection = props.section.collections[0]
     const pathCollection = locationPath.pathname + '/' + uuidCollection
     return <Redirect to={pathCollection} />
   }
 
-  if(!props.collectionsFichiers) return ''
+  if(!props.collectionsFichiers || !props.section.collections || props.section.collections.length === 0) {
+    return (
+      <p>Aucun album n'est partage.</p>
+    )
+  }
 
   // Trier par nom
   collectionsFichiers.sort((a,b)=>{

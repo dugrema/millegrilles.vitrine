@@ -11,8 +11,16 @@ export default function SectionPage(props) {
   const [contenuSection, setContenuSection] = useState('')
   const {contenuSection: contenuSectionEvent, setContenuSection: setContenuSectionEvent} = props
 
+  var estampille = 0
+  if(contenuSection['en-tete']) {
+    estampille = contenuSection['en-tete'].estampille || 0
+  }
+
   // Reset contenu global sur load pour s'assurer de recharger la page
-  useEffect(_=>{setContenuSectionEvent('')}, [])
+  useEffect(_=>{
+    console.debug("Update sectionId %s, estampille : %s", sectionId, estampille)
+    setContenuSectionEvent('')
+  }, [sectionId, estampille])
 
   useEffect(_=>{
     // On a eu un changement de section, recharger le contenu
