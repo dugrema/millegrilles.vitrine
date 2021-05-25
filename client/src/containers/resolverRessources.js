@@ -340,22 +340,28 @@ async function verifierEtatAccessPoint(cdnId) {
         config = etatCdn.config
 
   const accessPointUrl = config.access_point_url
-  var urlRessource = accessPointUrl + '/data/sites/' + _siteId + '.json'
+  if(accessPointUrl) {
+    var urlRessource = accessPointUrl + '/data/sites/' + _siteId + '.json'
 
-  console.debug("Verification %s", urlRessource)
+    console.debug("Verification %s", urlRessource)
 
-  try {
-    const dateDebut = new Date().getTime()
-    const reponse = await getUrl(urlRessource, {cdn: config, timeout: 3000})
-    await _proxySetSiteConfiguration(reponse.data)  // MAJ config (si plus recente)
-    const tempsReponse = new Date().getTime()-dateDebut
-    etatCdn.etat = ETAT_ACTIF
-    etatCdn.tempsReponse = tempsReponse
-  } catch(err) {
-    etatCdn.etat = ETAT_ERREUR
-    etatCdn.tempsReponse = -1
-    console.error("Erreur access point : %O\n%O", etatCdn, err)
-    throw err
+    try {
+      const dateDebut = new Date().getTime()
+      const reponse = await getUrl(urlRessource, {cdn: config, timeout: 3000})
+      await _proxySetSiteConfiguration(reponse.data)  // MAJ config (si plus recente)
+      const tempsReponse = new Date().getTime()-dateDebut
+      etatCdn.etat = ETAT_ACTIF
+      etatCdn.tempsReponse = tempsReponse
+    } catch(err) {
+      etatCdn.etat = ETAT_ERREUR
+      etatCdn.tempsReponse = -1
+      console.error("Erreur access point : %O\n%O", etatCdn, err)
+      throw err
+    }
+  } else {
+    // CDN n'as pas d'access point, on ne peut pas l'utiliser
+    etatCdn.etat = ETAT_INACTIF
+    throw new Error(`CDN ${cdnId} n'a pas d'access point, il est inactif`)
   }
 
   return etatCdn
