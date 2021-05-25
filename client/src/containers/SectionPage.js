@@ -39,9 +39,6 @@ export default function SectionPage(props) {
 
   return (
     <>
-      <h2>
-        <ChampMultilingue language={props.language} contenu={entete} />
-      </h2>
       <AfficherPartiesPages partiesPages={partiesPages}
                             contenuSection={contenuSection}
                             language={props.language}

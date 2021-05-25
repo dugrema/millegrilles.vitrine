@@ -2,6 +2,8 @@ import React, {useState, useEffect} from 'react'
 import {Row, Col, Button, Card} from 'react-bootstrap'
 
 import {ChampMultilingue} from '../components/ChampMultilingue'
+import { DateTimeAfficher, FileSizeFormatter } from '../components/ReactFormatters'
+import { Trans } from 'react-i18next'
 
 export default function SectionFichiers(props) {
   const section = props.section,
@@ -113,21 +115,21 @@ function AfficherRowFichier(props) {
           <Card className="fichier-browsing-img">
             {urlPreview?
               <Card.Img variant="bottom" src={urlPreview} />
-              :'Fichier'
+              :<Trans>fichiers.fichier</Trans>
             }
           </Card>
         </a>
       </Col>
-      <Col lg={4}>
+      <Col lg={6} className="filename">
         <Button variant="link" href={urlFichier} download={nomFichier}>
           {nomFichier}
         </Button>
       </Col>
       <Col lg={2}>
-        {versionCourante.taille}
+        <FileSizeFormatter nb={versionCourante.taille} />
       </Col>
-      <Col lg={4}>
-        {versionCourante.date_version}
+      <Col lg={2}>
+        <DateTimeAfficher date={versionCourante.date_version} />
       </Col>
     </Row>
   )

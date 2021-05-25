@@ -19,6 +19,9 @@
     },
     "sections": {
       "original": "Original"
+    },
+    "fichiers": {
+      "fichier": "Fichier"
     }
   }
 }

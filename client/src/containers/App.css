@@ -138,3 +138,7 @@ div.table div.table-header {
 .erreur-top {
   padding-top: 4rem;
 }
+
+.filename > a {
+  text-align: left;
+}

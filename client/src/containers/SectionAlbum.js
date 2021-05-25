@@ -6,6 +6,7 @@ import VisibilitySensor from 'react-visibility-sensor'
 
 import {ChampMultilingue} from '../components/ChampMultilingue'
 import {chargerCollections} from './SectionFichiers'
+import { Trans } from 'react-i18next'
 
 export default function SectionAlbum(props) {
   const section = props.section,
@@ -22,14 +23,14 @@ export default function SectionAlbum(props) {
 
   // Reset contenu global sur load et unload de la page
   useEffect(_=>{
-    console.debug("!!! Update, contenuSection : %O", contenuSectionEvent)
+    // console.debug("!!! Update, contenuSection : %O", contenuSectionEvent)
     setContenuSectionEvent('')
   }, [contenuSectionEvent])
 
   useEffect(_=>{
     // On a eu un changement de section, recharger le contenu
     const setContenuSectionCb = contenuSection => {
-      console.debug("Load coollection fichiers %O", contenuSection)
+      // console.debug("Load collection fichiers %O", contenuSection)
       setCollectionsFichiers(contenuSection)
       setContenuSectionEvent(contenuSection)
     }
@@ -86,8 +87,6 @@ function AfficherAlbums(props) {
 function AfficherListeAlbums(props) {
   const collectionsFichiers = Object.values(props.collectionsFichiers)
   const locationPath = useLocation()
-
-  console.debug("!!! AfficherListeAlbums proppys : %O", props)
 
   if(props.section.collections && props.section.collections.length === 1) {
     const uuidCollection = props.section.collections[0]
@@ -158,7 +157,9 @@ function AfficherAlbum(props) {
     var urlRetour = locationPath.pathname.split('/')
     urlRetour.pop()
     urlRetour = urlRetour.join('/')
-    linkRetour = <Link to={urlRetour}>Retour</Link>
+    linkRetour = (
+      <Link to={urlRetour}><Trans>global.retour</Trans></Link>
+    )
   }
 
   const collectionFichiers = Object.values(props.collectionsFichiers).filter(item=>item.uuid === uuidCollection)[0]
@@ -270,7 +271,7 @@ function AfficherMedia(props) {
   return (
     <Card className="card-viewing">
       <Card.Header>
-        <Link to={urlRetour}>Retour</Link>
+        <Link to={urlRetour}><Trans>global.retour</Trans></Link>
       </Card.Header>
       <Viewer fichier={fichier}
               collectionFichiers={collectionFichiers}
