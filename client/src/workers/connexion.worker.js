@@ -22,10 +22,10 @@ function connecter(url) {
     reconnectionDelay: 3000,
     reconnectionDelayMax: 60000,
     timeout: 20000,
-    transport: [
-      // 'polling',
-      'websocket'
-    ],
+    // transport: [
+    //   // 'polling',
+    //   'websocket'
+    // ],
   })
 
   _socket.on('connect', _=>{
