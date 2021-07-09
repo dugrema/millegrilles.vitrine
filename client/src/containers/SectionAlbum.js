@@ -328,50 +328,60 @@ function AfficherVideo(props) {
         video = versionCourante.video,
         resolver = props.resolver
 
-  // Extraire liste de formats video par defaut
-  const resolutionMax = 720
-  const dictFormats = Object.keys(video).reduce((acc, format)=>{
-    const resolution = format[1]
-    const infoVideo = video[format]
-    const codecVideo = infoVideo.codecVideo
-    // console.debug("!!! format video : %O, info: %O, codec: %O", format, infoVideo, codecVideo)
-    var infoFormat = acc[codecVideo]
-    if(infoFormat) {
-      // Plusieurs formats pour le meme mimetype
-      if(infoFormat.resolution < resolution && resolution <= resolutionMax) {
-        // Remplacer un format de resolution inferieur
-        return {...acc, [codecVideo]: infoVideo}
-      }
-    } else {
-      // Valeur initiale pour ce mimetype
-      return {...acc, [codecVideo]: infoVideo}
-    }
-    return acc
-  }, {})
-
-  // console.debug("Dict formats video : %O", dictFormats)
-
-  // Trier les formats en ordre de preference
-  const listeFormats = Object.values(dictFormats).sort((a,b)=>{
-    const codecVideoA = a.codecVideo,
-          codecVideoB = b.codecVideo
-    if(codecVideoA === codecVideoB) return 0
-
-    // Mettre h264 a la fin de la liste
-    if(codecVideoA === 'h264') return 1
-    if(codecVideoB === 'h264') return -1
-
-    // S'assurer d'avoir un trie regulier
-    const mimetypeA = a.mimetype,
-          mimetypeB = b.mimetype
-    return mimetypeA.localeCompare(mimetypeB)
-  })
-
   // console.debug("Liste formats video : %O", listeFormats)
 
   const [urlsVideo, setUrlsVideo] = useState('')
 
   useEffect( _ => {
+    // Extraire liste de formats video par defaut
+    const resolutionMax = 1080
+    const dictFormats = Object.keys(video).reduce((acc, format)=>{
+      const resolution = format[1]
+      const infoVideo = video[format]
+      const codecVideo = infoVideo.codecVideo
+      // console.debug("!!! format video : %O, info: %O, codec: %O", format, infoVideo, codecVideo)
+      var infoFormat = acc[codecVideo]
+      if(infoFormat) {
+        // Plusieurs formats pour le meme mimetype
+        if(infoFormat.resolution < resolution && resolution <= resolutionMax) {
+          // Remplacer un format de resolution inferieur
+          return {...acc, [codecVideo]: infoVideo}
+        }
+      } else {
+        // Valeur initiale pour ce mimetype
+        return {...acc, [codecVideo]: infoVideo}
+      }
+      return acc
+    }, {})
+
+    // console.debug("Dict formats video : %O", dictFormats)
+
+    // Trier les formats en ordre de preference
+    const listeFormats = Object.values(dictFormats).sort((a,b)=>{
+      const codecVideoA = a.codecVideo,
+            codecVideoB = b.codecVideo,
+            mimetypeA = a.mimetype,
+            mimetypeB = b.mimetype,
+            resolutionA = a.resolution,
+            resolutionB = b.resolution
+
+      if(codecVideoA !== codecVideoB) {
+        // Retourner h264 en derniere position (fallback)
+        if(codecVideoA === 'h264') return 1
+        if(codecVideoB === 'h264') return -1
+        return codecVideoA.localeCompare(codecVideoB)  // Trier par string de codec
+      }
+
+      if(mimetypeA !== mimetypeB) {
+        // Retourner mp4 en derniere position (fallback)
+        if(mimetypeA.endsWith('/mp4')) return 1
+        if(mimetypeB.endsWith('/mp4')) return -1
+        return mimetypeA.localeCompare(mimetypeB)  // Trier par string de mimetype
+      }
+
+      return resolutionB - resolutionA  // Mettre plus grande resolution en premier
+    })
+
     const promises = listeFormats.map(item=>{
       return resolver.resolveUrlFuuid(item.fuuid, item)
           .then(val=>{return {...item, url: val}})
@@ -380,7 +390,7 @@ function AfficherVideo(props) {
       // console.debug("URLS : %O", urls)
       setUrlsVideo(urls)
     })
-  }, [resolver, fichier, versionCourante, listeFormats])
+  }, [resolver, fichier, versionCourante])
 
   if(!urlsVideo) return ''
 
