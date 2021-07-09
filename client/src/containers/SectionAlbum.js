@@ -109,7 +109,7 @@ function AfficherListeAlbums(props) {
     return nomA.localeCompare(nomB)
   })
 
-  console.debug("AffichierListeAlbums %O, collectionsFichiers: %O", props, collectionsFichiers)
+  // console.debug("AffichierListeAlbums %O, collectionsFichiers: %O", props, collectionsFichiers)
 
   return (
     <>

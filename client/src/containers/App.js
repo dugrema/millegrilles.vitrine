@@ -184,7 +184,7 @@ async function connecterSocketio(urlSocketio) {
     )
   }
 
-  console.debug("Tenter une connexion a socket.io")
+  // console.debug("Tenter une connexion a socket.io")
   _connexionWorker.connecter(urlSocketio)
 }
 

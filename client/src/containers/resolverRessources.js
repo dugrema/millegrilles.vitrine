@@ -22,7 +22,10 @@ const ETAT_INACTIF = 0,
       ETAT_ACTIF   = 2,
       ETAT_ERREUR  = 3
 
-const LIMITE_ERREURS = 3
+const LIMITE_ERREURS = 3,
+      DUREE_ATTENTE_CDN_INITIALE = 30 * 1000,  // 30 secondes
+      TIMEOUT_REQUETE_URL = 7500,  // Timeout pour chargement ressource
+      DUREE_INTERVALLE_VERIF_CDN = 10 * 60 * 1000  // 10 minutes
 
 export async function appliquerSiteConfiguration(siteConfiguration) {
   // console.debug('!!! resolverRessources.setSiteConfiguration update : %O', siteConfiguration)
@@ -91,11 +94,11 @@ export async function chargerSiteConfiguration(cdns, mappingSite, proxySetSiteCo
 
   if(!_intervalVerificationConnexions) {
     // Demarrer interval entretien connexion ressources
-    _intervalVerificationConnexions = setInterval(verifierConnexionCdns, 300000)
+    _intervalVerificationConnexions = setInterval(verifierConnexionCdns, DUREE_INTERVALLE_VERIF_CDN)
   }
 
   await _cdnCourant
-  console.debug("Site configuration : %O", _siteConfiguration)
+  // console.debug("Site configuration : %O", _siteConfiguration)
   return _siteConfiguration
 }
 
@@ -121,7 +124,7 @@ export async function getUrl(url, opts) {
   const axiosParams = {
     method: 'get',
     url,
-    timeout: opts.timeout || 3000,
+    timeout: opts.timeout || TIMEOUT_REQUETE_URL,
     responseType,
   }
 
@@ -347,7 +350,7 @@ async function verifierEtatAccessPoint(cdnId) {
 
     try {
       const dateDebut = new Date().getTime()
-      const reponse = await getUrl(urlRessource, {cdn: config, timeout: 3000})
+      const reponse = await getUrl(urlRessource, {cdn: config, timeout: DUREE_ATTENTE_CDN_INITIALE})
       await _proxySetSiteConfiguration(reponse.data)  // MAJ config (si plus recente)
       const tempsReponse = new Date().getTime()-dateDebut
       etatCdn.etat = ETAT_ACTIF
