@@ -3,6 +3,7 @@ import {Switch, Route} from 'react-router'
 import { Link, Redirect, useParams, useLocation } from 'react-router-dom'
 import {Row, Col, Card} from 'react-bootstrap'
 import VisibilitySensor from 'react-visibility-sensor'
+import multibase from 'multibase'
 
 import {ChampMultilingue} from '../components/ChampMultilingue'
 import {chargerCollections} from './SectionFichiers'
@@ -133,11 +134,11 @@ function AfficherPosterCollection(props) {
   const nomCollection = props.collection.nom_collection
 
   return (
-    <AfficherPoster key={fichier.fuuid_v_courante}
-                    fichier={fichier}
-                    url={locationFichiers.pathname + '/' + props.collection.uuid}
-                    caption={nomCollection}
-                    {...props} />
+    <AfficherThumbnail key={fichier.fuuid_v_courante}
+                       fichier={fichier}
+                       url={locationFichiers.pathname + '/' + props.collection.uuid}
+                       caption={nomCollection}
+                       {...props} />
   )
 }
 
@@ -179,10 +180,10 @@ function AfficherAlbum(props) {
 
       <Row>
         {fichiersTries.slice(0, nombreAffiches).map(item=>(
-          <AfficherPoster key={item.fuuid_v_courante}
-                          collection={collectionFichiers}
-                          fichier={item}
-                          {...props} />
+          <AfficherThumbnail key={item.fuuid_v_courante}
+                             collection={collectionFichiers}
+                             fichier={item}
+                             {...props} />
         ))}
       </Row>
 
@@ -213,6 +214,52 @@ function AfficherPoster(props) {
       .then(val=>setUrlPreview(val))
     }
   }, [resolver, versionCourante, props.collection])
+
+  // console.debug("URL fichier : %s, preview: %s", urlFichier, urlPreview)
+
+  const url = props.url || (locationFichiers.pathname + '/' + fichier.uuid)
+
+  return (
+    <Link to={url}>
+      <Card className="fichier-browsing-img">
+        {urlPreview?
+          <Card.Img variant="top" src={urlPreview} />
+          :'Fichier'
+        }
+        {props.caption?
+          <Card.Footer>{props.caption}</Card.Footer>
+          :''
+        }
+      </Card>
+    </Link>
+  )
+}
+
+function AfficherThumbnail(props) {
+  const fichier = props.fichier,
+        versionCourante = fichier.version_courante,
+        resolver = props.resolver
+
+  console.debug("!!! Thumbnail proppys : %O", props)
+
+  // const {sectionIdx} = useParams()
+  const locationFichiers = useLocation()
+
+  const collection = props.collection,
+        fuuidsInfos = collection.fuuids || {}
+
+  const [urlPreview, setUrlPreview] = useState('')
+  useEffect( _ => {
+    const images = versionCourante.images || {},
+          thumb = images.thumb
+    if(thumb && thumb.data) {
+      const dataThumb = Buffer.from(String.fromCharCode.apply(null, multibase.decode(thumb.data)), 'binary')
+      console.debug("Data thumbnail : %O", dataThumb)
+      const blobThumb = new Blob([dataThumb.buffer], {type: thumb.mimetype})
+      const objectUrl = URL.createObjectURL(blobThumb)
+      setUrlPreview(objectUrl)
+    }
+  }, [resolver, versionCourante, collection])
 
   // console.debug("URL fichier : %s, preview: %s", urlFichier, urlPreview)
 
