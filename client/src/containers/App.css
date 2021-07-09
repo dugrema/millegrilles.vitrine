@@ -89,23 +89,21 @@ div.table div.table-header {
   padding-bottom: 0.75rem;
 }
 
-.fichier-viewing-img {
-}
-
 .fichier-browsing-img {
   padding: 0.2em;
   margin: 0.3em;
   float: left;
 }
 
-.fichier-browsing-img img {
-  width: 10em;
-  height: 10em;
+A.float-left {
+  float: left;
+  width: 8.5em;
+  height: 8.5em;
 }
 
 .fichier-browsing-img img {
-  width: 9.5em;
-  height: 9.5em;
+  width: 7.5em;
+  height: 7.5em;
   object-fit: cover;
 }
 

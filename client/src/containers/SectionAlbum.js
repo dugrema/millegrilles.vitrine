@@ -240,7 +240,7 @@ function AfficherThumbnail(props) {
         versionCourante = fichier.version_courante,
         resolver = props.resolver
 
-  console.debug("!!! Thumbnail proppys : %O", props)
+  // console.debug("!!! Thumbnail proppys : %O", props)
 
   // const {sectionIdx} = useParams()
   const locationFichiers = useLocation()
@@ -254,10 +254,14 @@ function AfficherThumbnail(props) {
           thumb = images.thumb
     if(thumb && thumb.data) {
       const dataThumb = Buffer.from(String.fromCharCode.apply(null, multibase.decode(thumb.data)), 'binary')
-      console.debug("Data thumbnail : %O", dataThumb)
+      // console.debug("Data thumbnail : %O", dataThumb)
       const blobThumb = new Blob([dataThumb.buffer], {type: thumb.mimetype})
       const objectUrl = URL.createObjectURL(blobThumb)
       setUrlPreview(objectUrl)
+
+      return (_=>{
+        URL.revokeObjectURL(objectUrl)
+      })
     }
   }, [resolver, versionCourante, collection])
 
@@ -266,7 +270,7 @@ function AfficherThumbnail(props) {
   const url = props.url || (locationFichiers.pathname + '/' + fichier.uuid)
 
   return (
-    <Link to={url}>
+    <Link to={url} className="float-left">
       <Card className="fichier-browsing-img">
         {urlPreview?
           <Card.Img variant="top" src={urlPreview} />
