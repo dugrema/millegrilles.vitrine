@@ -286,7 +286,7 @@ function AfficherThumbnail(props) {
 }
 
 function AfficherMedia(props) {
-  console.debug("!!! AfficherMedia proppys %O", props)
+  // console.debug("!!! AfficherMedia proppys %O", props)
   const locationPage = useLocation()
   var {uuidCollection, uuidFichier} = useParams()
   uuidCollection = uuidCollection || props.uuidCollection
@@ -305,7 +305,7 @@ function AfficherMedia(props) {
     return acc
   }, '')
   const versionCourante = fichier.version_courante
-  console.debug("Fichier charge (uuid: %s) : %O\nVersion courante: %O", uuidFichier, fichier, versionCourante)
+  // console.debug("Fichier charge (uuid: %s) : %O\nVersion courante: %O", uuidFichier, fichier, versionCourante)
 
   var mimetypeBase = versionCourante.mimetype
   if(mimetypeBase) {
@@ -342,27 +342,31 @@ function AfficherImage(props) {
   const fuuidsInfo = props.collectionFichiers.fuuids || {}
 
   useEffect( _ => {
-    let images = Object.values(versionCourante.images)
-    const webpSupporte = props.support.webpSupporte
-    images = images.filter(item=>{
-      const estWebp = item.mimetype.endsWith('/webp')
-      if(estWebp && !webpSupporte) return false
-      return !item.data_chiffre  // Retirer thumbnail de la liste
-    })
+    let fuuid, info
+    if(versionCourante.anime) {
+      // Utiliser l'original anime
+      fuuid = versionCourante.fuuid
+      info = versionCourante
+    } else {
+      // Determiner l'image a afficher
+      let images = Object.values(versionCourante.images)
+      const webpSupporte = props.support.webpSupporte
+      images = images.filter(item=>{
+        const estWebp = item.mimetype.endsWith('/webp')
+        if(estWebp && !webpSupporte) return false
+        return !item.data_chiffre  // Retirer thumbnail de la liste
+      })
 
-    // console.debug("!!! Trier images : %O", images)
-    images.sort(sortFormatsImages)
-    const image = images.shift()  // Selectionner premiere image
-    const fuuid = image.hachage
+      // console.debug("!!! Trier images : %O", images)
+      images.sort(sortFormatsImages)
+      const image = images.shift()  // Selectionner premiere image
+      fuuid = image.hachage
+      info = image
+    }
 
-    // console.debug("Chargement image de %O, image %O, fuuid=%s", fichier, image, fuuid)
+    resolver.resolveUrlFuuid(fuuid, info)
+      .then(val => setUrlFichier(val))
 
-    // const fuuid = fichier.fuuid_v_courante
-    // const fuuidInfo = {...fuuidsInfo[fuuid], ...versionCourante}
-    // console.debug("!!! FUUIDS info AfficherImage : %O", fuuidInfo)
-    // resolver.resolveUrlFuuid(fuuid, fuuidInfo)
-    resolver.resolveUrlFuuid(fuuid, image)
-    .then(val => setUrlFichier(val))
   }, [resolver, fichier, versionCourante])
 
   if(!urlFichier) return ''
