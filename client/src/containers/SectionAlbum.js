@@ -50,6 +50,7 @@ export default function SectionAlbum(props) {
       <AfficherAlbums language={props.language}
                       section={section}
                       collectionsFichiers={collectionsFichiers}
+                      support={props.support}
                       resolver={resolver} />
     </>
   )
@@ -234,7 +235,7 @@ function AfficherPoster(props) {
 }
 
 function AfficherMedia(props) {
-  // console.debug("!!! AfficherMedia proppys %O", props)
+  console.debug("!!! AfficherMedia proppys %O", props)
   const locationPage = useLocation()
   var {uuidCollection, uuidFichier} = useParams()
   uuidCollection = uuidCollection || props.uuidCollection
@@ -253,7 +254,7 @@ function AfficherMedia(props) {
     return acc
   }, '')
   const versionCourante = fichier.version_courante
-  // console.debug("Fichier charge (uuid: %s) : %O\nVersion courante: %O", uuidFichier, fichier, versionCourante)
+  console.debug("Fichier charge (uuid: %s) : %O\nVersion courante: %O", uuidFichier, fichier, versionCourante)
 
   var mimetypeBase = versionCourante.mimetype
   if(mimetypeBase) {
@@ -290,10 +291,26 @@ function AfficherImage(props) {
   const fuuidsInfo = props.collectionFichiers.fuuids || {}
 
   useEffect( _ => {
-    const fuuid = fichier.fuuid_v_courante
-    const fuuidInfo = {...fuuidsInfo[fuuid], ...versionCourante}
+    let images = Object.values(versionCourante.images)
+    const webpSupporte = props.support.webpSupporte
+    images = images.filter(item=>{
+      const estWebp = item.mimetype.endsWith('/webp')
+      if(estWebp && !webpSupporte) return false
+      return !item.data_chiffre  // Retirer thumbnail de la liste
+    })
+
+    // console.debug("!!! Trier images : %O", images)
+    images.sort(sortFormatsImages)
+    const image = images.shift()  // Selectionner premiere image
+    const fuuid = image.hachage
+
+    // console.debug("Chargement image de %O, image %O, fuuid=%s", fichier, image, fuuid)
+
+    // const fuuid = fichier.fuuid_v_courante
+    // const fuuidInfo = {...fuuidsInfo[fuuid], ...versionCourante}
     // console.debug("!!! FUUIDS info AfficherImage : %O", fuuidInfo)
-    resolver.resolveUrlFuuid(fuuid, fuuidInfo)
+    // resolver.resolveUrlFuuid(fuuid, fuuidInfo)
+    resolver.resolveUrlFuuid(fuuid, image)
     .then(val => setUrlFichier(val))
   }, [resolver, fichier, versionCourante])
 
@@ -409,4 +426,23 @@ function trierFichiers(a, b) {
         dateB = b.version_courante.date_version
 
   return dateB - dateA
+}
+
+function sortFormatsImages(a,b) {
+  // Trier par resolution. Format webp est privilegie lorsque present
+  const mimetypeA = a.mimetype, mimetypeB = b.mimetype,
+        resolutionA = a.resolution, resolutionB = b.resolution
+
+  if(resolutionA !== resolutionB) {
+    // La plus grande resolution est preferee (decroissant)
+    return resolutionB - resolutionA
+  }
+
+  if(mimetypeA !== mimetypeB) {
+    if(mimetypeA === 'image/webp') return -1
+    if(mimetypeB === 'image/webp') return 1
+    // Les autres mimetypes sont equivalents, fallthrough
+  }
+
+  return 0
 }

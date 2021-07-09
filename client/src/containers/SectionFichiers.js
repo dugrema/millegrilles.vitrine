@@ -162,8 +162,13 @@ export async function chargerCollections(resolver, section, setCollectionsFichie
   section.collections.forEach(async collectionId => {
     // console.debug("Charger collection - data : %O", collectionId)
     const reponse = await resolver.getSection(collectionId, 'fichiers')
-    // console.debug("Resultat getSection : %O", reponse)
-    collectionsFichiers[collectionId] = reponse.data
-    setCollectionsFichiers({...collectionsFichiers})
+    console.debug("Resultat getSection : %O", reponse)
+    const collection = reponse.data
+    if(collection && collection.fichiers && collection.fichiers.length > 0) {
+      collectionsFichiers[collectionId] = reponse.data
+      setCollectionsFichiers({...collectionsFichiers})
+    } else {
+      console.debug("Collection %s vide", collection.nom_collection)
+    }
   })
 }

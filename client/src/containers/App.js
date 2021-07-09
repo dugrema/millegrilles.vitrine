@@ -3,6 +3,7 @@ import { HashRouter as Router } from "react-router-dom"
 import {Alert} from 'react-bootstrap'
 import { proxy as comlinkProxy } from 'comlink'
 import {getResolver, getConnexion} from '../workers/workers.load'
+import {supporteFormatWebp, supporteFormatWebm} from '@dugrema/millegrilles.common/lib/detecterAppareils'
 
 import '../components/i18n'
 import { withTranslation } from 'react-i18next';
@@ -22,6 +23,9 @@ var _resolverWorker = null,
     _estampilleCourante = 0,
     _majSiteConfiguration = null,
     _majSection = null
+
+const _webpSupporte = supporteFormatWebp(),
+      _webmSupporte = supporteFormatWebm()
 
 export default function App(props) {
 
@@ -50,6 +54,8 @@ function VitrineApp(props) {
 
   const [siteConfiguration, setSiteConfiguration] = useState('')
   const [urlSocketio, setUrlSocketio] = useState('')
+  const [webpSupporte, setWebpSupporte] = useState(false)
+  const [webmSupporte, setWebmpSupporte] = useState(false)
   const [err, setErr] = useState('')
   const [contenuSection, setContenuSection] = useState('')
   const language = props.i18n.language
@@ -80,6 +86,11 @@ function VitrineApp(props) {
     resolver: _resolverWorker,
   }
 
+  const support = {
+    webpSupporte: _webpSupporte,
+    webmSupporte: _webmSupporte,
+  }
+
   return (
     <>
       <AfficherErreur err={err} />
@@ -94,7 +105,8 @@ function VitrineApp(props) {
                        contenuSection={contenuSection}
                        setContenuSection={setContenuSection}
                        language={language}
-                       workers={workers} />
+                       workers={workers}
+                       support={support} />
 
         </LayoutMillegrilles>
       </Router>
@@ -149,7 +161,7 @@ async function chargerSite(setSiteConfiguration, setErr) {
       console.error("Erreur chargement site, aucun site ne correspond")
       setErr(`
         Aucune configuration ne correspond a ${locationString}.
-        
+
         No configuration corresponds to ${locationString}.
         `)
     }
